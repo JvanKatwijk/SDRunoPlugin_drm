@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{02F5E67B-FBB3-4CE5-8368-6C1E8E2C6660}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\nana\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>..\nana\build\bin\nana_v141_Release_x86.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;.\libfftw3f-3.lib;libfaad_drm-2.lib; odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ResourceCompile>
+      <ShowProgress>true</ShowProgress>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="SDRunoPlugin_drm.cpp" />
+    <ClCompile Include="SDRunoPlugin_drmForm.cpp" />
+    <ClCompile Include="SDRunoPlugin_drmProject.cpp" />
+    <ClCompile Include="SDRunoPlugin_drmUi.cpp" />
+    <ClCompile Include="drm-shifter.cpp" />
+    <ClCompile Include="drm-bandfilter.cpp" />
+    <ClCompile Include="utilities.cpp" />
+    <ClCompile Include="up-filter.cpp" />
+    <ClCompile Include="decimator-25.cpp" />
+    <ClCompile Include="lowpassfilter.cpp" />
+    <ClCompile Include="basics.cpp" />
+    <ClCompile Include="parameters\state-descriptor.cpp" />
+    <ClCompile Include="parameters\puncture-tables.cpp" />
+    <ClCompile Include="ofdm\reader.cpp" />
+    <ClCompile Include="ofdm\timesync.cpp" />
+    <ClCompile Include="ofdm\shifter.cpp" />
+    <ClCompile Include="ofdm\freqsyncer.cpp" />
+    <ClCompile Include="ofdm\word-collector.cpp" />
+    <ClCompile Include="ofdm\correlator.cpp" />
+    <ClCompile Include="support\checkcrc.cpp" />
+    <ClCompile Include="support\deinterleaver.cpp" />
+    <ClCompile Include="support\mapper.cpp" />
+    <ClCompile Include="support\prbs.cpp" />
+    <ClCompile Include="support\protlevels.cpp" />
+    <ClCompile Include="support\qam16-metrics.cpp" />
+    <ClCompile Include="support\qam4-metrics.cpp" />
+    <ClCompile Include="support\qam64-metrics.cpp" />
+    <ClCompile Include="support\viterbi-drm.cpp" />
+    <ClCompile Include="equalizer\equalizer-base.cpp" />
+    <ClCompile Include="equalizer\equalizer-1.cpp" />
+    <ClCompile Include="equalizer\estimator-1.cpp" />
+    <ClCompile Include="equalizer\referenceframe.cpp" />
+    <ClCompile Include="equalizer\matrix2.cpp" />
+    <ClCompile Include="fac\fac-processor.cpp" />
+    <ClCompile Include="fac\fac-tables.cpp" />
+    <ClCompile Include="sdc\sdc-processor.cpp" />
+    <ClCompile Include="sdc\sdc-streamer.cpp" />
+    <ClCompile Include = "msc\backend-controller.cpp" />
+    <ClCompile Include = "msc\msc-processor.cpp" />
+    <ClCompile Include = "msc\msc-streamer.cpp" />
+    <ClCompile Include = "msc\msc-handler.cpp" />
+    <ClCompile Include = "msc\msc-handler-qam16.cpp" />
+    <ClCompile Include = "msc\msc-handler-qam64.cpp" />
+    <C1Compile Include = "data\data-processor.cpp"/>
+    <ClCompile Include = "data\lowpassfir.cpp" />
+    <ClCompile Include = "data\data-processor.cpp" />
+    <ClCompile Include = "data\aac-processor-faad.cpp" />
+    <ClCompile Include = "data\message-processor.cpp" />
+   
+
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SDRunoPlugin_drm.h" />
+    <ClInclude Include="SDRunoPlugin_drmForm.h" />
+    <ClInclude Include="SDRunoPlugin_drmUi.h" />
+    <ClInclude Include="drm-shifter.h" />
+    <ClInclude Include="drm-bandfilter.h" />
+    <ClInclude Include="utilities.h" />
+    <ClInclude Include="up-filter.h" />
+    <ClInclude Include="decimator-25.h" />
+    <ClInclude Include="decimator.h" />
+    <ClInclude Include="low-assfilter.h" />
+    <ClInclude Include="ringbuffer.h" />
+    <ClInclude Include="basics.h" />
+    <ClInclude Include="fftw3.h" />
+    <ClInclude Include="parameters\state-descriptor.h" />
+    <ClInclude Include="parameters\puncture-tables.h" />
+    <ClInclude Include="ofdm\reader.h" />
+    <ClInclude Include="ofdm\timesync.h" />
+    <ClInclude Include="ofdm\shifter.h" />
+    <ClInclude Include="ofdm\freqsyncer.h" />
+    <ClInclude Include="ofdm\word-collector.h" />
+    <ClInclude Include="ofdm\correlator.h" />
+    <ClInclude Include="support\checkcrc.h" />
+    <ClInclude Include="support\deinterleaver.h" />
+    <ClInclude Include="support\mapper.h" />
+    <ClInclude Include="support\my-array.h" />
+    <ClInclude Include="support\prbs.h" />
+    <ClInclude Include="support\protlevels.h" />
+    <ClInclude Include="support\qam16-metrics.h" />
+    <ClInclude Include="support\qam4-metrics.h" />
+    <ClInclude Include="support\qam64-metrics.h" />
+    <ClInclude Include="support\viterbi-drm.h" />
+    <ClInclude Include="equalizer\equalizer-base.h" />
+    <ClInclude Include="equalizer\equalizer-1.h" />
+    <ClInclude Include="equalizer\estimator-1.h" />
+    <ClInclude Include="equalizer\referenceframe.h" />
+    <ClInclude Include="equalizer\matrix2.h" />
+    <ClInclude Include="fac\fac-processor.h" />
+    <ClInclude Include="fac\fac-tables.h" />
+    <ClInclude Include="sdc\sdc-include.h" />
+    <ClInclude Include="sdc\sdc-processor.h" />
+    <ClInclude Include="sdc\sdc-streamer.h" />
+    <ClInclude Include="msc\backend-controller.h" />
+    <ClInclude Include="msc\msc-processor.h" />
+    <ClInclude Include="msc\msc-streamer.h" />
+    <ClInclude Include="msc\msc-handler.h" />
+    <ClInclude Include="msc\msc-handler-qam16.h" />
+    <ClInclude Include="msc\msc-handler-qam64.h" />
+    <ClInclude Include="data\neaacdec.h" />
+    <C1Include Include="data\data-processor.h" />
+    <ClInclude Include="data\lowpassfir.h" />
+    <ClInclude Include="data\data-processor.h" />
+    <ClInclude Include="data\aac-processor-faad.h" />
+    <ClInclude Include="data\message-processor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SDRunoPlugin_drm.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
