@@ -41,3 +41,29 @@
 	stateDescriptor::~stateDescriptor	(void) {
 }
 
+int	stateDescriptor::getAudioChannel	() {
+//	return audio_channel_1 ? 0 : 1;
+	return 0;
+}
+
+void	stateDescriptor::cleanUp	() {
+	this    -> audio_channel_1              = false;
+        this    -> audio_channel_2              = false;
+        this    -> RMflag       = 0;
+        this    -> sdcMode      = 0;
+        this    -> numofStreams = 0;
+        this    -> set          = false;
+        for (int i = 0; i < 3; i ++)
+           memset (&streams [i], 0, sizeof (streams [0]));
+}
+
+void	stateDescriptor::activate_channel_1	() {
+	audio_channel_1	= true;
+	audio_channel_2	= false;
+}
+
+void	stateDescriptor::activate_channel_2	() {
+	audio_channel_2	= true;
+	audio_channel_1	= false;
+}
+

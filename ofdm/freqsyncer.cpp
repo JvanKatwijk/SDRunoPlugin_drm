@@ -127,6 +127,7 @@ float	occupancyIndicator [6];
 uint8_t	spectrum;
 
 	buffer	-> waitfor (N_symbols * Ts + Ts);
+
 //	first, load spectra for the first N_symbol symbols
 //	into the (circular) buffer "symbolBuffer",
 //	However: do not move the "currentIndex" in the Reader,
@@ -146,7 +147,6 @@ uint8_t	spectrum;
 	int32_t	binNumber = get_zeroBin (0);
 	m -> freqOffset_integer	= binNumber * sampleRate / Tu;
 
-//	fprintf (stderr, "bin 0 = %d\n", binNumber);
 //	binNumber = binNumber < 0 ? binNumber + Tu : binNumber;
 	for (i = 0; i <= 3; i ++) 
 	   occupancyIndicator [i] = get_spectrumOccupancy (i, binNumber);
@@ -154,8 +154,6 @@ uint8_t	spectrum;
 	float tmp1	= 0.0;
 	m	-> Spectrum = 3;
 	for (spectrum = 0; spectrum <= 3; spectrum ++) {	
-//	   fprintf (stderr, "spectrum %d, indicator %f\n",
-//	                     spectrum, occupancyIndicator [spectrum]);
 	   if (occupancyIndicator [spectrum] >= tmp1) {
 	      tmp1 = occupancyIndicator [spectrum];
 	      m -> Spectrum = spectrum;
@@ -246,11 +244,6 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 	                                  conj (symbolBuffer [i][ind1]));
 	      tmp4 += real (symbolBuffer [i][ind2] *
 	                                  conj (symbolBuffer [i][ind2]));
-	
-//	      tmp3 += real (symbolBuffer [i][K_min_indx - 4 - j] *
-//	                    conj (symbolBuffer [i][K_min_indx - 4 - j]));
-//	      tmp4 += real (symbolBuffer [i][K_min_indx + 4 + j] *
-//	                    conj (symbolBuffer [i][K_min_indx + 4 + j]));
 	   }
 //	near the carrier with the highest index
 	   for (j = 0; j < 25; j ++) {
@@ -260,10 +253,6 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 	                                     conj (symbolBuffer [i][ind1]));
 	      tmp6 += real (symbolBuffer [i][ind2] *
 	                                     conj (symbolBuffer [i][ind2]));
-//	      tmp5 += real (symbolBuffer [i][K_max_indx - 4 - j] *
-//	                    conj (symbolBuffer [i][K_max_indx - 4 - j]));
-//	      tmp6 += real (symbolBuffer [i][K_max_indx + 4 + j] *
-//	                    conj (symbolBuffer [i][K_max_indx + 4 + j]));
 	   }
 	}
 
@@ -289,7 +278,8 @@ int16_t	freqSyncer::getWord (std::complex<float> *buffer,
 	                     int32_t		theIndex,
 	                     int16_t		wordNumber,
 	                     float		offsetFractional) {
-std::complex<float> *temp  = (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
+std::complex<float> *temp  =
+	   (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
 int		bufMask	= bufSize - 1;
 std::complex<float> angle	= std::complex<float> (0, 0);
 
@@ -324,9 +314,9 @@ std::complex<float> angle	= std::complex<float> (0, 0);
 	   m_form -> set_timeDelayDisplay	(offsetFractional);
 	}
 
-	if (abs (offset) > 2300) {
-	   fprintf (stderr, "angle = %f %f, offset = %f (sampleRate %d, Tu %d)\n",
-	             arg (angle), theAngle, offset, sampleRate, Tu);
+	if (abs (offset) > 2300) {	// shouldn't happen
+//	   fprintf (stderr, "angle = %f %f, offset = %f (sampleRate %d, Tu %d)\n",
+//	             arg (angle), theAngle, offset, sampleRate, Tu);
 	   offset = offset < 0 ? -23 : 23;
 	}
 	

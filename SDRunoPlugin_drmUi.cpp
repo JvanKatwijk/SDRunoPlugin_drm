@@ -240,3 +240,23 @@ nana::label     *SDRunoPlugin_drmUi::getArea    () {
         return m_form -> getArea ();
 }
 
+void	SDRunoPlugin_drmUi::hide_channel_1	() {
+	std::lock_guard<std::mutex> l (m_lock);
+	if (m_form !=  nullptr)
+	   m_form	-> hide_channel_1 ();
+}
+
+void	SDRunoPlugin_drmUi::hide_channel_2	() {
+	std::lock_guard<std::mutex> l (m_lock);
+	if (m_form !=  nullptr)
+	   m_form	-> hide_channel_2 ();
+}
+
+void	SDRunoPlugin_drmUi::activate_channel_1	() {
+	m_parent. activate_channel_1 ();
+}
+
+void	SDRunoPlugin_drmUi::activate_channel_2	() {
+	m_parent. activate_channel_2 ();
+}
+

@@ -74,9 +74,8 @@ private:
 	int16_t		displayCount;
 	std::complex<float>	*fft_vector;
 	fftwf_plan	hetPlan;
-	float		get_timeOffset		(int, int);
-	int		get_intOffset		(int base,
-                                                 int nrSymbols, int range);
+	float		get_timeOffset		(int, int, int *);
+	int		get_intOffset		(int base, int nrSymbols, int range);
 	double		compute_mmse		(int, int);
 };
 

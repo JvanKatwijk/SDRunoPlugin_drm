@@ -45,7 +45,9 @@ enum	{
 		stateDescriptor	(uint8_t, uint8_t);
 		~stateDescriptor	(void);
 	void		cleanUp		(void);
-
+	int		getAudioChannel		();
+	void		activate_channel_1	();
+	void		activate_channel_2	();
 	bool		audio_channel_1;
 	bool		audio_channel_2;
 	bool		set;

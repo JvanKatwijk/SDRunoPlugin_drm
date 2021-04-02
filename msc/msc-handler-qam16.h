@@ -53,10 +53,6 @@ private:
 	Mapper		*Y13mapper_low;
 	Mapper		*Y21mapper_low;
 	int16_t		N1, N2;
-	uint8_t		*bits_0;
-	uint8_t		*bits_1;
-	metrics		*Y0;
-	metrics		*Y1;
 };
 #endif
 

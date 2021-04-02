@@ -97,6 +97,20 @@ int32_t	highProtected, lowProtected;
 	                  stream_1 -> lowBits () +
 	                  stream_2 -> lowBits ();
 	thePRBS		= new prbs (lowProtected + highProtected);
+	int16_t	highProtectedbits	= stream_0 -> highBits () +
+	                          stream_1 -> highBits () +
+	                          stream_2 -> highBits ();
+	int16_t	lowProtectedbits	= stream_0 -> lowBits () +
+	                          stream_1 -> lowBits () +
+	                          stream_2 -> lowBits ();
+
+	bitsOut. resize (highProtectedbits + lowProtectedbits);
+	bits_0. resize (stream_0 -> highBits () + stream_0 -> lowBits ());
+	bits_1. resize (stream_1 -> highBits () + stream_1 -> lowBits ());
+	bits_2. resize (stream_2 -> highBits () + stream_2 -> lowBits ());
+	Y0. resize (2 * theState -> muxSize);
+	Y1. resize (2 * theState -> muxSize);
+	Y2. resize (2 * theState -> muxSize);
 }
 
 	QAM64_SM_Handler::~QAM64_SM_Handler	(void) {
@@ -133,51 +147,53 @@ int16_t	lowProtectedbits	= stream_0 -> lowBits () +
 	                          stream_1 -> lowBits () +
 	                          stream_2 -> lowBits ();
 
-std::vector<uint8_t>	bitsOut;
-	bitsOut. resize (highProtectedbits + lowProtectedbits);
-std::vector<uint8_t>	bits_0;
-	bits_0. resize (stream_0 -> highBits () + stream_0 -> lowBits ());
-std::vector<uint8_t>	bits_1;
-	bits_1. resize (stream_1 -> highBits () + stream_1 -> lowBits ());
-std::vector<uint8_t>	bits_2;
-	bits_2. resize (stream_2 -> highBits () + stream_2 -> lowBits ());
-std::vector<metrics>	Y0;
-	Y0. resize (2 * theState -> muxSize);
-std::vector<metrics>	Y1;
-	Y1. resize (2 * theState -> muxSize);
-std::vector<metrics>	Y2;
-	Y2. resize (2 * theState -> muxSize);
+//std::vector<uint8_t>	bitsOut;
+//	bitsOut. resize (highProtectedbits + lowProtectedbits);
+//std::vector<uint8_t>	bits_0;
+//	bits_0. resize (stream_0 -> highBits () + stream_0 -> lowBits ());
+//std::vector<uint8_t>	bits_1;
+//	bits_1. resize (stream_1 -> highBits () + stream_1 -> lowBits ());
+//std::vector<uint8_t>	bits_2;
+//	bits_2. resize (stream_2 -> highBits () + stream_2 -> lowBits ());
+//std::vector<metrics>	Y0;
+//	Y0. resize (2 * theState -> muxSize);
+//std::vector<metrics>	Y1;
+//	Y1. resize (2 * theState -> muxSize);
+//std::vector<metrics>	Y2;
+//	Y2. resize (2 * theState -> muxSize);
 int32_t	i;
 //
-std::vector<uint8_t>	level_0;
-	level_0. resize (2 * theState -> muxSize);
-std::vector<uint8_t>	level_1;
-	level_1. resize (2 * theState -> muxSize);
-std::vector<uint8_t>	level_2;
-	level_2. resize (2 * theState -> muxSize);
-
+//std::vector<uint8_t>	level_0;
+//	level_0. resize (2 * theState -> muxSize);
+//std::vector<uint8_t>	level_1;
+//	level_1. resize (2 * theState -> muxSize);
+//std::vector<uint8_t>	level_2;
+//	level_2. resize (2 * theState -> muxSize);
+uint8_t *level_0	= (uint8_t *)_malloca (2 * theState -> muxSize);
+uint8_t *level_1	= (uint8_t *)_malloca (2 * theState -> muxSize);
+uint8_t *level_2	= (uint8_t *)_malloca (2 * theState -> muxSize);
 	for (i = 0; i < qam64Roulette; i ++) {
 	   myDecoder. computemetrics (v, theState -> muxSize,
 	                                   0, Y0. data (),
 	                                   i > 0,
-	                                   level_0. data (),
-	                                   level_1. data (), level_2. data ());
+	                                   level_0,
+	                                   level_1, level_2);
 	   stream_0	-> process (Y0. data (),
-	                            bits_0. data (), level_0. data ());
+	                            bits_0. data (), level_0);
 	   myDecoder. computemetrics (v, theState -> muxSize,
 	                                   1, Y1. data (), 
 	                                   i > 0,
-	                                   level_0. data (),
-	                                   level_1. data (), level_2. data ());
+	                                   level_0,
+	                                   level_1, level_2);
 	   stream_1	-> process (Y1. data (),
-	                            bits_1. data (), level_1. data ());
+	                            bits_1. data (), level_1);
 	   myDecoder. computemetrics (v, theState -> muxSize,
 	                                   2, Y2. data (),
 	                                   true,
-	                                   level_0. data (),
-	                                   level_1. data (), level_2. data ());	
+	                                   level_0,
+	                                   level_1, level_2);	
 	   stream_2	-> process (Y2. data (),
-	                            bits_2. data (), level_2. data ());
+	                            bits_2. data (), level_2);
 	}
 //	now the big move
 	memcpy (&bitsOut [0],

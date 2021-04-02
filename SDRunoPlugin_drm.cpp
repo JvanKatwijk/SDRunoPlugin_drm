@@ -16,7 +16,6 @@
 #include	"drm-bandfilter.h"
 #include	"drm-shifter.h"
 #include	"utilities.h"
-#include	"up-filter.h"
 
 #include	"ofdm\timesync.h"
 #include	"ofdm\freqsyncer.h"
@@ -47,7 +46,7 @@
 	                                localMixer (WORKING_RATE),
 	                                drmAudioBuffer (32768),
 	                                my_Reader (&inputBuffer, 16 * 16384),
-	                                my_backendController (&m_form, 6,
+	                                my_backendController (&m_form, 4,
 	                                                       &drmAudioBuffer),
 	                                theState (1, 3) {
 	m_controller	= &controller;
@@ -78,7 +77,6 @@
 	}
 
 	nSymbols	= 5;
-	audioFilter     = new upFilter (25, WORKING_RATE, drmAudioRate);
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
 
@@ -112,7 +110,6 @@
 	m_controller    -> UnregisterAudioProcessor (0, this);
 	delete m_worker;
 	m_worker = nullptr;
-	delete  audioFilter;
 }
 
 static inline
@@ -167,7 +164,10 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	   drmAudioBuffer. getDataFromBuffer (buffer, length);
 	}
 	else {
-	   for (int i = 0; i < length; i ++) {
+	   int avail	= drmAudioBuffer. GetRingBufferReadAvailable ();
+	   if (avail > 0)
+	      drmAudioBuffer. getDataFromBuffer (buffer, avail);
+	   for (int i = avail; i < length; i ++) {
 	      buffer [2 * i] = 0;
 	      buffer [2 * i + 1] = 0;
 	   }
@@ -205,190 +205,189 @@ int16_t	symbol_no       = 0;
 bool	frameReady;
 int16_t	missers;
 int counter = 0;
+
 	running. store (true);
-restart:
-	try {
-	   if (!running. load ())
-	      throw (21);
-	   counter++;
-	   m_form. set_timeSyncLabel	(false);
-	   m_form. set_facSyncLabel	(false);
-	   m_form. set_sdcSyncLabel	(false);
-	   m_form. set_audioModeLabel	(std::string (""));
-	   m_form. set_messageLabel	("Decoder starts "+ std::to_string (counter));
-	   bool superframer = false;
-	   int threeinaRow = 0;
-	   int  missers		= 0;
-	   my_Reader. waitfor(Ts_of(Mode_A));
+	while (running. load ()) {
+	   try {
+	      if (!running. load ())
+	         throw (21);
+	      counter++;
+	      m_form. set_timeSyncLabel	(false);
+	      m_form. set_facSyncLabel	(false);
+	      m_form. set_sdcSyncLabel	(false);
+	      m_form. set_audioModeLabel	(std::string (""));
+	
+	      theState. cleanUp ();
+	      m_form. hide_channel_1	();
+	      m_form. hide_channel_2	();
+	      bool superframer = false;
+	      int threeinaRow = 0;
+	      int  missers		= 0;
+	      my_Reader. waitfor (Ts_of(Mode_A));
 	  
 //      First step: find mode and starting point
-	   modeInf. Mode = -1;
-	   int teller = 0;
-	   while (running. load () && (modeInf. Mode == -1)) {
-	      my_Reader. shiftBuffer (Ts_of (Mode_A) / 2);
-	      getMode (&my_Reader, &modeInf);
-	   }
+	      modeInf. Mode = -1;
+	      int teller = 0;
+	      while (running. load () && (modeInf. Mode == -1)) {
+	         my_Reader. shiftBuffer (Ts_of (Mode_A) / 2);
+	         getMode (&my_Reader, &modeInf);
+	      }
+		  m_form.set_messageLabel("decoding  " + std::to_string(counter));
+	      if (!running. load ())
+	         throw (20);
 
-	   if (!running. load ())
-	      throw (20);
+	      m_form. set_modeIndicator (modeInf. Mode);
+	      m_form. set_timeOffsetDisplay (modeInf. timeOffset_integer);
+	      m_form. set_smallOffsetDisplay (modeInf. freqOffset_fract);
 
-	   m_form. set_modeIndicator (modeInf. Mode);
-	   m_form. set_timeOffsetDisplay (modeInf. timeOffset_integer);
-	   m_form. set_smallOffsetDisplay (modeInf. freqOffset_fract);
+	      my_Reader. shiftBuffer (modeInf. timeOffset_integer);
+	      frequencySync (&my_Reader, &modeInf);
+	      m_form. set_timeSyncLabel		(true);
+	      m_form. set_modeIndicator		(modeInf. Mode);
+	      m_form. set_spectrumIndicator	(modeInf. Spectrum);
 
-	   my_Reader. shiftBuffer (modeInf. timeOffset_integer);
-	   frequencySync (&my_Reader, &modeInf);
-	   m_form. set_timeSyncLabel		(true);
-	   m_form. set_modeIndicator		(modeInf. Mode);
-	   m_form. set_spectrumIndicator	(modeInf. Spectrum);
+	      theState. Mode	= modeInf. Mode;
+	      theState. Spectrum   = modeInf. Spectrum;
+	      int nrSymbols        = symbolsperFrame (modeInf. Mode);
+	      int nrCarriers       = Kmax (modeInf. Mode, modeInf. Spectrum) -
+	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1;
 
-	   theState. Mode       = modeInf. Mode;
-	   theState. Spectrum   = modeInf. Spectrum;
-	   int nrSymbols        = symbolsperFrame (modeInf. Mode);
-	   int nrCarriers       = Kmax (modeInf. Mode, modeInf. Spectrum) -
-	                          Kmin (modeInf. Mode, modeInf. Spectrum) + 1;
-
-	   myArray<std::complex<float>> inbank (nrSymbols, nrCarriers);
-	   myArray<theSignal> outbank (nrSymbols, nrCarriers);
-	   correlator myCorrelator (&modeInf);
-	   equalizer_1 my_Equalizer (modeInf.Mode,
-	                             modeInf.Spectrum, 1);
-	   std::vector<std::complex<float>> displayVector;
-	   displayVector. resize (Kmax (modeInf. Mode, modeInf. Spectrum) -
-	                          Kmin (modeInf. Mode, modeInf. Spectrum) + 1);
-	   wordCollector my_wordCollector (&m_form,
-	                                   &my_Reader,
-	                                   &modeInf,
-	                                   WORKING_RATE);
-	   facProcessor my_facProcessor (&m_form, &modeInf);
+	      myArray<std::complex<float>> inbank (nrSymbols, nrCarriers);
+	      myArray<theSignal> outbank (nrSymbols, nrCarriers);
+	      correlator myCorrelator (&modeInf);
+	      equalizer_1 my_Equalizer (modeInf.Mode,
+	                                modeInf.Spectrum, 2);
+	      std::vector<std::complex<float>> displayVector;
+	      displayVector. resize (Kmax (modeInf. Mode, modeInf. Spectrum) -
+	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1);
+	      wordCollector my_wordCollector (&m_form,
+	                                      &my_Reader,
+	                                      &modeInf,
+	                                      WORKING_RATE);
+	      facProcessor my_facProcessor (&m_form, &modeInf);
 
 //	   we know that - when starting - we are not "in sync" yet
-	   inSync	= false;
-	   for (int symbol = 0; symbol < nrSymbols; symbol ++) {
-	      my_wordCollector. getWord (inbank. element (symbol),
-	                                 modeInf. freqOffset_integer,
-	                                  modeInf. timeOffset_fractional);
-	      myCorrelator. correlate (inbank. element (symbol), symbol);
-	   }
+	      inSync	= false;
+	      for (int symbol = 0; symbol < nrSymbols; symbol ++) {
+	         my_wordCollector. getWord (inbank. element (symbol),
+	                                    modeInf. freqOffset_integer,
+	                                    modeInf. timeOffset_fractional);
+			 m_form.set_messageLabel("reading a word");
+	         myCorrelator. correlate (inbank. element (symbol), symbol);
+	       }
 
-	   int16_t errors       = 0;
-	   int  lc      = 0;
+	      int16_t errors       = 0;
+	      int  lc      = 0;
 //      We keep on reading here until we are satisfied that the
-//      frame that is in, is indeed a valid, synchronized frame
-
-	   while (running. load ()) {
-	      my_wordCollector. getWord (inbank. element (lc),
-	                                 modeInf. freqOffset_integer,
-	                                 modeInf. timeOffset_fractional);
-	      myCorrelator. correlate (inbank. element (lc), lc);
-	      lc = (lc + 1) % symbolsperFrame (modeInf. Mode);
-	      if (myCorrelator. bestIndex (lc))  {
-	         break;
+//      frame that is in, looks like a decent frame, just by the
+//      correlation on the first word
+	      while (running. load ()) {
+	         my_wordCollector. getWord (inbank. element (lc),
+	                                    modeInf. freqOffset_integer,
+	                                    modeInf. timeOffset_fractional);
+	         myCorrelator. correlate (inbank. element (lc), lc);
+	         lc = (lc + 1) % symbolsperFrame (modeInf. Mode);
+			 m_form.set_messageLabel(" reading word " + std::to_string(lc));
+	         if (myCorrelator. bestIndex (lc))  {
+	            break;
+	         }
 	      }
-	   }
 //
 //      from here on, we know that in the input bank, the frames occupy the
 //      rows "lc" ... "(lc + symbolsinFrame) % symbolsinFrame"
 //      so, once here, we know that the frame starts with index lc,
 //      so let us equalize the last symbolsinFrame words in the buffer
-	   for (symbol_no = 0; symbol_no < nrSymbols; symbol_no ++)
-	      (void) my_Equalizer.
+	      for (symbol_no = 0; symbol_no < nrSymbols; symbol_no ++)
+	         (void) my_Equalizer.
 	            equalize (inbank. element ((lc + symbol_no) % nrSymbols),
 	                      symbol_no,
 	                      &outbank,
 	                      displayVector);
 
-	   lc           = (lc + symbol_no) % symbol_no;
-	   symbol_no    = 0;
-	   frameReady   = false;
+	      lc           = (lc + symbol_no) % symbol_no;
+	      symbol_no    = 0;
+	      frameReady   = false;
 
-	   while (running. load () && !frameReady) {
-	      my_wordCollector.  getWord (inbank. element (lc),
-	                                  modeInf. freqOffset_integer,
-	                                  modeInf. timeOffset_fractional);
-	      frameReady = my_Equalizer.  equalize (inbank. element (lc),
-	                                            symbol_no,
-	                                            &outbank,
-	                                            displayVector);
+	      while (running. load () && !frameReady) {
+	         my_wordCollector.  getWord (inbank. element (lc),
+	                                     modeInf. freqOffset_integer,
+	                                     modeInf. timeOffset_fractional);
+	         frameReady = my_Equalizer.  equalize (inbank. element (lc),
+	                                               symbol_no,
+	                                               &outbank,
+	                                               displayVector);
 
-	      lc = (lc + 1) % nrSymbols;
-	      symbol_no = (symbol_no + 1) % nrSymbols;
-	   }
+	         lc = (lc + 1) % nrSymbols;
+	         symbol_no = (symbol_no + 1) % nrSymbols;
+	      }
 
-//	when we are here, we do have a full "frame".
+//	when we are here, we do have  out first full "frame".
 //	so, we will be convinced that we are OK when we have a decent FAC
-	   inSync = my_facProcessor. 
+	      inSync = my_facProcessor. 
 	                  processFAC  (my_Equalizer. getMeanEnergy (),
 	                               my_Equalizer. getChannels   (),
 	                               &outbank, &theState);
 //	one test:
-	   if (!inSync)
-	      goto restart;
-	   if (modeInf. Spectrum != getSpectrum (&theState))
-	      goto restart;
-
-//	   if ((!inSync) && (++errors > 5))
-//	      goto restart;
+	      if (!inSync)
+	         throw (33);
+	      if (modeInf. Spectrum != getSpectrum (&theState))
+	         throw (34);
 //
 //	prepare for sdc processing
 //	Since computing the position of the sdc Cells depends (a.o)
 //	on FAC and other data cells, we better create the table here.
-	   sdcTable. resize (sdcCells (&modeInf));
-	   set_sdcCells (&modeInf);
-	   sdcProcessor my_sdcProcessor (&m_form, &modeInf,
-	                                 sdcTable, &theState);
+	      sdcTable. resize (sdcCells (&modeInf));
+	      set_sdcCells (&modeInf);
+	      sdcProcessor my_sdcProcessor (&m_form, &modeInf,
+	                                    sdcTable, &theState);
 
-	   bool	firstTime	= true;
-	   float	offsetFractional	= 0;	//
-	   int16_t	offsetInteger		= 0;
-	   float	deltaFreqOffset		= 0;
-	   float	sampleclockOffset	= 0;
-	   m_form. set_facSyncLabel	(true);
+	      bool	firstTime	= true;
+	      float	offsetFractional	= 0;	//
+	      int16_t	offsetInteger		= 0;
+	      float	deltaFreqOffset		= 0;
+	      float	sampleclockOffset	= 0;
+	      m_form. set_facSyncLabel	(true);
 
-	   while (true) {
+	      while (true) {
 //	when we are here, we can start thinking about  SDC's and superframes
 //	The first frame of a superframe has an SDC part
-	      if (isFirstFrame (&theState)) {
-	         bool sdcOK = my_sdcProcessor. processSDC (&outbank);
-	         m_form. set_sdcSyncLabel (sdcOK);
-	         if (sdcOK) {
-	            threeinaRow ++;
-	         }
-//	         show_services (getnrAudio (&theState),
-//	                        getnrData (&theState));
-	         blockCount	= 0;
+	         if (isFirstFrame (&theState)) {
+	            bool sdcOK = my_sdcProcessor. processSDC (&outbank);
+	            m_form. set_sdcSyncLabel (sdcOK);
+	            if (sdcOK) {
+	               threeinaRow ++;
+	            }
+	            blockCount	= 0;
 //
 //	if we seem to have the start of a superframe, we
 //	re-create a backend with the right parameters
-	         if (!superframer && sdcOK)
-	            my_backendController. reset (&theState);
+	            if (!superframer && sdcOK)
+	               my_backendController. reset (&theState);
 //	we allow one sdc to fail, but only after having at least
 //	three frames correct
-	         superframer	= sdcOK || threeinaRow >= 3;
-	         if (!sdcOK)
-	            threeinaRow	= 0;
-	      }
+	            superframer	= sdcOK || threeinaRow >= 3;
+	            if (!sdcOK)
+	               threeinaRow	= 0;
+	         }
 //
 //	when here, add the current frame to the superframe.
 //	Obviously, we cannot garantee that all data is in order
-	      if (superframer)
-	         addtoSuperFrame (&modeInf, blockCount ++, &outbank);
+	         if (superframer)
+	            addtoSuperFrame (&modeInf, blockCount ++, &outbank);
 
 //	when we are here, it is time to build the next frame
-	      frameReady	= false;
-	      for (int i = 0;
-	           !frameReady && (i < nrSymbols); i ++) {
-	         my_wordCollector.
-	              getWord (inbank. element ((lc + i) % nrSymbols),
-	                       modeInf. freqOffset_integer,	// initial value
-	                       firstTime,
-	                       modeInf. timeOffset_fractional,
-	                       deltaFreqOffset,		// tracking value
-	                       sampleclockOffset	// tracking value
+	         frameReady	= false;
+	         for (int i = 0; !frameReady && (i < nrSymbols); i ++) {
+	            my_wordCollector.
+	               getWord (inbank. element ((lc + i) % nrSymbols),
+	                        modeInf. freqOffset_integer,	// initial value
+	                        firstTime,
+	                        modeInf. timeOffset_fractional,
+	                        deltaFreqOffset,	// tracking value
+	                        sampleclockOffset	// tracking value
 	                      );
-	         firstTime = false;
-
-	         frameReady =
+	            firstTime = false;
+	            frameReady =
 	                  my_Equalizer.
 	                         equalize (inbank. element ((lc + i) % nrSymbols),
 	                                   (symbol_no + i) % nrSymbols,
@@ -397,29 +396,30 @@ restart:
 	                                   &deltaFreqOffset,
 	                                   &sampleclockOffset,
 	                                   displayVector);
-	      }
+	         }
 		 
 //	OK, let us check the FAC
-	      bool success  = my_facProcessor.
+	         bool success  = my_facProcessor.
 	                          processFAC (my_Equalizer. getMeanEnergy (),
 	                                      my_Equalizer. getChannels   (),
 	                                      &outbank, &theState);
-	      if (success) {
-	         m_form. set_facSyncLabel	(true);
-	         missers = 0;
-	      }
-	      else {
-	         m_form. set_facSyncLabel	(false);
-	         m_form. set_sdcSyncLabel	(false);
-	         superframer		= false;
-	         if (missers++ < 3)
-	            continue;
-	         goto restart;	// ... or give up and start all over
-	      }
-	   }	// end of main loop
-	} catch (int e) {
-	   m_form. set_messageLabel ("going down");
-	   Sleep(1000);
+	         if (success) {
+	            m_form. set_facSyncLabel	(true);
+	            missers = 0;
+	         }
+	         else {
+	            m_form. set_facSyncLabel	(false);
+	            m_form. set_sdcSyncLabel	(false);
+	            superframer		= false;
+	            if (missers++ < 3)
+	               continue;
+	            throw (35);;	// ... or give up and start all over
+	         }
+	      }	// end of main loop
+	   } catch (int e) {
+	   if (!running. load ())
+	      return;
+	   }
 	}
 }
 
@@ -644,3 +644,12 @@ int factor	= eqVector. size () / nrColumns;
 //	eqPicture -> update ();
 }
 
+void	SDRunoPlugin_drm::activate_channel_1	() {
+	theState. activate_channel_1 ();
+}
+
+void	SDRunoPlugin_drm::activate_channel_2	() {
+	theState. activate_channel_2 ();
+}
+
+	

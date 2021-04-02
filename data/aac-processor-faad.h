@@ -26,7 +26,7 @@
 
 #include	<cstring>
 #include	"neaacdec.h"
-#include	"lowpassfir.h"
+#include	"up-filter.h"
 #include	"..\ringbuffer.h"
 
 class	stateDescriptor;
@@ -44,14 +44,14 @@ private:
 	stateDescriptor	*theState;
 	SDRunoPlugin_drmUi	*m_form;
 	RingBuffer<std::complex<float>> *audioOut;
-	lowpassFIR	upFilter_24000;
-	lowpassFIR	upFilter_12000;
+	upFilter	upFilter_24000;
+	upFilter	upFilter_12000;
 	int16_t		numFrames;
 	void	handle_uep_audio	(uint8_t *, int16_t,
 	                         int16_t, int16_t, int16_t, int16_t);
 	void	handle_eep_audio	(uint8_t *, int16_t, int16_t, int16_t);
 	void    writeOut        (int16_t *, int16_t, int32_t);
-        void    toOutput	(float *, int16_t);
+        void    toOutput	(std::complex<float> *, int16_t);
         void    playOut         (int16_t);
 	bool    checkfor        (uint8_t, bool, uint8_t);
         bool    initDecoder     (int16_t, bool, uint8_t);
@@ -65,6 +65,8 @@ private:
         bool            SBR_flag;
         uint8_t         audioMode;
         int16_t         audioRate;
+	int		goodFrames;
+	int		badFrames;
 };
 
 #endif

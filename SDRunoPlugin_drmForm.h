@@ -61,6 +61,11 @@ public:
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
 	nana::label *	getArea ();
+
+	void	hide_channel_1		();
+	void	hide_channel_2		();
+	void	activate_channel_1	();
+	void	activate_channel_2	();
 private:
 
 	void Setup();
@@ -95,7 +100,7 @@ private:
 	                          {*this, nana::rectangle (100, 30, 60, 20)};
 	nana::label	countryLabel 
 	                          {*this, nana::rectangle (170, 30, 60, 20)};
-	nana::label	channel_1
+	nana::button	channel_1
 	                          {*this, nana::rectangle (240, 30, 100, 20)};
 	nana::label	label_1
 	                          {*this, nana::rectangle (350, 30, 60, 20)};
@@ -109,7 +114,7 @@ private:
 	                          {*this, nana::rectangle (100, 60, 60, 20)};
 	nana::label	timeLabel
 	                          {*this, nana::rectangle (170, 60, 60, 20)};
-	nana::label	channel_2
+	nana::button	channel_2
 	                          {*this, nana::rectangle (240, 60, 100, 20)};
 	nana::label	label_2
 	                          {*this, nana::rectangle (350, 60, 60, 20)};

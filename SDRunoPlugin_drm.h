@@ -15,7 +15,6 @@
 #include	"SDRunoPlugin_drmUi.h"
 
 //      for the payload we have
-class           upFilter;
 #include	"ringbuffer.h"
 #include	"drm-shifter.h"
 #include	"decimator-25.h"
@@ -59,7 +58,8 @@ public:
         void    AudioProcessorProcess (channel_t channel,
                                        float *buffer,
                                        int length, bool& modified) override;
-
+	void	activate_channel_1	();
+	void	activate_channel_2	();
 private:
 	std::mutex		m_lock;
 	SDRunoPlugin_drmUi      m_form;
@@ -82,7 +82,6 @@ private:
 	                                                 smodeInfo *m);
 
 
-        upFilter        *audioFilter;
         std::vector<std::complex<float>> convBuffer;
         int              convIndex;
         int16_t          mapTable_int   [WORKING_RATE / 100];

@@ -29,6 +29,7 @@
 #include	"word-collector.h"
 #include	"reader.h"
 
+#define	NR_SYMBOLS 16
 //	The wordCollector will handle segments of a given size,
 //	do all kinds of frequency correction (timecorrection
 //	was done in the syncer) and map them onto ofdm words.
@@ -40,6 +41,8 @@ std::complex<float> cmul (std::complex<float> x, float y) {
 	return std::complex<float> (real (x) * y, imag (x) * y);
 }
 
+#define	nrSymbols	16
+#define	EPSILON		1.0E-10
 //	The frequency shifter is in steps of 0.01 Hz
 	wordCollector::wordCollector (SDRunoPlugin_drmUi *m_form,
 	                              Reader	*b,
@@ -83,24 +86,24 @@ void	wordCollector::getWord (std::complex<float>	*out,
 std::complex<float> *temp  =
 	  (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
 std::complex<float>	angle	= std::complex<float> (0, 0);
-float		offset	= 0;
-float	timeOffsetFractional;
+int	f	= buffer -> currentIndex;
+int	xxx;
+float	timeOffset;
 
 	buffer		-> waitfor (Ts + Ts / 2);
-	float timedelay	= get_timeOffset (16, 6);
-//	float timedelay	= offsetFractional;
-	int d		= floor (timedelay + 0.5);
-	timeOffsetFractional	= timedelay - d;
+	timeOffset	= get_timeOffset (NR_SYMBOLS, 6, &xxx);
+	while (timeOffset < 0) {
+	   f --;
+	   timeOffset += 1;
+	}
+	f		+= floor (timeOffset);
+	timeOffset	-= floor (timeOffset);
 
-	int f = (int)(floor (buffer -> currentIndex + d)) & bufMask;
 //	correction of the time offset by interpolation
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<float> one = buffer -> data [(f + i) & bufMask];
 	   std::complex<float> two = buffer -> data [(f + i + 1) & bufMask];
-	   temp [i] = cmul (one, 1 - timeOffsetFractional) +
-	                            cmul (two, timeOffsetFractional);
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	                            cmul (two, offsetFractional);
+	   temp [i] = cmul (one, 1 - timeOffset) + cmul (two, timeOffset);
 	}
 
 //	And we shift the bufferpointer here
@@ -113,7 +116,7 @@ float	timeOffsetFractional;
 	theAngle	= 0.9 * theAngle + 0.1 * arg (angle);
 //
 //	offset  (and shift) in Hz / 100
-	offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	float offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (offset != -offset)	// precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                            100 * modeInf -> freqOffset_integer - offset);
@@ -131,6 +134,7 @@ float	timeOffsetFractional;
 //
 //	The getWord as below is used in the main loop, to obtain
 //	a next ofdm word
+//
 void	wordCollector::getWord (std::complex<float>	*out,
 	                        int32_t		initialFreq,
 	                        bool		firstTime,
@@ -139,27 +143,39 @@ void	wordCollector::getWord (std::complex<float>	*out,
 	                        float		clockOffset) {
 std::complex<float>* temp =
 	(std::complex<float> *)_malloca  (Ts * sizeof (std::complex<float>));
+int	f			= buffer -> currentIndex;
+int	xxx;
+float	timeOffset;
 
 	buffer		-> waitfor (Ts + Ts / 2);
+	timeOffset	= get_timeOffset (NR_SYMBOLS, 8, &xxx);
+	while (timeOffset < 0) {
+           f -= 1;
+	   timeOffset += 1;
+        }
 
-	float tt		= get_timeOffset (24, 8);
-	int timeOffsetInteger	= floor (tt + 0.5);
-	offsetFractional	= tt - timeOffsetInteger;
-	int f	= (int)(floor (buffer -> currentIndex + 
-	                              timeOffsetInteger)) & bufMask;
+	f		+= floor (timeOffset);
+	timeOffset	-= floor (timeOffset);
+
 //	just linear interpolation
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<float> one = buffer -> data [(f + i) & bufMask];
 	   std::complex<float> two = buffer -> data [(f + i + 1) & bufMask];
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	              cmul (two, offsetFractional);
+	   temp [i] = cmul (one, 1 - timeOffset) + cmul (two, timeOffset);
 	}
 
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & bufMask;
 
+	std::complex<float> faseError = std::complex<float> (0, 0);
+//      Now: determine the fine grain offset.
+        for (int i = 0; i < Tg; i ++)
+           faseError += conj (temp [Tu + i]) * temp [i];
+//      simple averaging
+        theAngle        = 0.9 * theAngle + 0.1 * arg (faseError);
+
 //	correct the phase
-	theAngle	= theAngle - 0.1 * angle;
+//	theAngle	= theAngle - 0.1 * angle;
 //	offset in 0.01 * Hz
 	float offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (offset != -offset) { // precaution to handle undefines
@@ -182,7 +198,7 @@ std::complex<float>* temp =
 	   m_form -> set_smallOffsetDisplay	(- offset / 100);
 	   m_form -> set_angleDisplay		(angle);
 	   m_form -> set_timeOffsetDisplay	(offsetFractional);
-	   m_form -> set_timeDelayDisplay		(timeOffsetInteger);
+//	   m_form -> set_timeDelayDisplay		(timeOffsetInteger);
 	   m_form -> set_clockOffsetDisplay	(Ts * clockOffset);
 	}
 
@@ -209,19 +225,21 @@ void	wordCollector::fft_and_extract (std::complex<float> *in,
 	           (K_max - K_min + 1) * sizeof (std::complex<float>));
 }
 
-float	wordCollector::get_timeOffset	(int nrSymbols, int range) {
-int	*b = (int *)_malloca (nrSymbols * sizeof (int));
+float	wordCollector::get_timeOffset	(int nSymbols,
+	                                 int range, int *offs) {
+int	*b = (int *)_malloca (nSymbols * sizeof (int));
 
-	buffer -> waitfor (2 * nrSymbols * Ts + Ts);
+	buffer -> waitfor (2 * nSymbols * Ts + Ts);
+	*offs	= get_intOffset (0, nSymbols, range);
 	for (int i = 0; i < nrSymbols; i ++)
-	   b [i] = get_intOffset (i * Ts, nrSymbols, range);
+	   b [i] = get_intOffset (i * Ts, nSymbols, range);
 
 	float   sumx    = 0.0;
         float   sumy    = 0.0;
         float   sumxx   = 0.0;
         float   sumxy   = 0.0;
 
-        for (int i = 0; i < nrSymbols; i++) {
+        for (int i = 0; i < nSymbols; i++) {
            sumx += (float) i;
            sumy += (float) b [i];
            sumxx += (float) i * (float) i;
@@ -230,19 +248,19 @@ int	*b = (int *)_malloca (nrSymbols * sizeof (int));
 
         float boffs;
         boffs = (float) ((sumy * sumxx - sumx * sumxy) /
-                         ((nrSymbols - 1) * sumxx - sumx * sumx));
+                         ((nSymbols - 1) * sumxx - sumx * sumx));
 
 	return boffs;
 }
 
 int	wordCollector::get_intOffset	(int base,
-	                                 int nrSymbols, int range) {
+	                                 int nSymbols, int range) {
 int	bestIndex = -1;
 double	min_mmse = 10E20;
 
 	for (int i = - range / 2; i < range / 2; i ++) {
 	   int index = buffer -> currentIndex + base + i;
-	   double mmse = compute_mmse (index, nrSymbols);
+	   double mmse = compute_mmse (index, nSymbols);
 	   if (mmse < min_mmse) {
 	      min_mmse = mmse;
 	      bestIndex = i;
@@ -252,13 +270,13 @@ double	min_mmse = 10E20;
 	return bestIndex;
 }
 
-double	wordCollector::compute_mmse (int starter, int nrSymbols) {
+double	wordCollector::compute_mmse (int starter, int nSymbols) {
 std::complex<float> gamma = std::complex<float> (0, 0);
 double	squares = 0;
 int32_t		bufMask	= buffer -> bufSize - 1;
 
-	buffer -> waitfor (nrSymbols * Ts + Ts);
-	for (int i = 0; i < nrSymbols; i ++) {
+	buffer -> waitfor (nSymbols * Ts + Ts);
+	for (int i = 0; i < nSymbols; i ++) {
 	   int startSample = starter + i * Ts;
 	   for (int j = 0; j < Tg; j ++) {
 	      std::complex<float> f1 =

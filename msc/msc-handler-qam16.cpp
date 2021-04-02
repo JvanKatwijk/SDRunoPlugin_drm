@@ -99,12 +99,6 @@ float	denom;
 	stream_1	= new MSC_streamer (theState, 1, N1,
 	                                    Y21mapper_high, Y21mapper_low,
 	                                    m_form);
-	bits_0		= new uint8_t [stream_0 -> highBits () +
-	                               stream_0 -> lowBits ()];
-	bits_1		= new uint8_t [stream_1 -> highBits () +
-	                               stream_1 -> lowBits ()];
-	Y0		= new metrics [2 * theState -> muxSize];
-	Y1		= new metrics [2 * theState -> muxSize];
 	thePRBS		= new prbs (stream_0 -> highBits () +
 	                            stream_1 -> highBits () +
 	                            stream_0 -> lowBits  () +
@@ -119,32 +113,45 @@ float	denom;
 	delete	Y13mapper_low;
 	delete	Y21mapper_low;
 	delete	thePRBS;
-	delete	bits_0;
-	delete	bits_1;
-	delete	Y0;
-	delete	Y1;
 }
 
 void	QAM16_SM_Handler::process	(theSignal *v, uint8_t *o) {
-uint8_t *bitsOut = (uint8_t *)_malloca (stream_0 -> highBits () +
-                                        stream_1 -> highBits () +
-	                                stream_0 -> lowBits () +
-                                        stream_1 -> lowBits ());
-uint8_t *level_0 = (uint8_t *)_malloca (2 * theState -> muxSize);
-uint8_t *level_1 = (uint8_t *)_malloca (2 * theState -> muxSize);
+int16_t	highProtectedbits	= stream_0 -> highBits () +
+	                          stream_1 -> highBits ();
+int16_t	lowProtectedbits	= stream_0 -> lowBits () +
+	                          stream_1 -> lowBits ();
+std::vector<uint8_t>	bitsOut;
+std::vector<uint8_t>	bits_0;
+std::vector<uint8_t>	bits_1;
 
-// m_form->set_messageLabel("qam16 process fase 0 " + std::to_string(theState->muxSize)); 
+std::vector<metrics> Y0;
+std::vector<metrics> Y1;
+std::vector<uint8_t> level_0;
+std::vector<uint8_t> level_1;
+	bitsOut. resize (highProtectedbits + lowProtectedbits);
+	bits_0. resize (stream_0 -> highBits () + stream_0 -> lowBits ());
+	bits_1. resize (stream_1 -> highBits () + stream_1 -> lowBits ());
+	Y0. resize (2 * theState -> muxSize);
+	Y1. resize (2 * theState -> muxSize);
+	level_0. resize (2 * theState -> muxSize);
+	level_1. resize (2 * theState -> muxSize);
+
+	for (int i = 0; i < 4; i ++) {
 //	First the "normal" decoding. leading to two bit rows
-	myDecoder. computemetrics (v, theState -> muxSize, 0, Y0,
-	                                   false, level_0, level_1);
-	stream_0	-> process	(Y0, bits_0, level_0);
-//	m_form->set_messageLabel("back from streamer");
-	
-	myDecoder. computemetrics (v, theState -> muxSize, 1, Y1,
-	                                   false, level_0, level_1);
-	stream_1	-> process	(Y1, bits_1, level_1); 
-//
-//	m_form -> set_messageLabel ("sm16 process fase 1");
+	   myDecoder. computemetrics (v, theState -> muxSize, 0, Y0. data (),
+//	                              false,
+	                              i != 0,
+	                              level_0. data (), level_1. data ());
+	   stream_0	-> process	(Y0. data (),
+	                                 bits_0. data (), level_0. data ());
+	   myDecoder. computemetrics (v, theState -> muxSize, 1, Y1. data (),
+//	                              false,
+	                              true,
+	                              level_0. data (), level_1. data ());
+	   stream_1	-> process	(Y1. data (),
+	                                 bits_1. data (), level_1. data ()); 
+	}
+
 	memcpy (&bitsOut [0],
 	        &bits_0 [0],
 	        stream_0 -> highBits ());
@@ -164,6 +171,6 @@ uint8_t *level_1 = (uint8_t *)_malloca (2 * theState -> muxSize);
 //	apply PRBS
 //	m_form -> set_messageLabel ("sm16 process fase 2");
 	thePRBS -> doPRBS (&bitsOut [0]);
-	memcpy (o, bitsOut, (lengthA + lengthB) * BITSPERBYTE);
+	memcpy (o, bitsOut.data (), (lengthA + lengthB) * BITSPERBYTE);
 }
 

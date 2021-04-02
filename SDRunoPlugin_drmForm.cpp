@@ -131,6 +131,7 @@ void	SDRunoPlugin_drmForm::Setup () {
 	bmInfo_min.bmiHeader.biCompression = BI_RGB;
 	bmInfo_min_over.bmiHeader.biCompression = BI_RGB;
 	bmInfo_bar.bmiHeader.biCompression = BI_RGB;
+	bmInfo_sett.bmiHeader.biCompression = BI_RGB;
 	bmInfo_sett_over.bmiHeader.biCompression = BI_RGB;
 	borderHeader.bfOffBits = rawDataOffset;
 	borderHeader.bfSize = bmInfo_border.bmiHeader.biSizeImage;
@@ -293,6 +294,9 @@ void	SDRunoPlugin_drmForm::Setup () {
 	label_4. fgcolor (nana::colors::white);
 	label_4. caption ("AAC sync");
 
+	channel_1. events (). click ([&](){activate_channel_1 ();});
+	channel_2. events (). click ([&](){activate_channel_2 ();});
+
 	timeDelayDisplay. tooltip ("estimate of time delay");
 	intOffsetDisplay. tooltip ("estimate of integer frequency offset");
 	timeSyncLabel. tooltip ("time synchronized if green");
@@ -332,12 +336,28 @@ void	SDRunoPlugin_drmForm::set_countryLabel (const std::string s) {
 	countryLabel. caption (s);
 }
 
+void	SDRunoPlugin_drmForm::hide_channel_1 () {
+	channel_1. caption ("");
+}
+
 void	SDRunoPlugin_drmForm::set_channel_1 (const std::string s) {
 	channel_1. caption (s);
 }
 
+void	SDRunoPlugin_drmForm::activate_channel_1 () {
+	m_parent, activate_channel_1 ();
+}
+
+void	SDRunoPlugin_drmForm::hide_channel_2	() {
+	channel_2. caption ("");
+}
+
 void	SDRunoPlugin_drmForm::set_channel_2 (const std::string s) {
 	channel_2. caption (s);
+}
+
+void	SDRunoPlugin_drmForm::activate_channel_2 () {
+	m_parent, activate_channel_2 ();
 }
 
 void	SDRunoPlugin_drmForm::set_channel_3 (const std::string s) {

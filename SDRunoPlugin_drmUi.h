@@ -54,6 +54,11 @@ public:
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
 	nana::label	*getArea	();
+
+	void	hide_channel_1		();
+	void	hide_channel_2		();
+	void	activate_channel_1	();
+	void	activate_channel_2	();
 private:
 	
 	SDRunoPlugin_drm & m_parent;

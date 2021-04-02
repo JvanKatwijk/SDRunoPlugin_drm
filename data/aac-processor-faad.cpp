@@ -24,6 +24,7 @@
 #include	<stdio.h>
 #include	<float.h>
 #include	<vector>
+#include	<windows.h>
 #include	<math.h>
 #include	"aac-processor-faad.h"
 #include	"..\basics.h"
@@ -41,12 +42,11 @@ uint16_t	res	= 0;
 	return res;
 }
 
-	aacProcessor_faad::aacProcessor_faad	(
-	                                 stateDescriptor *theState,
-		                         SDRunoPlugin_drmUi *m_form,
-	                                 RingBuffer<std::complex<float>> *out):
-	                                      upFilter_24000 (5, 12000, 48000),
-	                                      upFilter_12000 (5, 6000, 48000) {
+	aacProcessor_faad::aacProcessor_faad	(stateDescriptor *theState,
+		                                     SDRunoPlugin_drmUi *m_form,
+	                                         RingBuffer<std::complex<float>> *out):
+	                                      upFilter_24000 (5, 24000, 48000),
+	                                      upFilter_12000 (5, 12000, 48000) {
 	
 	this	-> theState		= theState;
 	this	-> m_form		= m_form;
@@ -57,6 +57,9 @@ uint16_t	res	= 0;
 	SBR_flag        = false;
 	audioMode       = 0x77;
         audioRate       = 0x77;
+
+	goodFrames	= 0;
+	badFrames	= 0;
 }
 
 	aacProcessor_faad::~aacProcessor_faad	() {
@@ -247,70 +250,70 @@ uint8_t	xxx			= 0;
 	                                 &cnt, &rate);
 	   if (convOK) {
 	      m_form -> set_faadSyncLabel (true);
+	      goodFrames ++;
 	      writeOut (outBuffer, cnt, rate);
 	   }
 	   else
 	      m_form -> set_faadSyncLabel (false);
+	     badFrames ++;
+	}
+
+	if (goodFrames + badFrames >= 200) {
+	   float ratio = goodFrames * 100.0 / (goodFrames + badFrames);
+	   m_form -> set_channel_4 (std::to_string (ratio));
+	   goodFrames	= 0;
+	   badFrames	= 0;
 	}
 }
 //
-void	aacProcessor_faad::toOutput (float *b, int16_t cnt) {
+void	aacProcessor_faad::toOutput (std::complex<float> *b, int16_t cnt) {
 int16_t	i;
 	if (cnt == 0)
 	   return;
-	audioOut	-> putDataIntoBuffer (b, cnt / 2);
+	audioOut	-> putDataIntoBuffer (b, cnt);
 }
 
-void	aacProcessor_faad::writeOut (int16_t *buffer, int16_t cnt,
-	                             int32_t pcmRate) {
+void	aacProcessor_faad::writeOut (int16_t *buffer,
+	                             int16_t cnt, int32_t pcmRate) {
 
 	if (pcmRate == 48000) {
-	   float *lbuffer = (float *)_malloca (cnt * sizeof (float));
+	   std::complex<float> *lbuffer =
+	             (std::complex<float> *)_malloca (cnt / 2 * sizeof (std::complex<float>));
 	   for (int i = 0; i < cnt / 2; i ++) {
-	      lbuffer [2 * i]     = float (buffer [2 * i] / 32767.0);
-	      lbuffer [2 * i + 1] = float (buffer [2 * i + 1] / 32767.0);
-	   }
-	   toOutput (lbuffer, cnt);
+	      lbuffer [i] = std::complex<float> (
+                                         buffer [2 * i] / 32767.0,
+                                         buffer [2 * i + 1] / 32767.0);
+           }
+
+           toOutput (lbuffer, cnt / 2);
 	   return;
 	}
 
 	if (pcmRate == 12000) {
-	   float *lbuffer = (float *)_malloca (4 * cnt * sizeof (float));
+	   std::complex<float> *lbuffer =
+	          (std::complex<float> *)_malloca (2 * cnt * sizeof (std::complex<float>));
 	   for (int i = 0; i < cnt / 2; i ++) {
-	      std::complex<float> help =
-	           upFilter_12000.
-	               Pass (std::complex<float> (buffer [2 * i] / 32767.0,
-	                                          buffer [2 * i + 1] / 32767.0));
-	      lbuffer [8 * i + 0] = real (help);
-	      lbuffer [8 * i + 1] = imag (help);
-	      help = upFilter_12000. Pass (std::complex<float> (0, 0));
-	      lbuffer [8 * i + 2] = real (help);
-	      lbuffer [8 * i + 3] = imag (help);
-	      help = upFilter_12000. Pass (std::complex<float> (0, 0));
-	      lbuffer [8 * i + 4] = real (help);
-	      lbuffer [8 * i + 5] = imag (help);
-	      help = upFilter_12000. Pass (std::complex<float> (0, 0));
-	      lbuffer [8 * i + 6] = real (help);
-	      lbuffer [8 * i + 7] = imag (help);
+              upFilter_12000. Filter (std::complex<float> (
+                                            buffer [2 * i] / 32767.0,
+                                            buffer [2 * i + 1] / 32767.0),
+                                      &lbuffer [4 * i]);
 	   }
-	   toOutput (lbuffer, 4 * cnt);
+
+           toOutput (lbuffer, 2 * cnt);
 	   return;
 	}
 
 	if (pcmRate == 24000) {
-	   float *lbuffer = (float *)_malloca (2 * cnt * sizeof (float));
+	   std::complex<float> *lbuffer =
+	          (std::complex<float> *)_malloca (cnt * sizeof (std::complex<float>));
 	   for (int i = 0; i < cnt / 2; i ++) {
-	      std::complex<float> help =
-	           upFilter_24000.
-	               Pass (std::complex<float> (buffer [2 * i] / 32767.0,
-	                                          buffer [2 * i + 1] / 32767.0));
-	      lbuffer [4 * i + 0] = real (help);
-	      lbuffer [4 * i + 1] = imag (help);
-	      help = upFilter_24000. Pass (std::complex<float> (0, 0));
-	      lbuffer [4 * i + 2] = real (help);
-	      lbuffer [4 * i + 3] = imag (help);
-	   }
-	   toOutput (lbuffer, 2 * cnt);
+              upFilter_12000. Filter (std::complex<float> (
+                                            buffer [2 * i] / 32767.0,
+                                            buffer [2 * i + 1] / 32767.0),
+                                      &lbuffer [2 * i]);
+           }
+
+           toOutput (lbuffer, cnt);
 	   return;
 	}
 }

@@ -63,8 +63,8 @@ int16_t	startPosB	= 0;
 	   int16_t lengthA = theState -> streams [i]. lengthHigh;
 	   int16_t lengthB = theState -> streams [i]. lengthLow;
 	   if ((theState -> streams [i]. soort ==
-	                           stateDescriptor::AUDIO_STREAM) && true) { 
-	 //                              (audioChannel == i)) {
+	                       stateDescriptor::AUDIO_STREAM) && 
+	                         (theState -> getAudioChannel () == i)) {
 	      process_audio (v, i, startPosA, lengthA,
 	                           startPosB, lengthB);
 	      my_messageProcessor. processMessage (v,
