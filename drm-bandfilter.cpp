@@ -25,25 +25,30 @@
 #define  _USE_MATH_DEFINES
 #include	"drm-bandfilter.h"
 
+static inline
+std::complex<float> cmul (std::complex<float> a, float b) {
+	return std::complex<float> (real (a) * b, imag (a) * b);
+}
+
 	drmBandfilter::drmBandfilter (int16_t firSize,
-	                              int32_t low, int32_t high,
+	                              int32_t Fc,
 	                              int32_t sampleRate):
 	                                      filterBase (firSize),
 	                                      filterKernel (firSize),
 	                                      Buffer (firSize) {
-float	lo	= (float)((high - low) / 2) / sampleRate;
-float	shift	= (float) ((high + low) / 2) / sampleRate;
+float	f	= (float)Fc / sampleRate;
 float	sum	= 0.0;
 
+	centerFreq	= 0;
 	this	-> sampleRate	= sampleRate;
 	this	-> ip		= 0;
 	this	-> filterSize	= firSize;
 
 	for (int i = 0; i < filterSize; i ++) {
 	   if (i == filterSize / 2)
-	      filterBase [i] = (float)(2 * M_PI * lo);
+	      filterBase [i] = (float)(2 * M_PI * f);
 	   else 
-	      filterBase [i] = (float)sin (2 * M_PI * lo * (i - filterSize /2)) / (i - filterSize/2);
+	      filterBase [i] = (float)sin (2 * M_PI * f * (i - filterSize /2)) / (i - filterSize/2);
 //
 //	windowing, according to Blackman
 	   filterBase [i]  *= (float)(0.42 -
@@ -56,11 +61,8 @@ float	sum	= 0.0;
 	for (int i = 0; i < filterSize; i ++) 
 	   filterBase [i] /= sum;
 
-	for (int i = 0; i < filterSize; i ++) {	// shifting
-	   float v = (float) (i - filterSize / 2) * (2 * M_PI * shift);
-	   filterKernel [i] = std::complex<float> (filterBase [i] * cos (v), 
-	                                           filterBase [i] * sin (v));
-	}
+	for (int i = 0; i < filterSize; i++)
+		filterKernel[i] = std::complex<float>(filterBase[i], 0);
 }
 
 	drmBandfilter::~drmBandfilter () {
@@ -83,13 +85,17 @@ std::complex<float>	tmp = std::complex<float>(0, 0);
 	return tmp;
 }
 
-void	drmBandfilter::update	(int shift, int width) {
-	(void)width;
+void	drmBandfilter::modulate	(int shift) {
 	float rshift = (float)shift / sampleRate;
 	for (int i = 0; i < filterSize; i ++) { // shifting
            float v = (float) (i - filterSize / 2) * (2 * M_PI * rshift);
            filterKernel [i] = std::complex<float> (filterBase [i] * cos (v),
                                                    filterBase [i] * sin (v));
         }
+	centerFreq	= shift;
+}
+
+int	drmBandfilter::offset	() {
+	return centerFreq;
 }
 

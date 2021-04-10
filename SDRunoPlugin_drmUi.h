@@ -53,7 +53,8 @@ public:
 	void	set_datacoding (const std::string s);
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
-	nana::label	*getArea	();
+	void	showLines		(std::vector<std::complex<float>> &);
+	void	clearScreen		();
 
 	void	hide_channel_1		();
 	void	hide_channel_2		();

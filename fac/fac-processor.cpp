@@ -85,10 +85,9 @@ theSignal       facVector [100];
 float           sqrdNoiseSeq [100];
 float           sqrdWeightSeq [100];
 int16_t         i;
-float   sum_WMERFAC     = 0;
-float   sum_weight_FAC  = 0;
-int16_t nFac            = 0;
-float   WMERFAC;
+float		sum_WMERFAC     = 0;
+float		sum_weight_FAC  = 0;
+float		WMERFAC;
 uint8_t	 facBits [2 * (FAC_BITS + FAC_CRC)];
 //
 //	first extract data from the cells for the FAC
@@ -105,20 +104,19 @@ uint8_t	 facBits [2 * (FAC_BITS + FAC_CRC)];
 	                                (sqrdWeightSeq [i] + 1.0E-10);
 	   sum_weight_FAC	+= sqrdWeightSeq [i];
 	}
-	nFac		= i;
 	WMERFAC		= -10 * log10 (sum_WMERFAC /
-	                     (meanEnergy * (sum_weight_FAC + nFac * 1.0E-10)));
+	                     (meanEnergy * (sum_weight_FAC + FAC_SAMPLES * 1.0E-10)));
 	m_form -> set_snrDisplay (WMERFAC);
 
 	fromSamplestoBits (facVector, facBits);
 //	first: dispersion
-	thePRBS. doPRBS (facBits);
-
+	thePRBS.doPRBS(facBits);
+	
 //	next CRC
 	if (!theCRC. doCRC (facBits, FAC_BITS + FAC_CRC)) {
 	   return false;
 	}
-
+	
 	theState	-> mscCells	= mscCells (Mode, Spectrum);
 	theState	-> muxSize	= theState -> mscCells / 3;
 	interpretFac (facBits, theState);
@@ -131,7 +129,8 @@ void	facProcessor::fromSamplestoBits (theSignal *v, uint8_t *outBuffer) {
 metrics rawBits 	[2 * FAC_SAMPLES];
 metrics demappedBits 	[2 * FAC_SAMPLES];
 int16_t	bufferSize	= 6 * (FAC_BITS + FAC_CRC + 6);
-metrics *deconvolveBuffer = (metrics *)_malloca (bufferSize * sizeof (metrics));
+metrics *deconvolveBuffer =
+	               (metrics *)_malloca (bufferSize * sizeof (metrics));
 int16_t	deconvolveCnt   = 0;
 int16_t	inputCnt	= 0;
 int16_t	i;

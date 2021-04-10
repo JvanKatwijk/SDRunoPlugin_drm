@@ -142,6 +142,7 @@
     <ClCompile Include="fac\fac-processor.cpp" />
     <ClCompile Include="fac\fac-tables.cpp" />
     <ClCompile Include="sdc\sdc-processor.cpp" />
+    <ClCompile Include="sdc\mer16-values.cpp" />
     <ClCompile Include="sdc\sdc-streamer.cpp" />
     <ClCompile Include = "msc\backend-controller.cpp" />
     <ClCompile Include = "msc\msc-processor.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="fac\fac-tables.h" />
     <ClInclude Include="sdc\sdc-include.h" />
     <ClInclude Include="sdc\sdc-processor.h" />
+    <ClInclude Include="sdc\mer16-values.h" />
     <ClInclude Include="sdc\sdc-streamer.h" />
     <ClInclude Include="msc\backend-controller.h" />
     <ClInclude Include="msc\msc-processor.h" />

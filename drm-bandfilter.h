@@ -29,17 +29,19 @@
 
 class	drmBandfilter {
 public:
-			drmBandfilter	(int16_t, int32_t, int32_t, int32_t);
+			drmBandfilter	(int16_t, int32_t, int32_t);
 			~drmBandfilter	();
 	std::complex<float> Pass (std::complex<float>);
-	void		update	(int, int);
+	void		modulate	(int);
+	int		offset	();
 private:
 	std::vector<float> filterBase;
-	std::vector<std::complex<float>> filterKernel;
+	std::vector<std::complex <float>> filterKernel;
 	std::vector<std::complex<float>> Buffer;
 	int	sampleRate;
 	int	ip;
 	int	filterSize;
+	int	centerFreq;
 };
 
 #endif

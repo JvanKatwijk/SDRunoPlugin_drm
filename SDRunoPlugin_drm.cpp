@@ -36,16 +36,16 @@
 	                                 IUnoPlugin (controller),
 	                                 m_form (*this, controller),
 	                                 m_worker (nullptr),
-	                                 inputBuffer  (32768),
+	                                 inputBuffer  (16 * 32768),
 	                                 theMixer     (INRATE),
 	                                 passbandFilter (11,
-	                                                -6000,
-	                                                +6000,
+	                                                6000,
 	                                                INRATE),
 	                                theDecimator (DECIMATOR),
 	                                localMixer (WORKING_RATE),
 	                                drmAudioBuffer (32768),
-	                                my_Reader (&inputBuffer, 16 * 16384),
+	                                my_Reader (&inputBuffer,
+	                                           16 * 16384, &m_form),
 	                                my_backendController (&m_form, 4,
 	                                                       &drmAudioBuffer),
 	                                theState (1, 3) {
@@ -54,13 +54,13 @@
 //      we want to "work" with a rate of 12000, and since we arrive
 //      from IN_RATE we first decimate and filter to 12500 and then
 //      interpolate for the rest
-	for (int i = 0; i < WORKING_RATE / 100; i ++) {
-	   float inVal  = float (INTERM_RATE / 100);
-	   mapTable_int [i]     = int (floor (i * (inVal / (WORKING_RATE / 100))));
-	   mapTable_float [i]   = i * (inVal / (WORKING_RATE / 100)) - mapTable_int [i];
+	for (int i = 0; i < WORKING_RATE / 10; i ++) {
+	   float inVal  = float (INTERM_RATE / 10);
+	   mapTable_int [i]     = int (floor (i * (inVal / (WORKING_RATE / 10))));
+	   mapTable_float [i]   = i * (inVal / (WORKING_RATE / 10)) - mapTable_int [i];
 	}
 	convIndex       = 0;
-	convBuffer. resize (INTERM_RATE / 100 + 1);
+	convBuffer. resize (INTERM_RATE / 10 + 1);
 	
 	m_controller    -> RegisterStreamProcessor (0, this);
 	m_controller    -> RegisterAudioProcessor (0, this);
@@ -68,7 +68,9 @@
 	                = m_controller -> GetVfoFrequency (0);
 	centerFrequency = m_controller -> GetCenterFrequency (0);
 	drmAudioRate    = m_controller -> GetAudioSampleRate (0);
-	Raw_Rate                = m_controller -> GetSampleRate (0);
+	Raw_Rate        = m_controller -> GetSampleRate (0);
+	passbandFilter.
+		modulate (selectedFrequency - centerFrequency);
 
 	drmError	= false;
 	if ((Raw_Rate != 2000000 / 32) || (drmAudioRate != 48000)) {
@@ -80,24 +82,6 @@
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
 
-	int	nrRows		= 200;
-	int	nrColumns	= 400;
-	pixelStore. resize (nrRows * nrColumns);
-//	we draw the map on an label with a size of 400 x 200
-//	eqPicture = new drawing (*(m_form. getArea()));
-//	eqPicture -> draw ([&](paint::graphics& graph) {
-//	        for (int i = 0; i <  nrRows ; i ++)
-//		   for (int j = 0; j < nrColumns; j++) {
-//	              int res =
-//			   pixelStore [i * nrColumns + j];
-//	              graph.set_pixel (j, i, res == 0 ?
-//	                                     nana::colors::white :
-//	                                     res == 100 ?
-//	                                     nana::colors::black:
-//	                                     nana::colors::red);
-//	           }
-//		});
-	
 	m_worker	=
 	       new std::thread (&SDRunoPlugin_drm::WorkerFunction, this);
 }
@@ -126,31 +110,40 @@ void	SDRunoPlugin_drm::
 	   modified = false;
 	   return;
 	}
+	static int counter = 0;
+	
+	int theOffset;
+	if (passbandFilter. offset () != selectedFrequency - centerFrequency)
+		passbandFilter.modulate (selectedFrequency - centerFrequency);
+	theOffset = passbandFilter.offset();
+	counter++;
+	if (counter > 20) {
+	   m_form.set_channel_3 ("offset " + std::to_string (theOffset));
+	   counter = 0;
+	}
 
-	int theOffset = centerFrequency - selectedFrequency;
 	for (int i = 0; i < length; i ++) {
 	   std::complex<float> sample =
 	                std::complex<float>(buffer [i]. real, buffer [i]. imag);
-	   locker.lock ();
 	   sample   = passbandFilter. Pass (sample);
-	   locker.unlock ();
-	   sample   = theMixer. do_shift (sample, -theOffset);
+	   sample   = theMixer. do_shift (sample, theOffset);
 	   if (!theDecimator. Pass (sample, &sample)) 
 	      continue;
 
 	   convBuffer [convIndex ++] = sample;
 	   if (convIndex >= convBuffer. size ()) {
-	      std::complex<float> out [WORKING_RATE / 100];
-	      for (int j = 0; j < WORKING_RATE / 100; j ++) {
+	      std::complex<float> out [WORKING_RATE / 10];
+	      for (int j = 0; j < WORKING_RATE / 10; j ++) {
 	         int16_t  inpBase   = mapTable_int [j];
 	         float    inpRatio  = mapTable_float [j];
 	         out [j]  = cmul (convBuffer [inpBase + 1], inpRatio) +
 	                          cmul (convBuffer [inpBase], 1 - inpRatio);
 	      }
-	      inputBuffer. putDataIntoBuffer (out, WORKING_RATE / 100);
+	      inputBuffer. putDataIntoBuffer (out, WORKING_RATE / 10);
 	      convBuffer [0]  = convBuffer [convBuffer. size () - 1];
 	      convIndex    = 1;
 	   }
+	   
 	}
 	modified = false;
 }
@@ -180,14 +173,10 @@ void	SDRunoPlugin_drm::HandleEvent (const UnoEvent& ev) {
 	   case UnoEvent::FrequencyChanged:
 	      selectedFrequency =
 	              m_controller -> GetVfoFrequency (ev. GetChannel ());
-	      centerFrequency = m_controller -> GetCenterFrequency(0);
-	      locker. lock ();
-	      passbandFilter.
-	             update (selectedFrequency - centerFrequency, 2000);
-	      locker. unlock ();
 	      break;
 
 	   case UnoEvent::CenterFrequencyChanged:
+	      centerFrequency = m_controller->GetCenterFrequency(0);	  
 	      break;
 
 	   default:
@@ -199,11 +188,8 @@ void	SDRunoPlugin_drm::HandleEvent (const UnoEvent& ev) {
 void	SDRunoPlugin_drm::WorkerFunction () {
 int16_t	blockCount      = 0;
 bool	inSync;
-bool	superframer     = false;
-int16_t	threeinaRow;
 int16_t	symbol_no       = 0;
 bool	frameReady;
-int16_t	missers;
 int counter = 0;
 
 	running. store (true);
@@ -219,20 +205,17 @@ int counter = 0;
 	
 	      theState. cleanUp ();
 	      m_form. hide_channel_1	();
-	      m_form. hide_channel_2	();
-	      bool superframer = false;
-	      int threeinaRow = 0;
-	      int  missers		= 0;
+//	      m_form. hide_channel_2	();
 	      my_Reader. waitfor (Ts_of(Mode_A));
 	  
 //      First step: find mode and starting point
 	      modeInf. Mode = -1;
 	      int teller = 0;
 	      while (running. load () && (modeInf. Mode == -1)) {
-	         my_Reader. shiftBuffer (Ts_of (Mode_A) / 2);
+	         my_Reader. shiftBuffer (Ts_of (Mode_A) / 3);
 	         getMode (&my_Reader, &modeInf);
 	      }
-		  m_form.set_messageLabel("decoding  " + std::to_string(counter));
+	
 	      if (!running. load ())
 	         throw (20);
 
@@ -245,10 +228,11 @@ int counter = 0;
 	      m_form. set_timeSyncLabel		(true);
 	      m_form. set_modeIndicator		(modeInf. Mode);
 	      m_form. set_spectrumIndicator	(modeInf. Spectrum);
+	      m_form. set_intOffsetDisplay	(modeInf. freqOffset_integer);
 
-	      theState. Mode	= modeInf. Mode;
-	      theState. Spectrum   = modeInf. Spectrum;
-	      int nrSymbols        = symbolsperFrame (modeInf. Mode);
+	      theState. Mode		= modeInf. Mode;
+	      theState. Spectrum	= modeInf. Spectrum;
+	      int nrSymbols		= symbolsperFrame (modeInf. Mode);
 	      int nrCarriers       = Kmax (modeInf. Mode, modeInf. Spectrum) -
 	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1;
 
@@ -272,7 +256,6 @@ int counter = 0;
 	         my_wordCollector. getWord (inbank. element (symbol),
 	                                    modeInf. freqOffset_integer,
 	                                    modeInf. timeOffset_fractional);
-			 m_form.set_messageLabel("reading a word");
 	         myCorrelator. correlate (inbank. element (symbol), symbol);
 	       }
 
@@ -287,12 +270,11 @@ int counter = 0;
 	                                    modeInf. timeOffset_fractional);
 	         myCorrelator. correlate (inbank. element (lc), lc);
 	         lc = (lc + 1) % symbolsperFrame (modeInf. Mode);
-			 m_form.set_messageLabel(" reading word " + std::to_string(lc));
 	         if (myCorrelator. bestIndex (lc))  {
 	            break;
 	         }
 	      }
-//
+		
 //      from here on, we know that in the input bank, the frames occupy the
 //      rows "lc" ... "(lc + symbolsinFrame) % symbolsinFrame"
 //      so, once here, we know that the frame starts with index lc,
@@ -316,22 +298,30 @@ int counter = 0;
 	                                               symbol_no,
 	                                               &outbank,
 	                                               displayVector);
-
+			
 	         lc = (lc + 1) % nrSymbols;
 	         symbol_no = (symbol_no + 1) % nrSymbols;
 	      }
+	      if (!running.load())
+	         throw (37);
 
-//	when we are here, we do have  out first full "frame".
+//	when we are here, we do have  our first full "frame".
 //	so, we will be convinced that we are OK when we have a decent FAC
 	      inSync = my_facProcessor. 
 	                  processFAC  (my_Equalizer. getMeanEnergy (),
 	                               my_Equalizer. getChannels   (),
 	                               &outbank, &theState);
+	      if (inSync)
+	         m_form. set_messageLabel("Fac OK");
+	      else
+	         m_form. set_messageLabel("Fac fout");
 //	one test:
 	      if (!inSync)
 	         throw (33);
-	      if (modeInf. Spectrum != getSpectrum (&theState))
+	      if (modeInf.Spectrum != getSpectrum(&theState))
 	         throw (34);
+	      m_form.set_facSyncLabel(true);
+		
 //
 //	prepare for sdc processing
 //	Since computing the position of the sdc Cells depends (a.o)
@@ -341,13 +331,13 @@ int counter = 0;
 	      sdcProcessor my_sdcProcessor (&m_form, &modeInf,
 	                                    sdcTable, &theState);
 
-	      bool	firstTime	= true;
-	      float	offsetFractional	= 0;	//
-	      int16_t	offsetInteger		= 0;
+	      bool	superframer		= false;
+	      int	threeinaRow		= 0;
+	      int	missers			= 0;
+	      bool	firstTime		= true;
 	      float	deltaFreqOffset		= 0;
 	      float	sampleclockOffset	= 0;
-	      m_form. set_facSyncLabel	(true);
-
+		  
 	      while (true) {
 //	when we are here, we can start thinking about  SDC's and superframes
 //	The first frame of a superframe has an SDC part
@@ -356,6 +346,7 @@ int counter = 0;
 	            m_form. set_sdcSyncLabel (sdcOK);
 	            if (sdcOK) {
 	               threeinaRow ++;
+	                m_form.set_messageLabel ("firstFrame found");
 	            }
 	            blockCount	= 0;
 //
@@ -369,6 +360,7 @@ int counter = 0;
 	            if (!sdcOK)
 	               threeinaRow	= 0;
 	         }
+		
 //
 //	when here, add the current frame to the superframe.
 //	Obviously, we cannot garantee that all data is in order
@@ -386,7 +378,7 @@ int counter = 0;
 	                        deltaFreqOffset,	// tracking value
 	                        sampleclockOffset	// tracking value
 	                      );
-	            firstTime = false;
+	            firstTime	= false;
 	            frameReady =
 	                  my_Equalizer.
 	                         equalize (inbank. element ((lc + i) % nrSymbols),
@@ -397,7 +389,10 @@ int counter = 0;
 	                                   &sampleclockOffset,
 	                                   displayVector);
 	         }
-		 
+	
+	         if (!frameReady)	// should not happen???
+	            throw (36);
+			 
 //	OK, let us check the FAC
 	         bool success  = my_facProcessor.
 	                          processFAC (my_Equalizer. getMeanEnergy (),
@@ -413,7 +408,7 @@ int counter = 0;
 	            superframer		= false;
 	            if (missers++ < 3)
 	               continue;
-	            throw (35);;	// ... or give up and start all over
+	            throw (35);	// ... or give up and start all over
 	         }
 	      }	// end of main loop
 	   } catch (int e) {
@@ -468,16 +463,15 @@ uint8_t	Mode	= modeInf -> Mode;
 uint8_t	Spectrum = modeInf -> Spectrum;
 int	carrier;
 int	cnt	= 0;
-for (carrier = Kmin(Mode, Spectrum);
-	carrier <= Kmax(Mode, Spectrum); carrier++) {
-	if (isSDCcell(modeInf, 0, carrier)) {
-		sdcTable[cnt].symbol = 0;
-		sdcTable[cnt].carrier = carrier;
-		cnt++;
+	for (carrier = Kmin(Mode, Spectrum);
+	     carrier <= Kmax(Mode, Spectrum); carrier++) {
+	   if (isSDCcell (modeInf, 0, carrier)) {
+		  sdcTable[cnt].symbol = 0;
+		  sdcTable[cnt].carrier = carrier;
+		  cnt++;
+	   }
 	}
-}
 	
-
 	for (carrier = Kmin (Mode, Spectrum);
 	     carrier <= Kmax (Mode, Spectrum); carrier ++) {
 	   if (isSDCcell (modeInf, 1, carrier)) {
@@ -497,8 +491,8 @@ for (carrier = Kmin(Mode, Spectrum);
 	      }
 	}
 
-	fprintf (stderr, "for Mode %d, spectrum %d, we have %d sdc cells\n",
-	                       Mode, Spectrum, cnt);
+//	fprintf (stderr, "for Mode %d, spectrum %d, we have %d sdc cells\n",
+//	                       Mode, Spectrum, cnt);
 }
 
 bool	SDRunoPlugin_drm::isFACcell (smodeInfo *m,
@@ -518,6 +512,7 @@ struct facElement *facTable     = getFacTableforMode (m -> Mode);
 	}
 	return false;
 }
+
 bool	SDRunoPlugin_drm::isSDCcell (smodeInfo *m,
 	                             int16_t symbol, int16_t carrier) {
 	if (carrier == 0)
@@ -564,6 +559,7 @@ bool	SDRunoPlugin_drm::isDatacell (smodeInfo *m,
 
 	return true;
 }
+
 bool	SDRunoPlugin_drm::isFirstFrame (stateDescriptor *f) {
 uint8_t val     = f -> frameIdentity;
 	return ((val & 03) == 0) || ((val & 03) == 03);
@@ -584,7 +580,6 @@ int16_t	symbol, carrier;
 int16_t	   K_min		= Kmin (m -> Mode, m -> Spectrum);
 int16_t	   K_max		= Kmax (m -> Mode, m -> Spectrum);
 
-m_form.set_channel_3("adding to superframe");
 	if (isFirstFrame (&theState))
 	   my_backendController. newFrame (&theState);
 
@@ -602,54 +597,21 @@ m_form.set_channel_3("adding to superframe");
 	}
 }
 
-void	SDRunoPlugin_drm::show_eq (std::vector<std::complex<float>> &eqVector) {
-std::vector<float> phasesR (nrColumns);
-std::vector<float> amplitudesR (nrColumns);
-float	phaseScaler	= 0;
-float	amplitudeScaler	= 0;
-int factor	= eqVector. size () / nrColumns;
-
-	for (int i = 0; i < nrColumns; i ++) {
-	   phasesR [i] = 0;
-	   amplitudesR [i] = 0;
-	   for (int j = 0; j < factor; j ++) {
-	      phasesR [i] += arg (eqVector [i + factor + j]);
-	      amplitudesR [i] += abs (eqVector [i * factor + j]);
-	   }
-	   phaseScaler += phasesR [i];
-	   amplitudeScaler += amplitudesR [i]; 
-	}
-
-	phaseScaler /= nrColumns;
-	amplitudeScaler /= nrColumns;
-
-	for (int i = 0; i < nrRows; i ++)
-	   for (int j = 0; j < nrColumns; j ++)
-	      pixelStore [i * nrColumns + j] = 0;
-
-	for (int i = 0; i < nrColumns; i ++) {
-	   int scaledPhase = phasesR [i] / phaseScaler * 30  + 150;
-	   int scaledAmplitude = amplitudesR [i] / amplitudeScaler * 10 + 50;
-	   if (scaledPhase < 0)
-	      scaledPhase = 0;
-	   if (scaledPhase >= 200)
-	      scaledPhase = 199;
-	   if (scaledAmplitude < 0)
-	     scaledAmplitude = 0;
-	   if (scaledAmplitude >= 200)
-	      scaledAmplitude = 199;
-	   pixelStore [scaledPhase * nrColumns + i] = 100;
-	   pixelStore [scaledAmplitude * nrColumns + i] = 200;
-	}
-//	eqPicture -> update ();
-}
-
 void	SDRunoPlugin_drm::activate_channel_1	() {
 	theState. activate_channel_1 ();
 }
 
 void	SDRunoPlugin_drm::activate_channel_2	() {
 	theState. activate_channel_2 ();
+}
+//
+//	showLines is called whenever we feel that the display is to be updated
+void	SDRunoPlugin_drm::showLines	(std::vector<std::complex<float>> &v) {
+	m_form. showLines (v);
+}
+
+void	SDRunoPlugin_drm::clearScreen	() {
+	m_form. clearScreen ();
 }
 
 	

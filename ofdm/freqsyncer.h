@@ -45,10 +45,9 @@ public:
 			~freqSyncer 		(void);
 	bool		frequencySync 		(smodeInfo *);
 private:
-	int16_t		getWord			(std::complex<float> *,
+	void		getWord			(Reader	*,
 	                                         int32_t,
 	                                         int32_t,
-	                                         int16_t,
 	                                         float);
 	int32_t		get_zeroBin 		(int16_t);
 	float		get_spectrumOccupancy	(uint8_t,
@@ -66,7 +65,7 @@ private:
 	int16_t		Ts;
 	int16_t		Tg;
 	int16_t		displayCount;
-	int16_t		N_symbols;
+	int16_t		NrSymbols;
 	int16_t		bufferIndex;
 	std::complex<float>	**symbolBuffer;
 	std::complex<float>	*fft_vector;

@@ -236,10 +236,6 @@ void	SDRunoPlugin_drmUi::set_messageLabel (const std::string s) {
 }
 
 
-nana::label     *SDRunoPlugin_drmUi::getArea    () {
-        return m_form -> getArea ();
-}
-
 void	SDRunoPlugin_drmUi::hide_channel_1	() {
 	std::lock_guard<std::mutex> l (m_lock);
 	if (m_form !=  nullptr)
@@ -258,5 +254,17 @@ void	SDRunoPlugin_drmUi::activate_channel_1	() {
 
 void	SDRunoPlugin_drmUi::activate_channel_2	() {
 	m_parent. activate_channel_2 ();
+}
+
+void	SDRunoPlugin_drmUi::showLines	(std::vector<std::complex<float>> &v) {
+	std::lock_guard<std::mutex> l (m_lock);
+	if (m_form != nullptr)
+	   m_form	-> showLines (v);
+}
+
+void	SDRunoPlugin_drmUi::clearScreen	() {
+	std::lock_guard<std::mutex> l (m_lock);
+	if (m_form != nullptr)
+	   m_form	-> clearScreen ();
 }
 

@@ -26,7 +26,7 @@
 
 #include	"../ringbuffer.h"
 #include	"../basics.h""
-
+#include	"../SDRunoPlugin_drmUi.h"
 //
 //	For now we have a simple abstraction layer over a ringbuffer
 //	that provides a suitable buffer.  It acts as a - more or
@@ -35,7 +35,7 @@
 class	Reader {
 public:
 			Reader (RingBuffer<std::complex<float>> *, 
-				    int32_t);
+				    int32_t, SDRunoPlugin_drmUi *);
 			~Reader		();
 	void		waitfor		(int32_t);
 	void		shiftBuffer	(int32_t);
@@ -43,11 +43,14 @@ public:
 	uint32_t	bufSize;
 	std::complex<float>	*data;
 	uint32_t	currentIndex;
-protected:
 	bool		stopSignal;
-	uint32_t	Contents	(void);
 	uint32_t	firstFreeCell;
+private:
+	SDRunoPlugin_drmUi	*m_form;
+	uint32_t	Contents	();
+	
 	RingBuffer<std::complex<float>> * ringBuffer;
+	int		counter;
 };
 
 #endif

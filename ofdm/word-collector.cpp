@@ -51,7 +51,6 @@ std::complex<float> cmul (std::complex<float> x, float y) {
 	                                 theShifter (100 * sampleRate) {
 	this	-> m_form	= m_form;
 	this	-> buffer	= b;
-	this	-> bufMask	= buffer -> bufSize - 1;
 	this	-> sampleRate	= sampleRate;
 	this	-> modeInf	= modeInf;
 	this	-> Mode		= modeInf -> Mode;
@@ -77,37 +76,29 @@ std::complex<float> cmul (std::complex<float> x, float y) {
 	fftwf_destroy_plan (hetPlan);
 }
 
-//	when starting up, we "borrow" the precomputed frequency offset
-//	and start building up the spectrumbuffer.
 //	
 void	wordCollector::getWord (std::complex<float>	*out,
-	                        int32_t		initialFreq,
+	                        int32_t		offsetInteger,
 	                        float		offsetFractional) {
 std::complex<float> *temp  =
 	  (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
 std::complex<float>	angle	= std::complex<float> (0, 0);
 int	f	= buffer -> currentIndex;
-int	xxx;
-float	timeOffset;
 
 	buffer		-> waitfor (Ts + Ts / 2);
-	timeOffset	= get_timeOffset (NR_SYMBOLS, 6, &xxx);
-	while (timeOffset < 0) {
-	   f --;
-	   timeOffset += 1;
-	}
-	f		+= floor (timeOffset);
-	timeOffset	-= floor (timeOffset);
 
 //	correction of the time offset by interpolation
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<float> one = buffer -> data [(f + i) & bufMask];
-	   std::complex<float> two = buffer -> data [(f + i + 1) & bufMask];
-	   temp [i] = cmul (one, 1 - timeOffset) + cmul (two, timeOffset);
+	   std::complex<float> one =
+	                  buffer -> data [(f + i) % buffer -> bufSize];
+	   std::complex<float> two =
+	                  buffer -> data [(f + i + 1) % buffer -> bufSize];
+	   temp [i] = cmul (one, 1 - offsetFractional) +
+	                  cmul (two, offsetFractional);
 	}
 
 //	And we shift the bufferpointer here
-	buffer -> currentIndex = (f + Ts) & bufMask;
+	buffer -> currentIndex = (f + Ts) % buffer -> bufSize;
 
 //	Now: determine the fine grain offset.
 	for (int i = 0; i < Tg; i ++)
@@ -119,11 +110,11 @@ float	timeOffset;
 	float offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (offset != -offset)	// precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
-	                            100 * modeInf -> freqOffset_integer - offset);
+	                            100 * offsetInteger - offset);
 
 	if (++displayCount > 20) {
 	   displayCount = 0;
-	   m_form -> set_intOffsetDisplay	(initialFreq);
+	   m_form -> set_intOffsetDisplay	(offsetInteger);
 	   m_form -> set_smallOffsetDisplay	(- offset / 100);
 	   m_form -> set_angleDisplay		(arg (angle));
 	   m_form -> set_timeDelayDisplay	(offsetFractional);
@@ -136,7 +127,7 @@ float	timeOffset;
 //	a next ofdm word
 //
 void	wordCollector::getWord (std::complex<float>	*out,
-	                        int32_t		initialFreq,
+	                        int32_t		offsetInteger,
 	                        bool		firstTime,
 	                        float		offsetFractional,
 	                        float		angle,
@@ -144,38 +135,34 @@ void	wordCollector::getWord (std::complex<float>	*out,
 std::complex<float>* temp =
 	(std::complex<float> *)_malloca  (Ts * sizeof (std::complex<float>));
 int	f			= buffer -> currentIndex;
-int	xxx;
-float	timeOffset;
 
 	buffer		-> waitfor (Ts + Ts / 2);
-	timeOffset	= get_timeOffset (NR_SYMBOLS, 8, &xxx);
-	while (timeOffset < 0) {
-           f -= 1;
-	   timeOffset += 1;
-        }
-
-	f		+= floor (timeOffset);
-	timeOffset	-= floor (timeOffset);
-
-//	just linear interpolation
+//
+//	correcting for timeoffsets is still to be reseaerched
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<float> one = buffer -> data [(f + i) & bufMask];
-	   std::complex<float> two = buffer -> data [(f + i + 1) & bufMask];
-	   temp [i] = cmul (one, 1 - timeOffset) + cmul (two, timeOffset);
+	   std::complex<float> one =
+	              buffer -> data [(f + i) % buffer ->  bufSize];
+	   std::complex<float> two =
+	              buffer -> data [(f + i + 1) % buffer -> bufSize];
+	   temp [i] = cmul (one, 1 - offsetFractional) +
+	                    cmul (two, offsetFractional);
 	}
-
 //	And we adjust the bufferpointer here
-	buffer -> currentIndex = (f + Ts) & bufMask;
-
-	std::complex<float> faseError = std::complex<float> (0, 0);
+	buffer -> currentIndex = (f + Ts) % buffer -> bufSize;
+//
+//	There are two approaches for computing the angle offset,
+//	one based on the current "word", the other one based
+//	on the result of the equalization of the previous set of words
+//	std::complex<float> faseError = std::complex<float> (0, 0);
 //      Now: determine the fine grain offset.
-        for (int i = 0; i < Tg; i ++)
-           faseError += conj (temp [Tu + i]) * temp [i];
+//        for (int i = 0; i < Tg; i ++)
+//           faseError += conj (temp [Tu + i]) * temp [i];
 //      simple averaging
-        theAngle        = 0.9 * theAngle + 0.1 * arg (faseError);
-
-//	correct the phase
-//	theAngle	= theAngle - 0.1 * angle;
+//	theAngle        = 0.9 * theAngle + 0.1 * arg (faseError);
+//
+//	or, integrate the phase error in the previous words in the error
+//	corrector
+	theAngle	= theAngle - 0.1 * angle;
 //	offset in 0.01 * Hz
 	float offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (offset != -offset) { // precaution to handle undefines
@@ -189,16 +176,15 @@ float	timeOffset;
 	   }
 
 	   theShifter. do_shift (temp, Ts,
-	                        100 * modeInf -> freqOffset_integer - offset);
+	                        100 * offsetInteger - offset);
 	}
 
 	if (++displayCount > 20) {
 	   displayCount = 0;
-	   m_form -> set_intOffsetDisplay	(initialFreq);
+	   m_form -> set_intOffsetDisplay	(offsetInteger);
 	   m_form -> set_smallOffsetDisplay	(- offset / 100);
 	   m_form -> set_angleDisplay		(angle);
 	   m_form -> set_timeOffsetDisplay	(offsetFractional);
-//	   m_form -> set_timeDelayDisplay		(timeOffsetInteger);
 	   m_form -> set_clockOffsetDisplay	(Ts * clockOffset);
 	}
 

@@ -1,20 +1,22 @@
 #pragma once
 
-#include <nana/gui.hpp>
-#include <nana/gui/widgets/button.hpp>
-#include <nana/gui/widgets/listbox.hpp>
-#include <nana/gui/widgets/slider.hpp>
-#include <nana/gui/widgets/label.hpp>
-#include <nana/gui/widgets/combox.hpp>
-#include <nana/gui/timer.hpp>
-#include <nana/gui/widgets/picture.hpp>
-#include <nana/gui/filebox.hpp>
-#include <nana/gui/dragger.hpp>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+#include	<nana/gui.hpp>
+#include	<nana/gui/widgets/button.hpp>
+#include	<nana/gui/widgets/listbox.hpp>
+#include	<nana/gui/widgets/slider.hpp>
+#include	<nana/gui/widgets/label.hpp>
+#include	<nana/gui/widgets/combox.hpp>
+#include	<nana/gui/timer.hpp>
+#include	<nana/gui/widgets/picture.hpp>
+#include	<nana/gui/filebox.hpp>
+#include	<nana/gui/dragger.hpp>
+#include	<nana/gui.hpp>
+#include	<iostream>
+#include	<iomanip>
+#include	<sstream>
 
-#include <iunoplugincontroller.h>
+#include	<iunoplugincontroller.h>
+#include	<complex>
 
 // Shouldn't need to change these
 #define topBarHeight (27)
@@ -24,6 +26,8 @@
 // TODO: Change these numbers to the height and width of your form
 #define formWidth (460)
 #define formHeight (460)
+#define	nrColumns (formWidth - 60)
+#define	nrRows (200)
 
 class SDRunoPlugin_drmUi;
 
@@ -60,7 +64,8 @@ public:
 	void	set_datacoding (const std::string s);
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
-	nana::label *	getArea ();
+	void	showLines		(std::vector<std::complex<float>> &);
+	void	clearScreen		();
 
 	void	hide_channel_1		();
 	void	hide_channel_2		();
@@ -162,6 +167,10 @@ private:
 	                          {*this, nana::rectangle (230, 150, 200, 20)};
 	nana::label	imageLabel
 	                          {*this, nana::rectangle (30, 180, 400, 200)};
+
+	std::vector<int> pixelStore;
+	nana::drawing		*eqPicture;
+
 	SDRunoPlugin_drmUi & m_parent;
 	IUnoPluginController & m_controller;
 };

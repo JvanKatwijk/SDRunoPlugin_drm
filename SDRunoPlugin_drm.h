@@ -82,11 +82,11 @@ private:
 	                                                 smodeInfo *m);
 
 
+	void		showLines	(std::vector<std::complex<float>> &);
         std::vector<std::complex<float>> convBuffer;
         int              convIndex;
-        int16_t          mapTable_int   [WORKING_RATE / 100];
-        float            mapTable_float [WORKING_RATE / 100];
-
+        int16_t          mapTable_int   [WORKING_RATE / 10];
+        float            mapTable_float [WORKING_RATE / 10];
 //
 //
         std::atomic<bool>       running;
@@ -125,10 +125,10 @@ private:
 	                                         myArray<theSignal> *);
 //
 //	for the graphics
-	int		nrColumns;
-	int		nrRows;
+	
 	std::vector<int> pixelStore;
 	void		show_eq			(std::vector<std::complex<float>> &);
+	void		clearScreen();
 	drawing		*eqPicture;
 
 

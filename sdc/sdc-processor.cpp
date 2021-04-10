@@ -33,6 +33,8 @@
 #include	"..\support\qam4-metrics.h"
 #include	"..\support\mapper.h"
 #include	"..\SDRunoPlugin_drmUi.h"
+
+#include	"mer16-values.h"
 //
 //	the "processor" for extracting the SDC values from the
 //	(first) frame of a superframe encoded in QAM4/QAM16
@@ -89,7 +91,6 @@ int16_t	index;
 	SDCmode	= theState	-> sdcMode;
 	qammode	= (rmFlag == 0 && SDCmode == 0) ? QAM16 : QAM4;
 	if (qammode == QAM4) {
-//	   fprintf (stderr, "qammode = QAM4\n");
 	   my_qam4_metrics	= new qam4_metrics ();
 	   stream_0		= new SDC_streamer (1, 2, &Y21Mapper, nrCells);
 	   stream_1		= nullptr;
@@ -97,7 +98,6 @@ int16_t	index;
 	   thePRBS		= new prbs (stream_0 -> lengthOut ());
 	}
 	else {
-//	   fprintf (stderr, "qammode = QAM16\n");
 	   my_qam16_metrics	= new qam16_metrics ();
 	   stream_0		= new SDC_streamer (1, 3, &Y13Mapper, nrCells);
 	   stream_1		= new SDC_streamer (2, 3, &Y21Mapper, nrCells);
@@ -176,14 +176,17 @@ std::vector<metrics> Y0_stream;
 std::vector<metrics> Y1_stream;
 std::vector<uint8_t> level_0;
 std::vector<uint8_t> level_1;
-
-	sdcBits. resize (4 + stream_0->lengthOut() + stream_1->lengthOut());
+mer16_compute	computeMER;
+float	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
+	m_form	-> set_channel_3 (std::to_string (mer));
+	
+	sdcBits. resize (4 + stream_0 -> lengthOut() + stream_1->lengthOut());
 	Y0_stream.resize (2 * nrCells);
-	Y1_stream.resize(2 * nrCells);
-	level_0.resize(2 * nrCells);
-	level_1.resize(2 * nrCells);
+	Y1_stream.resize (2 * nrCells);
+	level_0.resize (2 * nrCells);
+	level_1.resize (2 * nrCells);
 
-	for (int i = 0; i < 2; i ++) {
+	for (int i = 0; i < 4; i ++) {
 	   my_qam16_metrics	-> computemetrics (v. data (),
 	                                           nrCells, 0, 
 	                                           Y0_stream. data (), 

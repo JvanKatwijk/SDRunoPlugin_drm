@@ -26,19 +26,21 @@
 #include	"../ringbuffer.h"
 #include	<stdint.h>
 
-
 //
 //	A simple interface class to the ringBuffer
 //	The methods are called from the drmdecoder
 
-	Reader::Reader (RingBuffer<std::complex<float>> *r, int32_t s) {
+	Reader::Reader (RingBuffer<std::complex<float>> *r,
+	                int32_t bufSize, SDRunoPlugin_drmUi *m_form) {
 	ringBuffer		= r;
-	this	-> bufSize	= s;
+	this	-> bufSize	= bufSize;
+	this	-> m_form	= m_form;
 	data			= new std::complex<float> [this -> bufSize];
-	memset (data, 0, bufSize * sizeof (std::complex<float>));
+	memset (data, 0, this -> bufSize * sizeof (std::complex<float>));
 	currentIndex		= 0;
 	firstFreeCell		= 0;
 	stopSignal		= false;
+	counter			= 0;
 }
 
 	Reader::~Reader (void) {
@@ -80,7 +82,7 @@ int32_t		contents	= Contents ();
 //
 //	Ok, if the amount of samples to be read fits in a contiguous part
 //	one read will suffice, otherwise it will be in two parts
-	if (firstFreeCell + tobeRead <= bufSize) {
+	if (firstFreeCell + tobeRead <= this -> bufSize) {
 	   ringBuffer -> getDataFromBuffer (&data [firstFreeCell], tobeRead);
 	}
 	else {
@@ -90,12 +92,16 @@ int32_t		contents	= Contents ();
 	                                tobeRead - (bufSize - firstFreeCell));
 	}
 
-	firstFreeCell = (firstFreeCell + tobeRead) % bufSize;
+	if (firstFreeCell + tobeRead >= this -> bufSize) {
+	   counter ++;
+	   m_form -> set_channel_2 ("vol" + std::to_string (counter));
+	}
+	firstFreeCell = (firstFreeCell + tobeRead) % this ->  bufSize;
 }
 
 void	Reader::shiftBuffer (int32_t n) {
 	if (n > 0)
 	   waitfor (n + 20);
-	currentIndex = (currentIndex + n) % bufSize;
+	currentIndex = (currentIndex + n) % this -> bufSize;
 }
 
