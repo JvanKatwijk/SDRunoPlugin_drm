@@ -33,15 +33,16 @@
 #include	"..\basics.h"
 #include	"..\support\prbs.h"
 #include	"..\support\protlevels.h"
+#include	"..\support\mer16-values.h"
 #include	"..\SDRunoPlugin_drmUi.h"
-
 //
 //	For each of the "levels" (qam16 => 2 levels), we create a
 //	separate handler. From "samples to bitstreams" is done here
 //	as is the bit-deinterleaving
 	QAM16_SM_Handler::QAM16_SM_Handler	(stateDescriptor *theState,
 	                                         SDRunoPlugin_drmUi *m_form):
-	                                             mscHandler (theState),
+	                                             mscHandler (m_form,
+	                                                           theState),
 	                                             myDecoder () {
 int16_t	RYlcm, i;
 float	denom;
@@ -51,7 +52,6 @@ float	denom;
 //	in the lower protected part (the B part) follows
 
 	this	-> theState	= theState;
-	this	-> m_form	= m_form;
 	lengthA			= 0;
 
 	for (i = 0; i < theState -> numofStreams; i ++)
@@ -94,11 +94,9 @@ float	denom;
 //	higher protected bits, N2 follows directly
 
 	stream_0	= new MSC_streamer (theState, 0, N1,
-	                                    Y13mapper_high, Y13mapper_low,
-	                                    m_form);
+	                                    Y13mapper_high, Y13mapper_low);
 	stream_1	= new MSC_streamer (theState, 1, N1,
-	                                    Y21mapper_high, Y21mapper_low,
-	                                    m_form);
+	                                    Y21mapper_high, Y21mapper_low);
 	thePRBS		= new prbs (stream_0 -> highBits () +
 	                            stream_1 -> highBits () +
 	                            stream_0 -> lowBits  () +
@@ -128,6 +126,12 @@ std::vector<metrics> Y0;
 std::vector<metrics> Y1;
 std::vector<uint8_t> level_0;
 std::vector<uint8_t> level_1;
+
+
+mer16_compute computeMER;
+float mer = 10 * log10 (computeMER. computemer (v, theState -> muxSize));
+        m_form -> show_msc_mer  (mer);
+
 	bitsOut. resize (highProtectedbits + lowProtectedbits);
 	bits_0. resize (stream_0 -> highBits () + stream_0 -> lowBits ());
 	bits_1. resize (stream_1 -> highBits () + stream_1 -> lowBits ());

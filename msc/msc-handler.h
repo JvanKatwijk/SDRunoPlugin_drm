@@ -29,18 +29,21 @@
 
 class	stateDescriptor;
 class	prbs;
+class	SDRunoPlugin_drmUi;
+
 //
 //	empty base class for the different msc Handlers
 
 class	mscHandler {
 public:
-		mscHandler 	(stateDescriptor *);
+		mscHandler 	(SDRunoPlugin_drmUi *, stateDescriptor *);
 virtual		~mscHandler	(void);
 virtual	void	process		(theSignal *, uint8_t *);
 protected:
 	stateDescriptor	*theState;
 	int16_t		muxLength;
 	prbs* thePRBS;
+	SDRunoPlugin_drmUi	*m_form;
 };
 #endif
 

@@ -164,11 +164,16 @@ uint8_t	spectrum;
 //	in the rows the computed spectra of the last N_symbols ofdm words,
 //	starting at start (i.e. circular)
 
+float	square (std::complex<float> v) {
+	return real (v * conj (v));
+}
+
 int32_t	freqSyncer::get_zeroBin (int16_t start) {
 int16_t i, j;
 std::complex<float>* correlationSum =
 	    (std::complex<float> *)_malloca  (Tu * sizeof(std::complex<float>));
 float	*abs_sum = (float *) _malloca (Tu * sizeof (float));
+float	*squares = (float *) _malloca (Tu * sizeof (float));
 //
 //	assuming we do not have freq sync pilots, it is possible to
 //	compute the coarse frequency offset, i.e. the "null" carrier
@@ -179,6 +184,7 @@ float	*abs_sum = (float *) _malloca (Tu * sizeof (float));
 //
 	memset (correlationSum, 0, Tu * sizeof (std::complex<float>));
 	memset (abs_sum, 0, Tu * sizeof (float));
+	memset (squares, 0, Tu * sizeof (float));
 
 //	accumulate phase diffs of all carriers in subsequent symbols
 	for (j = start + 1; j < start + NrSymbols; j++) {
@@ -188,13 +194,15 @@ float	*abs_sum = (float *) _malloca (Tu * sizeof (float));
 	      std::complex<float> tmp1 = symbolBuffer [jmin1][i] *
 	                                        conj (symbolBuffer [jj][i]);
 	      correlationSum [i] += tmp1;
+	      squares [i] += square (symbolBuffer [jmin1][i]) +
+	                                        square (symbolBuffer [jj][i]);
 	   }
 	}
 //
 	for (i = 0; i < Tu; i++) 
-	   abs_sum [i] = abs (correlationSum [i]);
+	   abs_sum [i] = abs (squares [i] - 2 * abs (correlationSum [i]));
 
-	float	highest		= -1.0E20;
+	float	lowest		= 1.0E20;
 	int	dcOffset	= 0;
 //
 //	recall that the pilots are relative to -Tu / 2
@@ -202,9 +210,9 @@ float	*abs_sum = (float *) _malloca (Tu * sizeof (float));
 	   float sum = abs_sum [k_pilot1 + i] +
 	               abs_sum [k_pilot2 + i] +
 	               abs_sum [k_pilot3 + i];
-	   if (sum > highest) {
-	      dcOffset	= i;
-	      highest	= sum;
+	   if (sum < lowest) {
+	      dcOffset = i;
+	      lowest = sum;
 	   }
 	}
 

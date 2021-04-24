@@ -42,7 +42,6 @@ public:
 private:
 	qam16_metrics	myDecoder;
 	stateDescriptor	*theState;
-	SDRunoPlugin_drmUi	*m_form;
 	int16_t		lengthA;
 	int16_t		lengthB;
 	uint8_t		*out;

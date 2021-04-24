@@ -147,6 +147,7 @@ int16_t	theMode;
 	                                            (float)Ts_of (theMode));
 	timeOffset	= boffs;
 	result	-> timeOffset_integer	= floor (timeOffset + 0.5);
+	result	-> timeOffset_integer	= averageOffset;
 	result	-> timeOffset_fractional = timeOffset -
 	                                         result -> timeOffset_integer;
 	result -> freqOffset_fract = list_epsilon [theMode - Mode_A];

@@ -163,11 +163,6 @@ void	SDRunoPlugin_drmUi::set_programTypeLabel (const std::string s) {
 	   m_form -> set_programTypeLabel (s);
 }
 
-void	SDRunoPlugin_drmUi::set_channel_3	(const std::string s) {
-	std::lock_guard<std::mutex> l (m_lock);
-	if (m_form != nullptr)
-	   m_form -> set_channel_3 (s);
-}
 
 void	SDRunoPlugin_drmUi::set_sdcSyncLabel (bool b) {
 	std::lock_guard<std::mutex> l (m_lock);
@@ -179,12 +174,6 @@ void	SDRunoPlugin_drmUi::set_phaseOffsetDisplay (float f) {
 	std::lock_guard<std::mutex> l (m_lock);
 	if (m_form != nullptr)
 	   m_form -> set_phaseOffsetDisplay (f);
-}
-
-void	SDRunoPlugin_drmUi::set_snrDisplay (float f) {
-	std::lock_guard<std::mutex> l (m_lock);
-	if (m_form != nullptr)
-	   m_form -> set_snrDisplay (f);
 }
 
 void	SDRunoPlugin_drmUi::set_aacDataLabel (const std::string s) {
@@ -235,6 +224,23 @@ void	SDRunoPlugin_drmUi::set_messageLabel (const std::string s) {
 	   m_form -> set_messageLabel (s);
 }
 
+void	SDRunoPlugin_drmUi::show_fac_mer	(float v) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form != nullptr)
+           m_form -> show_fac_mer (v);
+}
+
+void	SDRunoPlugin_drmUi::show_sdc_mer	(float v) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form != nullptr)
+           m_form -> show_sdc_mer (v);
+}
+
+void	SDRunoPlugin_drmUi::show_msc_mer	(float v) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form != nullptr)
+           m_form -> show_msc_mer (v);
+}
 
 void	SDRunoPlugin_drmUi::hide_channel_1	() {
 	std::lock_guard<std::mutex> l (m_lock);
@@ -254,17 +260,5 @@ void	SDRunoPlugin_drmUi::activate_channel_1	() {
 
 void	SDRunoPlugin_drmUi::activate_channel_2	() {
 	m_parent. activate_channel_2 ();
-}
-
-void	SDRunoPlugin_drmUi::showLines	(std::vector<std::complex<float>> &v) {
-	std::lock_guard<std::mutex> l (m_lock);
-	if (m_form != nullptr)
-	   m_form	-> showLines (v);
-}
-
-void	SDRunoPlugin_drmUi::clearScreen	() {
-	std::lock_guard<std::mutex> l (m_lock);
-	if (m_form != nullptr)
-	   m_form	-> clearScreen ();
 }
 

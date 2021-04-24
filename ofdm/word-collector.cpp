@@ -29,20 +29,13 @@
 #include	"word-collector.h"
 #include	"reader.h"
 
-#define	NR_SYMBOLS 16
-//	The wordCollector will handle segments of a given size,
-//	do all kinds of frequency correction (timecorrection
-//	was done in the syncer) and map them onto ofdm words.
-//	
-//	The caller just calls upon "getWord" to get a new ofdm word
+#define	NR_SYMBOLS	24
 
 static inline 
 std::complex<float> cmul (std::complex<float> x, float y) {
 	return std::complex<float> (real (x) * y, imag (x) * y);
 }
 
-#define	nrSymbols	16
-#define	EPSILON		1.0E-10
 //	The frequency shifter is in steps of 0.01 Hz
 	wordCollector::wordCollector (SDRunoPlugin_drmUi *m_form,
 	                              Reader	*b,
@@ -76,7 +69,16 @@ std::complex<float> cmul (std::complex<float> x, float y) {
 	fftwf_destroy_plan (hetPlan);
 }
 
-//	
+static float theOffset= 0;
+//      when starting up, we "borrow" the precomputed frequency offset
+//      and start building up the spectrumbuffer.
+//
+
+void	wordCollector::reset	(float v) {
+	theOffset	= v;
+	theAngle	= 0;
+}
+
 void	wordCollector::getWord (std::complex<float>	*out,
 	                        int32_t		offsetInteger,
 	                        float		offsetFractional) {
@@ -86,6 +88,7 @@ std::complex<float>	angle	= std::complex<float> (0, 0);
 int	f	= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
+	theOffset	= 0;
 
 //	correction of the time offset by interpolation
 	for (int i = 0; i < Ts; i ++) {
@@ -93,8 +96,7 @@ int	f	= buffer -> currentIndex;
 	                  buffer -> data [(f + i) % buffer -> bufSize];
 	   std::complex<float> two =
 	                  buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	                  cmul (two, offsetFractional);
+	   temp [i] = one;
 	}
 
 //	And we shift the bufferpointer here
@@ -108,16 +110,18 @@ int	f	= buffer -> currentIndex;
 //
 //	offset  (and shift) in Hz / 100
 	float offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (offset != -offset)	// precaution to handle undefines
+	if (!isnan (offset)) 	// precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                            100 * offsetInteger - offset);
+	else
+	   theAngle = 0;
 
 	if (++displayCount > 20) {
 	   displayCount = 0;
 	   m_form -> set_intOffsetDisplay	(offsetInteger);
 	   m_form -> set_smallOffsetDisplay	(- offset / 100);
 	   m_form -> set_angleDisplay		(arg (angle));
-	   m_form -> set_timeDelayDisplay	(offsetFractional);
+	   m_form -> set_timeDelayDisplay	(theOffset);
 	}
 
 	fft_and_extract (&temp [Tg], out);
@@ -127,7 +131,7 @@ int	f	= buffer -> currentIndex;
 //	a next ofdm word
 //
 void	wordCollector::getWord (std::complex<float>	*out,
-	                        int32_t		offsetInteger,
+	                        int32_t		initialFreq,
 	                        bool		firstTime,
 	                        float		offsetFractional,
 	                        float		angle,
@@ -136,16 +140,27 @@ std::complex<float>* temp =
 	(std::complex<float> *)_malloca  (Ts * sizeof (std::complex<float>));
 int	f			= buffer -> currentIndex;
 
+	(void)offsetFractional;		// maybe later??
 	buffer		-> waitfor (Ts + Ts / 2);
-//
+
+	theOffset += clockOffset;
+        if (theOffset <  0) {
+           f --;
+           theOffset += 1;
+        }
+        if (theOffset >= 1) {
+           f ++;
+           theOffset -= 1;
+        }
+
 //	correcting for timeoffsets is still to be reseaerched
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<float> one =
 	              buffer -> data [(f + i) % buffer ->  bufSize];
 	   std::complex<float> two =
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	                    cmul (two, offsetFractional);
+	   temp [i] = cmul (one, 1 - theOffset) +
+	                    cmul (two, theOffset);
 	}
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) % buffer -> bufSize;
@@ -165,23 +180,15 @@ int	f			= buffer -> currentIndex;
 	theAngle	= theAngle - 0.1 * angle;
 //	offset in 0.01 * Hz
 	float offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (offset != -offset) { // precaution to handle undefines
-	   if (offset > 200 * sampleRate / Tu) {
-	      modeInf -> freqOffset_integer +=  sampleRate / Tu;
-	      offset -= 200 * sampleRate / Tu;
-	   }
-	   if (offset < -200 * sampleRate / Tu) {
-	      modeInf -> freqOffset_integer -= sampleRate / Tu / 2;
-	      offset += 200 * sampleRate / Tu;
-	   }
-
+	if (!isnan (offset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
-	                        100 * offsetInteger - offset);
-	}
+	                        100 * modeInf -> freqOffset_integer - offset);
+	else
+	   theAngle = 0;
 
 	if (++displayCount > 20) {
 	   displayCount = 0;
-	   m_form -> set_intOffsetDisplay	(offsetInteger);
+	   m_form -> set_intOffsetDisplay	(modeInf -> freqOffset_integer);
 	   m_form -> set_smallOffsetDisplay	(- offset / 100);
 	   m_form -> set_angleDisplay		(angle);
 	   m_form -> set_timeOffsetDisplay	(offsetFractional);
@@ -217,7 +224,7 @@ int	*b = (int *)_malloca (nSymbols * sizeof (int));
 
 	buffer -> waitfor (2 * nSymbols * Ts + Ts);
 	*offs	= get_intOffset (0, nSymbols, range);
-	for (int i = 0; i < nrSymbols; i ++)
+	for (int i = 0; i < nSymbols; i ++)
 	   b [i] = get_intOffset (i * Ts, nSymbols, range);
 
 	float   sumx    = 0.0;

@@ -46,7 +46,7 @@
 	                                drmAudioBuffer (32768),
 	                                my_Reader (&inputBuffer,
 	                                           16 * 16384, &m_form),
-	                                my_backendController (&m_form, 4,
+	                                my_backendController (&m_form, 6,
 	                                                       &drmAudioBuffer),
 	                                theState (1, 3) {
 	m_controller	= &controller;
@@ -78,7 +78,7 @@
 	   drmError      = true;
 	}
 
-	nSymbols	= 5;
+	nSymbols	= 45;
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
 
@@ -110,17 +110,11 @@ void	SDRunoPlugin_drm::
 	   modified = false;
 	   return;
 	}
-	static int counter = 0;
 	
 	int theOffset;
 	if (passbandFilter. offset () != selectedFrequency - centerFrequency)
 		passbandFilter.modulate (selectedFrequency - centerFrequency);
 	theOffset = passbandFilter.offset();
-	counter++;
-	if (counter > 20) {
-	   m_form.set_channel_3 ("offset " + std::to_string (theOffset));
-	   counter = 0;
-	}
 
 	for (int i = 0; i < length; i ++) {
 	   std::complex<float> sample =
@@ -191,6 +185,9 @@ bool	inSync;
 int16_t	symbol_no       = 0;
 bool	frameReady;
 int counter = 0;
+float     deltaFreqOffset         = 0;
+float     sampleclockOffset       = 0;
+
 
 	running. store (true);
 	while (running. load ()) {
@@ -204,13 +201,10 @@ int counter = 0;
 	      m_form. set_audioModeLabel	(std::string (""));
 	
 	      theState. cleanUp ();
-	      m_form. hide_channel_1	();
-//	      m_form. hide_channel_2	();
 	      my_Reader. waitfor (Ts_of(Mode_A));
 	  
 //      First step: find mode and starting point
 	      modeInf. Mode = -1;
-	      int teller = 0;
 	      while (running. load () && (modeInf. Mode == -1)) {
 	         my_Reader. shiftBuffer (Ts_of (Mode_A) / 3);
 	         getMode (&my_Reader, &modeInf);
@@ -240,7 +234,7 @@ int counter = 0;
 	      myArray<theSignal> outbank (nrSymbols, nrCarriers);
 	      correlator myCorrelator (&modeInf);
 	      equalizer_1 my_Equalizer (modeInf.Mode,
-	                                modeInf.Spectrum, 2);
+	                                modeInf.Spectrum, 4);
 	      std::vector<std::complex<float>> displayVector;
 	      displayVector. resize (Kmax (modeInf. Mode, modeInf. Spectrum) -
 	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1);
@@ -252,10 +246,12 @@ int counter = 0;
 
 //	   we know that - when starting - we are not "in sync" yet
 	      inSync	= false;
+	      my_wordCollector. reset (modeInf. timeOffset_fractional);
+
 	      for (int symbol = 0; symbol < nrSymbols; symbol ++) {
 	         my_wordCollector. getWord (inbank. element (symbol),
 	                                    modeInf. freqOffset_integer,
-	                                    modeInf. timeOffset_fractional);
+	                                    modeInf. sampleRate_offset);
 	         myCorrelator. correlate (inbank. element (symbol), symbol);
 	       }
 
@@ -267,7 +263,7 @@ int counter = 0;
 	      while (running. load ()) {
 	         my_wordCollector. getWord (inbank. element (lc),
 	                                    modeInf. freqOffset_integer,
-	                                    modeInf. timeOffset_fractional);
+	                                    modeInf. sampleRate_offset);
 	         myCorrelator. correlate (inbank. element (lc), lc);
 	         lc = (lc + 1) % symbolsperFrame (modeInf. Mode);
 	         if (myCorrelator. bestIndex (lc))  {
@@ -284,6 +280,9 @@ int counter = 0;
 	            equalize (inbank. element ((lc + symbol_no) % nrSymbols),
 	                      symbol_no,
 	                      &outbank,
+                              &modeInf. timeOffset_fractional,
+                              &deltaFreqOffset,
+                              &sampleclockOffset,
 	                      displayVector);
 
 	      lc           = (lc + symbol_no) % symbol_no;
@@ -291,13 +290,21 @@ int counter = 0;
 	      frameReady   = false;
 
 	      while (running. load () && !frameReady) {
-	         my_wordCollector.  getWord (inbank. element (lc),
-	                                     modeInf. freqOffset_integer,
-	                                     modeInf. timeOffset_fractional);
-	         frameReady = my_Equalizer.  equalize (inbank. element (lc),
-	                                               symbol_no,
-	                                               &outbank,
-	                                               displayVector);
+			  my_wordCollector.getWord(inbank.element(lc),
+				  modeInf.freqOffset_integer,
+				  false,        // no-op
+				  modeInf.timeOffset_fractional,
+				  deltaFreqOffset,  // tracking value
+				  sampleclockOffset); // tracking value
+
+	         frameReady = my_Equalizer. 
+	                            equalize (inbank. element (lc),
+	                                      symbol_no,
+	                                      &outbank,
+	                                      &modeInf. timeOffset_fractional,
+                                              &deltaFreqOffset,
+                                              &sampleclockOffset,
+	                                      displayVector);
 			
 	         lc = (lc + 1) % nrSymbols;
 	         symbol_no = (symbol_no + 1) % nrSymbols;
@@ -311,11 +318,7 @@ int counter = 0;
 	                  processFAC  (my_Equalizer. getMeanEnergy (),
 	                               my_Equalizer. getChannels   (),
 	                               &outbank, &theState);
-	      if (inSync)
-	         m_form. set_messageLabel("Fac OK");
-	      else
-	         m_form. set_messageLabel("Fac fout");
-//	one test:
+	  //	one test:
 	      if (!inSync)
 	         throw (33);
 	      if (modeInf.Spectrum != getSpectrum(&theState))
@@ -338,6 +341,7 @@ int counter = 0;
 	      float	deltaFreqOffset		= 0;
 	      float	sampleclockOffset	= 0;
 		  
+		
 	      while (true) {
 //	when we are here, we can start thinking about  SDC's and superframes
 //	The first frame of a superframe has an SDC part
@@ -346,7 +350,6 @@ int counter = 0;
 	            m_form. set_sdcSyncLabel (sdcOK);
 	            if (sdcOK) {
 	               threeinaRow ++;
-	                m_form.set_messageLabel ("firstFrame found");
 	            }
 	            blockCount	= 0;
 //
@@ -360,7 +363,6 @@ int counter = 0;
 	            if (!sdcOK)
 	               threeinaRow	= 0;
 	         }
-		
 //
 //	when here, add the current frame to the superframe.
 //	Obviously, we cannot garantee that all data is in order
@@ -607,11 +609,8 @@ void	SDRunoPlugin_drm::activate_channel_2	() {
 //
 //	showLines is called whenever we feel that the display is to be updated
 void	SDRunoPlugin_drm::showLines	(std::vector<std::complex<float>> &v) {
-	m_form. showLines (v);
 }
 
 void	SDRunoPlugin_drm::clearScreen	() {
-	m_form. clearScreen ();
 }
 
-	

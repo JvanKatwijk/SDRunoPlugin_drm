@@ -52,6 +52,7 @@ public:
 	                                         float,
 	                                         float,
 	                                         float);
+	void		reset			(float);
 private:
 	shifter		theShifter;
 

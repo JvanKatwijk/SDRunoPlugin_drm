@@ -41,7 +41,7 @@ public:
 	void	set_clockOffsetDisplay (float f);
 	void	set_angleDisplay (float f);
 	void	set_programTypeLabel (const std::string s);
-	void	set_channel_3 (const std::string s);
+
 	void	set_sdcSyncLabel (bool b);
 	void	set_phaseOffsetDisplay (float f);
 	void	set_snrDisplay (float f);
@@ -53,8 +53,10 @@ public:
 	void	set_datacoding (const std::string s);
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
-	void	showLines		(std::vector<std::complex<float>> &);
-	void	clearScreen		();
+
+	void	show_fac_mer		(float);
+	void	show_sdc_mer		(float);
+	void	show_msc_mer		(float);
 
 	void	hide_channel_1		();
 	void	hide_channel_2		();

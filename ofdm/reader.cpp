@@ -92,10 +92,6 @@ int32_t		contents	= Contents ();
 	                                tobeRead - (bufSize - firstFreeCell));
 	}
 
-	if (firstFreeCell + tobeRead >= this -> bufSize) {
-	   counter ++;
-	   m_form -> set_channel_2 ("vol" + std::to_string (counter));
-	}
 	firstFreeCell = (firstFreeCell + tobeRead) % this ->  bufSize;
 }
 

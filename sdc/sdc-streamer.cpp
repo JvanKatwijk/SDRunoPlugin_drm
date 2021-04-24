@@ -57,8 +57,7 @@ int16_t	SDC_streamer::lengthOut (void) {
 	return outLength;
 }
 
-void	SDC_streamer::handle_stream (SDRunoPlugin_drmUi *m_form,
-	                             metrics *softBits,
+void	SDC_streamer::handle_stream (metrics *softBits,
 	                             uint8_t *reconstr,
 	                             uint8_t *out, bool flag) {
 int16_t	i, Cnt	= 0;

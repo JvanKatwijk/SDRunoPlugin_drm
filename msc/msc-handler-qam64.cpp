@@ -32,6 +32,7 @@
 #include	"..\support\mapper.h"
 #include	"..\support\prbs.h"
 #include	"..\support\protlevels.h"
+#include	"..\support\mer64-values.h"
 #include	"..\SDRunoPlugin_drmUi.h"
 
 //	In order to handle the A and B levels, we create a
@@ -39,7 +40,7 @@
 	QAM64_SM_Handler::QAM64_SM_Handler	(stateDescriptor *theState,
 	                                         int8_t		qam64Roulette,
 	                                         SDRunoPlugin_drmUi *m_form):
-	                                          mscHandler (theState),
+	                                          mscHandler (m_form, theState),
 	                                          myDecoder () {
 int16_t	N1, N2;
 int16_t	RYlcm, i;
@@ -48,7 +49,6 @@ int32_t	highProtected, lowProtected;
 //
 	this	-> theState		= theState;
 	this	-> qam64Roulette	= qam64Roulette;
-	this	-> m_form		= m_form;
 	lengthA				= 0;
 
 	for (i = 0; i < theState -> numofStreams; i ++)
@@ -84,11 +84,11 @@ int32_t	highProtected, lowProtected;
 //
 //	Note that N2 is (re)computed in the streamer
 	stream_0	= new MSC_streamer (theState, 0, N1,
-	                                    NULL,  NULL, m_form);
+	                                    NULL,  NULL);
 	stream_1	= new MSC_streamer (theState, 1, N1,
-	                              Y13mapper_high, Y13mapper_low, m_form);
+	                              Y13mapper_high, Y13mapper_low);
 	stream_2	= new MSC_streamer (theState, 2, N1,
-	                              Y21mapper_high, Y21mapper_low, m_form);
+	                              Y21mapper_high, Y21mapper_low);
 
 	highProtected	= stream_0 -> highBits () +
 	                  stream_1 -> highBits () +
@@ -172,6 +172,10 @@ int32_t	i;
 uint8_t *level_0	= (uint8_t *)_malloca (2 * theState -> muxSize);
 uint8_t *level_1	= (uint8_t *)_malloca (2 * theState -> muxSize);
 uint8_t *level_2	= (uint8_t *)_malloca (2 * theState -> muxSize);
+mer64_compute computeMER;
+float mer = 10 * log10 (computeMER. computemer (v, theState -> muxSize));
+        m_form -> show_msc_mer (mer);
+
 	for (i = 0; i < qam64Roulette; i ++) {
 	   myDecoder. computemetrics (v, theState -> muxSize,
 	                                   0, Y0. data (),

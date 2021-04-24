@@ -134,6 +134,9 @@
     <ClCompile Include="support\qam4-metrics.cpp" />
     <ClCompile Include="support\qam64-metrics.cpp" />
     <ClCompile Include="support\viterbi-drm.cpp" />
+    <ClCompile Include="support\mer4-values.cpp" />
+    <ClCompile Include="support\mer16-values.cpp" />
+    <ClCompile Include="support\mer64-values.cpp" />
     <ClCompile Include="equalizer\equalizer-base.cpp" />
     <ClCompile Include="equalizer\equalizer-1.cpp" />
     <ClCompile Include="equalizer\estimator-1.cpp" />
@@ -142,7 +145,6 @@
     <ClCompile Include="fac\fac-processor.cpp" />
     <ClCompile Include="fac\fac-tables.cpp" />
     <ClCompile Include="sdc\sdc-processor.cpp" />
-    <ClCompile Include="sdc\mer16-values.cpp" />
     <ClCompile Include="sdc\sdc-streamer.cpp" />
     <ClCompile Include = "msc\backend-controller.cpp" />
     <ClCompile Include = "msc\msc-processor.cpp" />
@@ -191,6 +193,9 @@
     <ClInclude Include="support\qam4-metrics.h" />
     <ClInclude Include="support\qam64-metrics.h" />
     <ClInclude Include="support\viterbi-drm.h" />
+    <ClInclude Include="support\mer4-values.h" />
+    <ClInclude Include="support\mer16-values.h" />
+    <ClInclude Include="support\mer64-values.h" />
     <ClInclude Include="equalizer\equalizer-base.h" />
     <ClInclude Include="equalizer\equalizer-1.h" />
     <ClInclude Include="equalizer\estimator-1.h" />
@@ -200,7 +205,6 @@
     <ClInclude Include="fac\fac-tables.h" />
     <ClInclude Include="sdc\sdc-include.h" />
     <ClInclude Include="sdc\sdc-processor.h" />
-    <ClInclude Include="sdc\mer16-values.h" />
     <ClInclude Include="sdc\sdc-streamer.h" />
     <ClInclude Include="msc\backend-controller.h" />
     <ClInclude Include="msc\msc-processor.h" />

@@ -43,7 +43,6 @@
 	                                    my_dataProcessor (theState, 
 	                                                      m_form, b) {
 	this	-> theState	= theState;
-	this	-> m_form	= m_form;
 	this	-> qam64Roulette	= qam64Roulette;
 	this	-> audioBuffer	= b;
 	this	-> mscMode	= theState	-> mscMode;
@@ -76,7 +75,7 @@
 	         m_form -> set_datacoding ("Not here");
 	         my_mscHandler = new QAM64_SM_Handler  (theState,
 	                                                qam64Roulette,
-				                                    m_form);
+				                        m_form);
 	         break;
 	   }
 	}
@@ -86,7 +85,7 @@
 	   my_mscHandler = new QAM16_SM_Handler (theState, m_form);
 	}
 	else
-	   my_mscHandler	= new mscHandler (theState);
+	   my_mscHandler	= new mscHandler (m_form, theState);
 	bufferP		= 0;
 }
 

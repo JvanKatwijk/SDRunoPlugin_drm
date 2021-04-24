@@ -126,10 +126,8 @@ private:
 //
 //	for the graphics
 	
-	std::vector<int> pixelStore;
 	void		show_eq			(std::vector<std::complex<float>> &);
 	void		clearScreen();
-	drawing		*eqPicture;
 
 
 };

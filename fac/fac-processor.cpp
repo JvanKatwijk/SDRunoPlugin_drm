@@ -25,6 +25,7 @@
 #include	"fac-tables.h"
 #include	"..\parameters\state-descriptor.h"
 #include	"..\support\qam4-metrics.h"
+#include	"..\support\mer4-values.h"
 
 #define	FAC_BITS	64
 #define	FAC_CRC		8
@@ -89,7 +90,8 @@ float		sum_WMERFAC     = 0;
 float		sum_weight_FAC  = 0;
 float		WMERFAC;
 uint8_t	 facBits [2 * (FAC_BITS + FAC_CRC)];
-//
+mer4_compute computeMER;
+
 //	first extract data from the cells for the FAC
 	for (i = 0; facTable [i]. symbol != -1; i ++) {
 	   int16_t symbol	= facTable [i]. symbol;
@@ -106,7 +108,8 @@ uint8_t	 facBits [2 * (FAC_BITS + FAC_CRC)];
 	}
 	WMERFAC		= -10 * log10 (sum_WMERFAC /
 	                     (meanEnergy * (sum_weight_FAC + FAC_SAMPLES * 1.0E-10)));
-	m_form -> set_snrDisplay (WMERFAC);
+	float mer	= computeMER. computemer (facVector, FAC_SAMPLES);
+	m_form -> show_fac_mer (mer);
 
 	fromSamplestoBits (facVector, facBits);
 //	first: dispersion

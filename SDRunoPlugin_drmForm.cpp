@@ -311,28 +311,12 @@ void	SDRunoPlugin_drmForm::Setup () {
 	sdcSyncLabel. tooltip ("if gree, nthe SDC could be decoded");
 	sdcSyncLabel.bgcolor(nana::colors::red);
 
-	snrDisplay. tooltip ("estimate of SNR");	
 	aacDataLabel. tooltip ("type  of aac");
 	faadSyncLabel.  tooltip ("if green, the aac in the selected service is decoded");
 	faadSyncLabel.bgcolor(nana::colors::red);
 
 	spectrumIndicator. tooltip ("type of detected spectrum");
 	modeIndicator. tooltip ("the detected mode");
-
-	pixelStore. resize (nrRows * nrColumns);
-	eqPicture = new nana::drawing (imageLabel);
-	eqPicture -> draw ([&](nana::paint::graphics& graph) {
-	        for (int i = 0; i <  nrRows ; i ++)
-		   for (int j = 0; j < nrColumns; j++) {
-	              int res =
-			   pixelStore [i * nrColumns + j];
-	              graph.set_pixel (j, i, res == 0 ?
-	                                     nana::colors::white :
-	                                     res == 100 ?
-	                                     nana::colors::black:
-	                                     nana::colors::red);
-	           }
-		});
 }
 
 void	SDRunoPlugin_drmForm::SettingsButton_Click () {
@@ -375,9 +359,7 @@ void	SDRunoPlugin_drmForm::activate_channel_2 () {
 	m_parent, activate_channel_2 ();
 }
 
-void	SDRunoPlugin_drmForm::set_channel_3 (const std::string s) {
-	channel_3. caption (s);
-}
+
 
 void	SDRunoPlugin_drmForm::set_channel_4 (const std::string s) {
 	channel_4. caption (s);
@@ -433,10 +415,6 @@ void	SDRunoPlugin_drmForm::set_phaseOffsetDisplay (float f) {
 	phaseOffsetDisplay. caption (std::to_string (f));
 }
 
-void	SDRunoPlugin_drmForm::set_snrDisplay (float f) {
-	snrDisplay. caption (std::to_string (f));
-}
-
 void	SDRunoPlugin_drmForm::set_aacDataLabel (const std::string s) {
 	aacDataLabel. caption (s);
 }
@@ -473,47 +451,15 @@ void	SDRunoPlugin_drmForm::set_messageLabel (const std::string s) {
 	messageLabel. caption (s);
 }
 
-void	SDRunoPlugin_drmForm::showLines	(std::vector<std::complex<float>> &v) {
-std::vector<float> phasesR (nrColumns);
-std::vector<float> amplitudesR (nrColumns);
-float	phaseScaler	= 0;
-float	amplitudeScaler	= 0;
-int factor	= v. size () / nrColumns;
-
-	for (int i = 0; i < nrColumns; i ++) {
-	   phasesR [i] = 0;
-	   amplitudesR [i] = 0;
-	   for (int j = 0; j < factor; j ++) {
-	      phasesR [i] += arg (v [i + factor + j]);
-	      amplitudesR [i] += abs (v [i * factor + j]);
-	   }
-	   phaseScaler += phasesR [i];
-	   amplitudeScaler += amplitudesR [i]; 
-	}
-
-	phaseScaler /= nrColumns;
-	amplitudeScaler /= nrColumns;
-
-	for (int i = 0; i < nrRows; i ++)
-	   for (int j = 0; j < nrColumns; j ++)
-	      pixelStore [i * nrColumns + j] = 0;
-
-	for (int i = 0; i < nrColumns; i ++) {
-	   int scaledPhase = phasesR [i] / phaseScaler * 30  + 150;
-	   int scaledAmplitude = amplitudesR [i] / amplitudeScaler * 10 + 50;
-	   if (scaledPhase < 0)
-	      scaledPhase = 0;
-	   if (scaledPhase >= 200)
-	      scaledPhase = 199;
-	   if (scaledAmplitude < 0)
-	     scaledAmplitude = 0;
-	   if (scaledAmplitude >= 200)
-	      scaledAmplitude = 199;
-	   pixelStore [scaledPhase * nrColumns + i] = 100;
-	   pixelStore [scaledAmplitude * nrColumns + i] = 200;
-	}
-	eqPicture -> update ();
+void	SDRunoPlugin_drmForm::show_fac_mer(float v) {
+	fac_mer.caption(std::to_string(v));
 }
 
-void	SDRunoPlugin_drmForm::clearScreen	() {}
+void	SDRunoPlugin_drmForm::show_sdc_mer	(float v) {
+	sdc_mer. caption (std::to_string (v));
+}
+
+void	SDRunoPlugin_drmForm::show_msc_mer	(float v) {
+	msc_mer. caption (std::to_string (v));
+}
 

@@ -31,14 +31,12 @@
 #include	"..\support\viterbi-drm.h"
 
 class	Mapper;
-class	SDRunoPlugin_drmUi;
 
 class	SDC_streamer {
 public:
 			SDC_streamer	(uint8_t, uint8_t, Mapper *, int16_t);
 			~SDC_streamer	(void);
-	void		handle_stream	(SDRunoPlugin_drmUi *,
-	                                 metrics *, uint8_t *, uint8_t *, bool);
+	void		handle_stream	(metrics *, uint8_t *, uint8_t *, bool);
 	int16_t		lengthOut	(void);
 private:
 	punctureTables	pt;

@@ -40,15 +40,13 @@
 	                            int16_t	streamNumber,
 	                            int16_t	N1,
 	                            Mapper	*hpMapper,
-	                            Mapper	*lpMapper,
-	                            SDRunoPlugin_drmUi *m_form) {
+	                            Mapper	*lpMapper) {
 	this	-> theState	= theState;
 	this	-> streamNumber	= streamNumber;
 	this	-> N1		= N1;
 	this	-> N2		= theState -> muxSize - N1;
 	this	-> hpMapper	= hpMapper;
 	this	-> lpMapper	= lpMapper;
-	this	-> m_form	= m_form;
 //
 //	just a handle:
 //	

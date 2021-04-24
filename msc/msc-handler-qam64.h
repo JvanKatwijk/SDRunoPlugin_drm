@@ -43,7 +43,6 @@ public:
 private:
 
 	stateDescriptor	*theState;
-	SDRunoPlugin_drmUi	*m_form;
 	int8_t		qam64Roulette;
 	int16_t		lengthA;
 	int16_t		lengthB;

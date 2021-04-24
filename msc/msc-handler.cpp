@@ -26,8 +26,11 @@
 //
 #include	"msc-handler.h"
 #include	"..\parameters\state-descriptor.h"
+#include	"..\SDRunoPlugin_drmUi.h"
 
-	mscHandler::mscHandler	(stateDescriptor *theState) {
+	mscHandler::mscHandler	(SDRunoPlugin_drmUi *m,
+	                            stateDescriptor *theState) {
+	this	-> m_form	= m;
 	this	-> theState	= theState;
 	muxLength		= theState	-> mscCells / 3;
 }

@@ -25,7 +25,7 @@
 
 // TODO: Change these numbers to the height and width of your form
 #define formWidth (460)
-#define formHeight (460)
+#define formHeight (230)
 #define	nrColumns (formWidth - 60)
 #define	nrRows (200)
 
@@ -52,10 +52,8 @@ public:
 	void	set_clockOffsetDisplay (float f);
 	void	set_angleDisplay (float f);
 	void	set_programTypeLabel (const std::string s);
-	void	set_channel_3 (const std::string s);
 	void	set_sdcSyncLabel (bool b);
 	void	set_phaseOffsetDisplay (float f);
-	void	set_snrDisplay (float f);
 	void	set_aacDataLabel (const std::string s);
 	void	set_channel_4 (const std::string s);
 	void	set_faadSyncLabel (bool b);
@@ -66,6 +64,10 @@ public:
 	void	set_messageLabel (const std::string s);
 	void	showLines		(std::vector<std::complex<float>> &);
 	void	clearScreen		();
+
+	void	show_fac_mer		(float);
+	void	show_sdc_mer		(float);
+	void	show_msc_mer		(float);
 
 	void	hide_channel_1		();
 	void	hide_channel_2		();
@@ -165,11 +167,11 @@ private:
 	                          {*this, nana::rectangle (180, 150, 40, 20)};
 	nana::label	messageLabel
 	                          {*this, nana::rectangle (230, 150, 200, 20)};
-	nana::label	imageLabel
-	                          {*this, nana::rectangle (30, 180, 400, 200)};
-
-	std::vector<int> pixelStore;
-	nana::drawing		*eqPicture;
+//
+//	row 6
+	nana::label	fac_mer 	{ *this, nana::rectangle(30, 180, 60, 20) };
+	nana::label	sdc_mer 	{ *this, nana::rectangle(100, 180, 60, 20) };
+	nana::label	msc_mer 	{ *this, nana::rectangle(170, 180, 60, 20) };
 
 	SDRunoPlugin_drmUi & m_parent;
 	IUnoPluginController & m_controller;

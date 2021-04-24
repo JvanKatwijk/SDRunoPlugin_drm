@@ -34,7 +34,8 @@
 #include	"..\support\mapper.h"
 #include	"..\SDRunoPlugin_drmUi.h"
 
-#include	"mer16-values.h"
+#include	"..\support\mer4-values.h"
+#include	"..\support\mer16-values.h"
 //
 //	the "processor" for extracting the SDC values from the
 //	(first) frame of a superframe encoded in QAM4/QAM16
@@ -153,9 +154,12 @@ metrics *rawBits	=
 	(metrics*)_malloca  ((2 * nrCells) * sizeof(metrics));
 uint8_t	*reconstructed	=
 	(uint8_t *)_malloca ((2 * nrCells) * sizeof (uint8_t));
+mer4_compute   computeMER;
+float   mer     = 10 * log10 (computeMER. computemer (v. data (), nrCells));
+        m_form  -> show_sdc_mer (mer);
 
 	my_qam4_metrics -> computemetrics (v. data (), nrCells, rawBits);
-	stream_0	-> handle_stream (m_form, rawBits, reconstructed,
+	stream_0	-> handle_stream (rawBits, reconstructed,
 	                                     &sdcBits [4], false);
 //
 //	apply PRBS
@@ -178,7 +182,7 @@ std::vector<uint8_t> level_0;
 std::vector<uint8_t> level_1;
 mer16_compute	computeMER;
 float	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
-	m_form	-> set_channel_3 (std::to_string (mer));
+	m_form	-> show_sdc_mer (mer);
 	
 	sdcBits. resize (4 + stream_0 -> lengthOut() + stream_1->lengthOut());
 	Y0_stream.resize (2 * nrCells);
@@ -192,8 +196,7 @@ float	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
 	                                           Y0_stream. data (), 
 	                                           i != 0,
 	                                           level_0. data (), level_1. data ());
-	   stream_0		-> handle_stream  (m_form,
-	                                           Y0_stream. data (),
+	   stream_0		-> handle_stream  (Y0_stream. data (),
 	                                           level_0. data (),
 	                                           &sdcBits [4],
 	                                           true);
@@ -201,8 +204,7 @@ float	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
 	                                           Y1_stream. data (),
 		                                   true,
 	                                           level_0. data (), level_1. data ());
-	   stream_1	->	handle_stream (m_form,
-	                                       Y1_stream. data (),
+	   stream_1	->	handle_stream (Y1_stream. data (),
 		                               level_1. data (),
 		                               &sdcBits [4 + stream_0 -> lengthOut()],
 	                                       true);
@@ -341,10 +343,10 @@ uint8_t	language [3], country [2];
 	            m_form -> set_channel_2 (s);
 	            break;
 	         case 2:
-	            m_form ->  set_channel_3 (s);
+//	            m_form ->  set_channel_3 (s);
 	            break;
 	         case 3:
-	            m_form -> set_channel_4 (s);
+//	            m_form -> set_channel_4 (s);
 	            break;
 	      }
 	      return;
