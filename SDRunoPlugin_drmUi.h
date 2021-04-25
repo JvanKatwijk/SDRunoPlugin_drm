@@ -43,8 +43,6 @@ public:
 	void	set_programTypeLabel (const std::string s);
 
 	void	set_sdcSyncLabel (bool b);
-	void	set_phaseOffsetDisplay (float f);
-	void	set_snrDisplay (float f);
 	void	set_aacDataLabel (const std::string s);
 	void	set_channel_4 (const std::string s);
 	void	set_faadSyncLabel (bool b);

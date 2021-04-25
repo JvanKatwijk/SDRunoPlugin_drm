@@ -1,9 +1,102 @@
-DRunoPlugin_drm
+	SDRunoPlugin_drm
 
 The drm plugin for SDRuno is - as the name suggests - a plugin for 
 decoding drm signals, as they are transmitted on shortwave.
-The current setup is experimental and not complete yet.
 
-However, it seems to work.
+![overview](/drm-decoder.png?raw=true)
+
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+
+DRM, Digital Radio Mondiale, is a form of digital radio. Transmissions
+are relatively scarce here in Western Europe, but is seems that elsewhere
+there is an increasing interest.
+
+For DRM signals there are different Modes and Spectra, here is Western
+Europe transmissions can be received in Mode B, with a spectrum of 10 KHz.
+Other spectra are 4.5, 5, 9, 18 and 20 KHz.
+
+Different Modes have different measures against fading in the signal.
+
+The picture shows  a reasonable signal on 9760 KHz, a transmission of the
+Radio Rumenia International, in Mode B, with a spectrum of 10 KHz.
+
+The DRM plugin is an EXPERIMENTAL decoder,
+developed for the SDRuno framework: it will attempt
+to decode DRM transmissions. It is able to recognize Modes A, B and C
+and will handle spectra up to 10 KHz.
+
+The decoder is derived from the drm decoder for the swradio-8 software.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+
+![overview](/drm-widget.png?raw=true)
+
+There are no controls on the widget, as soon as the plugin is activated
+it will start reading in samples and trying to decode DRM.
+The different labels in the
+widget give information on the reception.
+The picture shows that the receiver is tuned to 9760 KHz, that
+the samplerate is already reduced to 62.5 KHz (the decoder will do the
+further filtering an reduction to 12 KHz). 
+The name of the receiver service is "SNR Tiganesti E1".
+
+On the right hand side of the widget, there are four labels, 
+since the transmission can be decoder they are all green.
+From top to bottom
+
+   * the time sync label. DRM is transmitted using an (C)OFDM technique, what is important is that there is a time synchronization so that the receiver "knows"
+where segments in the incoming sample stream start;
+
+   * the FAC label. A DRM transmission contains data in the so-called FAC, i.e. Fast Access Channel. The FAC data is encoded as 4QAM, which is relatively easy
+to decode (given that the time synchronizaarion is OK). FAC data is concerned
+with structuring the data;
+
+   * the SDC label. The SDC, Service Description Channel, contains - as the
+name suggests - the description of the service, its name, how it is encoded, etc.
+   * the AAC label. The service is encoded in the Main Service Channel, and
+usually encoded as an AAC stream. 
+
+For each of these labels it holds that "green"  means that processing is 
+without errors.
+
+The bottom line of the widget gives some quality indicators in a more
+quantitative way. From left to right:
+
+   * the quality of the FAC signal, expressed as number where higher is better;
+
+   * the quality of the SDC signal, expressed as number, higher is better;
+
+   * the quality of the AAC decoder, expressed as number, higher is better.
+
+On the second to bottom line, we see the spectrum (3), the Mode (B),
+the encoding of the MSC (QAM16) and the way the audio is encoded (AAC).
+
+The remaining labels give an indication of the frequency and time offset
+of the received signals. All labels are equipped with a tooltip telling
+the function.
+
+-----------------------------------------------------------------------------
+Building the plugin.
+-----------------------------------------------------------------------------
+
+The plugin is - as other plugins - developed under MSVC. Note that
+the plugin uses to additional libraries (dll's):
+
+   * fftw, for the various Fast Fourier Transdorms
+
+   * faad, for the decoding of the AAC data
+
+
+--------------------------------------------------------------------------
+Work to be dome
+--------------------------------------------------------------------------
+
+As said, the plugin is experimental. What needs to be done is adding
+the fdkaac decoder for newer audio encoding modes,
+And - of course - remaining errors need to be detected and removed
 
 

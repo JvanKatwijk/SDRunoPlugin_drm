@@ -53,7 +53,6 @@ public:
 	void	set_angleDisplay (float f);
 	void	set_programTypeLabel (const std::string s);
 	void	set_sdcSyncLabel (bool b);
-	void	set_phaseOffsetDisplay (float f);
 	void	set_aacDataLabel (const std::string s);
 	void	set_channel_4 (const std::string s);
 	void	set_faadSyncLabel (bool b);
@@ -143,10 +142,6 @@ private:
 	                          {*this, nana::rectangle (420, 90, 20, 20)};
 //
 //	row 4
-	nana::label	phaseOffsetDisplay
-	                          {*this, nana::rectangle (30, 120, 60, 20)};
-	nana::label	snrDisplay
-	                          {*this, nana::rectangle (100, 120, 60, 20)};
 	nana::label	aacDataLabel
 	                          {*this, nana::rectangle (170, 120, 60, 20)};
 	nana::label	channel_4

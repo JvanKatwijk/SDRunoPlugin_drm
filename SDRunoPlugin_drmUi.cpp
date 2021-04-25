@@ -170,12 +170,6 @@ void	SDRunoPlugin_drmUi::set_sdcSyncLabel (bool b) {
 	   m_form -> set_sdcSyncLabel (b);
 }
 
-void	SDRunoPlugin_drmUi::set_phaseOffsetDisplay (float f) {
-	std::lock_guard<std::mutex> l (m_lock);
-	if (m_form != nullptr)
-	   m_form -> set_phaseOffsetDisplay (f);
-}
-
 void	SDRunoPlugin_drmUi::set_aacDataLabel (const std::string s) {
 	std::lock_guard<std::mutex> l (m_lock);
 	if (m_form != nullptr)

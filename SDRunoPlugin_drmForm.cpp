@@ -236,7 +236,7 @@ void	SDRunoPlugin_drmForm::Setup () {
 	title_bar_label.size(nana::size(65, 12));
 	title_bar_label.move(nana::point((formWidth / 2) - 5, 9));
 	title_bar_label.format(true);
-	title_bar_label.caption("< bold size = 6 color = 0x000000 font = \"Verdana\">TEMPLATE</>");
+	title_bar_label.caption("< bold size = 6 color = 0x000000 font = \"Verdana\">DRM decoder</>");
 	title_bar_label.text_align(nana::align::center, nana::align_v::center);
 	title_bar_label.fgcolor(nana::color_rgb(0x000000));
 	title_bar_label.transparent(true);
@@ -298,25 +298,96 @@ void	SDRunoPlugin_drmForm::Setup () {
 	channel_2. events (). click ([&](){activate_channel_2 ();});
 
 	timeDelayDisplay. tooltip ("estimate of time delay");
+	timeDelayDisplay. transparent (true);
+	timeDelayDisplay. fgcolor (nana::colors::white);
+
 	intOffsetDisplay. tooltip ("estimate of integer frequency offset");
+	intOffsetDisplay. transparent (true);
+	intOffsetDisplay. fgcolor (nana::colors::white);
+
+	countryLabel. tooltip ("Country");
+	countryLabel. transparent (true);
+	countryLabel. fgcolor (nana::colors::white);
+
 	timeSyncLabel. tooltip ("time synchronized if green");
 	timeSyncLabel. bgcolor (nana::colors::red);
 
+	timeOffsetDisplay. tooltip ("time offset");
+	timeOffsetDisplay. transparent (true);
+	timeOffsetDisplay. fgcolor (nana::colors::white);
+
 	smallOffsetDisplay. tooltip ("estimate of fraction frequency offset");
+	smallOffsetDisplay. transparent (true);
+	smallOffsetDisplay. fgcolor (nana::colors::white);
+
+	timeLabel. tooltip ("Recorded time from transmission");
+	timeLabel. transparent (true);
+	timeLabel. fgcolor (nana::colors::white);
+
 	facSyncLabel. tooltip ("if green, FAC could be decoded");
 	facSyncLabel.bgcolor(nana::colors::red);
 
 	clockOffsetDisplay. tooltip ("estimate of clock offset");
+	clockOffsetDisplay. transparent (true);
+	clockOffsetDisplay. fgcolor (nana::colors::white);
+
 	angleDisplay. tooltip ("estimate of error in phase angle");
-	sdcSyncLabel. tooltip ("if gree, nthe SDC could be decoded");
-	sdcSyncLabel.bgcolor(nana::colors::red);
+	angleDisplay. transparent (true);
+	angleDisplay. fgcolor (nana::colors::white);
+
+	programTypeLabel. tooltip ("program type");
+	programTypeLabel. transparent (true);
+	programTypeLabel. fgcolor (nana::colors::white);
+
+	channel_3. tooltip ("free");
+	channel_3. transparent (true);
+	channel_3. fgcolor (nana::colors::white);
+
+	sdcSyncLabel. tooltip ("if green the SDC could be decoded");
+	sdcSyncLabel. fgcolor (nana::colors::red);
 
 	aacDataLabel. tooltip ("type  of aac");
-	faadSyncLabel.  tooltip ("if green, the aac in the selected service is decoded");
-	faadSyncLabel.bgcolor(nana::colors::red);
+	aacDataLabel. transparent (true);
+	aacDataLabel. fgcolor (nana::colors::white);
+
+	channel_4. tooltip ("unused");
+	channel_4. transparent (true);
+	channel_4. fgcolor (nana::colors::white);
+
+	faadSyncLabel. tooltip ("if green, the aac in the selected service is decoded");
+	faadSyncLabel.bgcolor (nana::colors::red);
 
 	spectrumIndicator. tooltip ("type of detected spectrum");
+	spectrumIndicator. transparent (true);
+	spectrumIndicator. fgcolor (nana::colors::white);
+
 	modeIndicator. tooltip ("the detected mode");
+	modeIndicator. transparent (true);
+	modeIndicator. fgcolor (nana::colors::white);
+
+	datacoding. tooltip ("encoding of msc stream");
+	datacoding. transparent (true);
+	datacoding. fgcolor (nana::colors::white);
+
+	audioModeLabel. tooltip ("audio mode");
+	audioModeLabel. transparent (true);
+	audioModeLabel. fgcolor (nana::colors::white);
+
+	messageLabel. tooltip ("message label");
+	messageLabel. transparent (true);
+	messageLabel. fgcolor (nana::colors::white);
+
+	fac_mer. tooltip ("Quality of FAC data in signal");
+	fac_mer. transparent (true);
+	fac_mer. fgcolor (nana::colors::white);
+
+	sdc_mer. tooltip ("Quality of SDC data in signal");
+	sdc_mer. transparent (true);
+	sdc_mer. fgcolor (nana::colors::white);
+
+	msc_mer. tooltip ("Quality of MSC data in signal");
+	msc_mer. transparent (true);
+	msc_mer. fgcolor (nana::colors::white);
 }
 
 void	SDRunoPlugin_drmForm::SettingsButton_Click () {
@@ -410,10 +481,6 @@ void	SDRunoPlugin_drmForm::set_programTypeLabel (const std::string s) {
 	programTypeLabel. caption (s);
 }
 
-
-void	SDRunoPlugin_drmForm::set_phaseOffsetDisplay (float f) {
-	phaseOffsetDisplay. caption (std::to_string (f));
-}
 
 void	SDRunoPlugin_drmForm::set_aacDataLabel (const std::string s) {
 	aacDataLabel. caption (s);
