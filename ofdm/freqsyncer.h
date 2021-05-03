@@ -65,7 +65,7 @@ private:
 	int16_t		Ts;
 	int16_t		Tg;
 	int16_t		displayCount;
-	int16_t		NrSymbols;
+	int16_t		nrSymbols;
 	int16_t		bufferIndex;
 	std::complex<float>	**symbolBuffer;
 	std::complex<float>	*fft_vector;

@@ -100,7 +100,7 @@ int	f	= buffer -> currentIndex;
 	}
 
 //	And we shift the bufferpointer here
-	buffer -> currentIndex = (f + Ts) % buffer -> bufSize;
+	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
 
 //	Now: determine the fine grain offset.
 	for (int i = 0; i < Tg; i ++)
@@ -110,7 +110,7 @@ int	f	= buffer -> currentIndex;
 //
 //	offset  (and shift) in Hz / 100
 	float offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan (offset)) 	// precaution to handle undefines
+	if (!isnan<float> (offset)) 	// precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                            100 * offsetInteger - offset);
 	else
@@ -163,7 +163,7 @@ int	f			= buffer -> currentIndex;
 	                    cmul (two, theOffset);
 	}
 //	And we adjust the bufferpointer here
-	buffer -> currentIndex = (f + Ts) % buffer -> bufSize;
+	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
 //
 //	There are two approaches for computing the angle offset,
 //	one based on the current "word", the other one based
@@ -180,7 +180,7 @@ int	f			= buffer -> currentIndex;
 	theAngle	= theAngle - 0.1 * angle;
 //	offset in 0.01 * Hz
 	float offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan (offset))  // precaution to handle undefines
+	if (!isnan<float>(offset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                        100 * modeInf -> freqOffset_integer - offset);
 	else

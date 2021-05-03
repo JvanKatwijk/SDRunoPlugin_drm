@@ -73,7 +73,6 @@ std::complex<float> cmul(std::complex<float> x, float y) {
 	                        int32_t		sampleRate,	
 	                        SDRunoPlugin_drmUi *m_form):
 	                                 theShifter (100 * sampleRate) {
-int16_t	i;
 	this	-> buffer	= b;
 	this	-> Mode		= m -> Mode;
 	this	-> Spectrum	= m -> Spectrum;
@@ -83,7 +82,7 @@ int16_t	i;
 	this	-> Tu		= Tu_of (Mode);
 	this	-> Ts		= Ts_of (Mode);
 	this	-> Tg		= Tg_of (Mode);
-	this	-> NrSymbols	= symbolsperFrame (Mode);
+	this	-> nrSymbols	= symbolsperFrame (Mode);
 	this	-> displayCount	= 0;
 
 //	for detecting pilots:
@@ -94,17 +93,17 @@ int16_t	i;
 	            Mode == Mode_B ? testCellsforModeB :
 	            Mode == Mode_C ? testCellsforModeC : testCellsforModeD;
 
-	this	-> k_pilot1 = base [0]. index + Tu / 2;
-	this	-> k_pilot2 = base [1]. index + Tu / 2;
-	this	-> k_pilot3 = base [2]. index + Tu / 2;
+	this	-> k_pilot1 = base [0]. index;
+	this	-> k_pilot2 = base [1]. index;
+	this	-> k_pilot3 = base [2]. index;
 
-	this	-> symbolBuffer	= new std::complex<float> *[NrSymbols];
-	for (i = 0; i < NrSymbols; i ++)
-	   symbolBuffer [i] = new std::complex<float> [Tu_of (Mode)];
+	this	-> symbolBuffer	= new std::complex<float> *[nrSymbols];
+	for (int i = 0; i < nrSymbols; i ++)
+	   symbolBuffer [i] = new std::complex<float> [Tu];
 	fft_vector = (std::complex<float> *)
-	                               fftwf_malloc (Tu_of (Mode) *
+	                               fftwf_malloc (Tu *
 	                                            sizeof (fftwf_complex));
-	hetPlan			= fftwf_plan_dft_1d (Tu_of (Mode),
+	hetPlan			= fftwf_plan_dft_1d (Tu,
 	                    reinterpret_cast <fftwf_complex *>(fft_vector),
 	                    reinterpret_cast <fftwf_complex *>(fft_vector),
 	                    FFTW_FORWARD, FFTW_ESTIMATE);
@@ -113,7 +112,7 @@ int16_t	i;
 		freqSyncer::~freqSyncer (void) {
 	fftwf_free (fft_vector);
 	fftwf_destroy_plan (hetPlan);
-	for (int i = 0; i < NrSymbols; i ++)
+	for (int i = 0; i < nrSymbols; i ++)
 	   delete[]  symbolBuffer [i];
 	delete[] symbolBuffer;
 }
@@ -124,17 +123,17 @@ int32_t	localIndex	= 0;
 float	occupancyIndicator [6];
 uint8_t	spectrum;
 
-	buffer	-> waitfor (NrSymbols * Ts + Ts);
+	buffer	-> waitfor (nrSymbols * Ts + Ts);
 
-//	first, load spectra for the first NrSymbol symbols
+//	first, load spectra for the first nrSymbol symbols
 //	into the (circular) buffer "symbolBuffer",
 //	However: do not move the "currentIndex" in the Reader,
 //	i.e. do not consume the words from the input
-	for (i = 0; i < NrSymbols; i ++) {
-	          getWord (buffer,
-	                   localIndex,
-	                   i,
-	                   m -> timeOffset_fractional);
+	for (i = 0; i < nrSymbols; i ++) {
+	   getWord (buffer,
+	            localIndex,
+	            i,
+	            m -> timeOffset_fractional);
 	   localIndex += Ts;
 	}
 
@@ -169,28 +168,20 @@ float	square (std::complex<float> v) {
 }
 
 int32_t	freqSyncer::get_zeroBin (int16_t start) {
-int16_t i, j;
 std::complex<float>* correlationSum =
 	    (std::complex<float> *)_malloca  (Tu * sizeof(std::complex<float>));
 float	*abs_sum = (float *) _malloca (Tu * sizeof (float));
 float	*squares = (float *) _malloca (Tu * sizeof (float));
-//
-//	assuming we do not have freq sync pilots, it is possible to
-//	compute the coarse frequency offset, i.e. the "null" carrier
-//	by looking at pilot carriers at corresponding places,
-//	shifted one window.
-//	Problem is of course that we do not know the "first"
-//	symbol.
 //
 	memset (correlationSum, 0, Tu * sizeof (std::complex<float>));
 	memset (abs_sum, 0, Tu * sizeof (float));
 	memset (squares, 0, Tu * sizeof (float));
 
 //	accumulate phase diffs of all carriers in subsequent symbols
-	for (j = start + 1; j < start + NrSymbols; j++) {
-	   int16_t jmin1 	= (j - 1) % NrSymbols;
-	   int16_t jj		= j % NrSymbols;
-	   for (i = 0; i < Tu; i++) {
+	for (int j = start + 1; j < start + nrSymbols; j++) {
+	   int16_t jmin1 	= (j - 1) % nrSymbols;
+	   int16_t jj		= j % nrSymbols;
+	   for (int i = 0; i < Tu; i++) {
 	      std::complex<float> tmp1 = symbolBuffer [jmin1][i] *
 	                                        conj (symbolBuffer [jj][i]);
 	      correlationSum [i] += tmp1;
@@ -199,17 +190,17 @@ float	*squares = (float *) _malloca (Tu * sizeof (float));
 	   }
 	}
 //
-	for (i = 0; i < Tu; i++) 
+	for (int i = 0; i < Tu; i++) 
 	   abs_sum [i] = abs (squares [i] - 2 * abs (correlationSum [i]));
 
 	float	lowest		= 1.0E20;
 	int	dcOffset	= 0;
 //
 //	recall that the pilots are relative to -Tu / 2
-	for (i = - Tu / 10; i < Tu / 10; i ++) {
-	   float sum = abs_sum [k_pilot1 + i] +
-	               abs_sum [k_pilot2 + i] +
-	               abs_sum [k_pilot3 + i];
+	for (int i = - Tu / 10; i < Tu / 10; i ++) {
+	   float sum = abs_sum [Tu / 2 + k_pilot1 + i] +
+	               abs_sum [Tu / 2 + k_pilot2 + i] +
+	               abs_sum [Tu / 2 + k_pilot3 + i];
 	   if (sum < lowest) {
 	      dcOffset = i;
 	      lowest = sum;
@@ -239,7 +230,7 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 	float tmp5	= 0;
 	float tmp6	= 0;
 
-	for (i = 0; i < NrSymbols; i ++) {
+	for (i = 0; i < nrSymbols; i ++) {
 //	near the carrier with the lowest index
 	   for (j = 0; j < 15; j ++) {
 	      int ind1 = (K_min_indx - 2 - j) % Tu;
@@ -278,9 +269,9 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 //	carriers is made, but the order of the low-high freqencies
 //	is change to reflect the "lower .. higher" frequencies in order.
 void	freqSyncer::getWord (Reader	*buffer,
-	                     int32_t		localIndex,
-	                     int32_t		wordNumber,
-	                     float		offsetFractional) {
+	                     int32_t	localIndex,
+	                     int32_t	wordNumber,
+	                     float	offsetFractional) {
 std::complex<float> *temp  =
 	   (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
 std::complex<float> angle	= std::complex<float> (0, 0);
@@ -294,8 +285,10 @@ std::complex<float> angle	= std::complex<float> (0, 0);
 	}
 
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<float> een = buffer -> data  [(f + i) % buffer -> bufSize];
-	   std::complex<float> twee = buffer -> data  [(f + i + 1) % buffer -> bufSize];
+	   std::complex<float> een = buffer -> data  [(f + i) & 
+	                                              buffer -> bufMask];
+	   std::complex<float> twee = buffer -> data  [(f + i + 1) &
+	                                              buffer -> bufMask];
 	   temp [i] = cmul (een, 1 - offsetFractional) +
 	              cmul (twee, offsetFractional);
 	}
@@ -315,15 +308,10 @@ std::complex<float> angle	= std::complex<float> (0, 0);
 	   m_form -> set_timeDelayDisplay	(offsetFractional);
 	}
 
-	if (abs (offset) > 2300) {	// shouldn't happen
-//	   fprintf (stderr, "angle = %f %f, offset = %f (sampleRate %d, Tu %d)\n",
-//	             arg (angle), theAngle, offset, sampleRate, Tu);
-	   offset = offset < 0 ? -23 : 23;
-	}
-	
-	if (offset == offset)	// precaution to handle undefines
+	if (!isnan<float>(offset)) 	// shouldn't happen
 	   theShifter. do_shift (temp, Ts, -offset);
-	
+	else
+	   theAngle = 0;
 //	and extract the Tu set of samples for fft processsing
 	memcpy (fft_vector, &temp [Tg], Tu * sizeof (std::complex<float>));
 	

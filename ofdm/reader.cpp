@@ -31,11 +31,15 @@
 //	The methods are called from the drmdecoder
 
 	Reader::Reader (RingBuffer<std::complex<float>> *r,
-	                int32_t bufSize, SDRunoPlugin_drmUi *m_form) {
+	                uint32_t bufSize, SDRunoPlugin_drmUi *m_form) {
 	ringBuffer		= r;
-	this	-> bufSize	= bufSize;
+	if ((bufSize & (bufSize - 1)) == 0)
+	   this	-> bufSize	= bufSize;
+	else
+	   this -> bufSize	= 2 * 32768;
+	this	-> bufMask	= this -> bufSize - 1;
 	this	-> m_form	= m_form;
-	data			= new std::complex<float> [this -> bufSize];
+	data			= new std::complex<float> [this -> bufSize + 1];
 	memset (data, 0, this -> bufSize * sizeof (std::complex<float>));
 	currentIndex		= 0;
 	firstFreeCell		= 0;
@@ -98,6 +102,6 @@ int32_t		contents	= Contents ();
 void	Reader::shiftBuffer (int32_t n) {
 	if (n > 0)
 	   waitfor (n + 20);
-	currentIndex = (currentIndex + n) % this -> bufSize;
+	currentIndex = (currentIndex + n) & this -> bufMask;
 }
 

@@ -35,12 +35,13 @@
 class	Reader {
 public:
 			Reader (RingBuffer<std::complex<float>> *, 
-				    int32_t, SDRunoPlugin_drmUi *);
+	                        uint32_t, SDRunoPlugin_drmUi *);
 			~Reader		();
 	void		waitfor		(int32_t);
 	void		shiftBuffer	(int32_t);
 	void		stop		();
 	uint32_t	bufSize;
+	uint32_t	bufMask;
 	std::complex<float>	*data;
 	uint32_t	currentIndex;
 	bool		stopSignal;

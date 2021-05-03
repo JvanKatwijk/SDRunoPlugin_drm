@@ -45,7 +45,7 @@
 	                                localMixer (WORKING_RATE),
 	                                drmAudioBuffer (32768),
 	                                my_Reader (&inputBuffer,
-	                                           16 * 16384, &m_form),
+	                                           2 * 16384, &m_form),
 	                                my_backendController (&m_form, 6,
 	                                                       &drmAudioBuffer),
 	                                theState (1, 3) {
@@ -78,7 +78,7 @@
 	   drmError      = true;
 	}
 
-	nSymbols	= 45;
+	nSymbols	= 25;
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
 
@@ -201,7 +201,7 @@ float     sampleclockOffset       = 0;
 	      m_form. set_audioModeLabel	(std::string (""));
 	
 	      theState. cleanUp ();
-	      my_Reader. waitfor (Ts_of(Mode_A));
+	      my_Reader. waitfor (Ts_of (Mode_A));
 	  
 //      First step: find mode and starting point
 	      modeInf. Mode = -1;
@@ -219,6 +219,7 @@ float     sampleclockOffset       = 0;
 
 	      my_Reader. shiftBuffer (modeInf. timeOffset_integer);
 	      frequencySync (&my_Reader, &modeInf);
+
 	      m_form. set_timeSyncLabel		(true);
 	      m_form. set_modeIndicator		(modeInf. Mode);
 	      m_form. set_spectrumIndicator	(modeInf. Spectrum);

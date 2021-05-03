@@ -44,6 +44,7 @@ void	shifter::do_shift	(std::complex<float>	*buffer,
 	                         int32_t	bufLen,
 	                         int32_t	freq) {
 int32_t i;
+
 	for (i = 0; i < bufLen; i ++) {
 	   buffer [i] *= table [phase];
 	   phase	-= freq;

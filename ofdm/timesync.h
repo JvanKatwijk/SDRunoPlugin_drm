@@ -39,19 +39,9 @@ private:
                                                float    *Epsilon,
                                                int16_t  *Offsets);
 
-	void		compute_bestIndices     (uint8_t        mode,
-                                                 int16_t        *b,
-                                                 float averageOffset);
-        int             get_intOffset           (uint8_t, int, int, int);
-        double          compute_mmse            (uint8_t, int, int);
-
 	Reader		*theReader;
 	int32_t		sampleRate;
-	int16_t		nSymbols;
-	int32_t		nSamples;
-	std::complex<float>	*summedCorrelations;
-	float		*summedSquares;
-	float		EPSILON;
+	int16_t		nrSymbols;
 };
 #endif
 
