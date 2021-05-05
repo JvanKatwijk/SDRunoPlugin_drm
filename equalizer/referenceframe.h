@@ -24,6 +24,7 @@
 #ifndef	__REFERENCE_FRAME__
 #define	__REFERENCE_FRAME__
 
+#include	"..\basics.h"
 #include	<stdint.h>
 #include	<complex>
 
@@ -31,12 +32,12 @@ bool		isTimeCell	(uint8_t, int16_t, int16_t);
 bool		isPilotCell	(uint8_t, int16_t, int16_t);
 bool		isBoostCell	(uint8_t, uint8_t, int16_t);
 bool		isFreqCell	(uint8_t, int16_t, int16_t);
-std::complex<float>	getFreqRef	(uint8_t, int16_t, int16_t);
-std::complex<float>	getTimeRef	(uint8_t, int16_t, int16_t);
-std::complex<float>	getGainRef	(uint8_t, int16_t, int16_t);
-std::complex<float>	getPilotValue	(uint8_t, uint8_t, int16_t, int16_t);
-float		init_gain_ref_cells (int16_t *cells_k,
-	                             std::complex<float> *cells_v, int16_t *cnt);
+std::complex<DRM_FLOAT>	getFreqRef	(uint8_t, int16_t, int16_t);
+std::complex<DRM_FLOAT>	getTimeRef	(uint8_t, int16_t, int16_t);
+std::complex<DRM_FLOAT>	getGainRef	(uint8_t, int16_t, int16_t);
+std::complex<DRM_FLOAT>	getPilotValue	(uint8_t, uint8_t, int16_t, int16_t);
+DRM_FLOAT		init_gain_ref_cells (int16_t *cells_k,
+	                             std::complex<DRM_FLOAT> *cells_v, int16_t *cnt);
 #endif
 
 

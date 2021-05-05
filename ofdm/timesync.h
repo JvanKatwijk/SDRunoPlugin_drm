@@ -35,8 +35,8 @@ public:
 	void		getMode		(smodeInfo *);
 private:
 	void		compute_gammaRelative (uint8_t   mode,
-                                               float    *gammaRelative,
-                                               float    *Epsilon,
+                                               DRM_FLOAT    *gammaRelative,
+                                               DRM_FLOAT    *Epsilon,
                                                int16_t  *Offsets);
 
 	Reader		*theReader;

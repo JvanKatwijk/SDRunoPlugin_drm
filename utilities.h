@@ -25,18 +25,19 @@
 #define	__UTILITY_FUNCTIONS__
 
 #include	<stdint.h>
+#include	".\basics.h"
 
-float	decayingAverage (float, float, float);
-float	clamp (float, float, float);
+DRM_FLOAT	decayingAverage (DRM_FLOAT, DRM_FLOAT, DRM_FLOAT);
+DRM_FLOAT	clamp (DRM_FLOAT, DRM_FLOAT, DRM_FLOAT);
 class	rttyAverage {
 public:
 			rttyAverage	(int16_t);
 			~rttyAverage	();
-	float		filter		(float);
-	void		clear		(float);
+	DRM_FLOAT		filter		(DRM_FLOAT);
+	void		clear		(DRM_FLOAT);
 private:
         int16_t		size;
-        float		*vec;
+        DRM_FLOAT		*vec;
         int16_t		filp;
 };
 

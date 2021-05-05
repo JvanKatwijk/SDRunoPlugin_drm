@@ -21,21 +21,22 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef	__RTTY_SHIFTER_H
-#define	__RTTY_SHIFTER_H
+#ifndef	__DRM_SHIFTER_H
+#define	__DRM_SHIFTER_H
 #include	<complex>
+#include	"..\basics.h"
 
 class	drmShifter {
 public:
 			drmShifter	(int32_t);
 			~drmShifter	(void);
-	std::complex<float>
-			do_shift	(std::complex<float>, int32_t);
-	void		do_shift	(std::complex<float> *, int32_t, int32_t);
+	std::complex<DRM_FLOAT>
+			do_shift	(std::complex<DRM_FLOAT>, int32_t);
+	void		do_shift	(std::complex<DRM_FLOAT> *, int32_t, int32_t);
 private:
 	int32_t		phase;
 	int32_t		tableSize;
-	std::complex<float>	*table;
+	std::complex<DRM_FLOAT>	*table;
 };
 #endif
 

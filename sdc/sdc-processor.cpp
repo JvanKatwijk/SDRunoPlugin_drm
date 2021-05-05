@@ -155,7 +155,7 @@ metrics *rawBits	=
 uint8_t	*reconstructed	=
 	(uint8_t *)_malloca ((2 * nrCells) * sizeof (uint8_t));
 mer4_compute   computeMER;
-float   mer     = 10 * log10 (computeMER. computemer (v. data (), nrCells));
+FLOAT   mer     = 10 * log10 (computeMER. computemer (v. data (), nrCells));
         m_form  -> show_sdc_mer (mer);
 
 	my_qam4_metrics -> computemetrics (v. data (), nrCells, rawBits);
@@ -181,7 +181,7 @@ std::vector<metrics> Y1_stream;
 std::vector<uint8_t> level_0;
 std::vector<uint8_t> level_1;
 mer16_compute	computeMER;
-float	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
+DRM_FLOAT	mer	= 10 * log10 (computeMER. computemer (v. data (), nrCells));
 	m_form	-> show_sdc_mer (mer);
 	
 	sdcBits. resize (4 + stream_0 -> lengthOut() + stream_1->lengthOut());

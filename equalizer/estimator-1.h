@@ -32,13 +32,13 @@
 //	symbol
 class	estimator_1 {
 public:
-		estimator_1	(std::complex<float> **,
+		estimator_1	(std::complex<DRM_FLOAT> **,
 	                              uint8_t, uint8_t, int16_t);
 		~estimator_1	(void);
-	void	estimate	(std::complex<float> *,
-	                                   std::complex<float> *);
+	void	estimate	(std::complex<DRM_FLOAT> *,
+	                                   std::complex<DRM_FLOAT> *);
 private:
-	std::complex<float>	**refFrame;
+	std::complex<DRM_FLOAT>	**refFrame;
 	uint8_t		Mode;
 	uint8_t		Spectrum;
 	int16_t		refSymbol;

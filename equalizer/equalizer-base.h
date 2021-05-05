@@ -33,21 +33,21 @@ class	equalizer_base {
 public:
 			equalizer_base 	(uint8_t Mode, uint8_t Spectrum);
 virtual			~equalizer_base	();
-virtual	bool		equalize	(std::complex<float> *,
+virtual	bool		equalize	(std::complex<DRM_FLOAT> *,
 	                                 int16_t,
 	                                 theSignal **,
-	                                 std::vector<std::complex<float>> &);
-virtual	bool		equalize	(std::complex<float> *,
+	                                 std::vector<std::complex<DRM_FLOAT>> &);
+virtual	bool		equalize	(std::complex<DRM_FLOAT> *,
 	                                 int16_t,
 	                                 theSignal **,
-	                                 float *, float *, float *,
-	                                 std::vector<std::complex<float>> &);
+	                                 DRM_FLOAT *, DRM_FLOAT *, DRM_FLOAT *,
+	                                 std::vector<std::complex<DRM_FLOAT>> &);
 	int16_t		indexFor	(int16_t);
-	std::complex<float>	**getChannels	(void);
-	float		getMeanEnergy	(void);
+	std::complex<DRM_FLOAT>	**getChannels	(void);
+	DRM_FLOAT		getMeanEnergy	(void);
 protected:
-	std::complex<float>	**testFrame;
-	std::complex<float>	**refFrame;
+	std::complex<DRM_FLOAT>	**testFrame;
+	std::complex<DRM_FLOAT>	**refFrame;
 	uint8_t		Mode;
 	uint8_t		Spectrum;
 	int16_t		K_min;
@@ -55,11 +55,11 @@ protected:
 	int16_t		symbolsinFrame;
 	int16_t		carriersinSymbol;
 	int16_t		actualRow		(int16_t, int16_t);
-	float		meanEnergy;
+	DRM_FLOAT		meanEnergy;
 	int16_t		nrCells;
 	void		init_gain_ref_cells	(void);
 //	int16_t		gain_ref_cells_k	[750];
-//	std::complex<float>	gain_ref_cells_v	[750];
+//	std::complex<DRM_FLOAT>	gain_ref_cells_v	[750];
 };
 
 #endif

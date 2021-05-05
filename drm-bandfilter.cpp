@@ -23,12 +23,8 @@
 
 #include <math.h>
 #define  _USE_MATH_DEFINES
+#include	<math.h>
 #include	"drm-bandfilter.h"
-
-static inline
-std::complex<float> cmul (std::complex<float> a, float b) {
-	return std::complex<float> (real (a) * b, imag (a) * b);
-}
 
 	drmBandfilter::drmBandfilter (int16_t firSize,
 	                              int32_t Fc,
@@ -36,8 +32,8 @@ std::complex<float> cmul (std::complex<float> a, float b) {
 	                                      filterBase (firSize),
 	                                      filterKernel (firSize),
 	                                      Buffer (firSize) {
-float	f	= (float)Fc / sampleRate;
-float	sum	= 0.0;
+DRM_FLOAT	f	= (DRM_FLOAT)Fc / sampleRate;
+DRM_FLOAT	sum	= 0.0;
 
 	centerFreq	= 0;
 	this	-> sampleRate	= sampleRate;
@@ -46,14 +42,14 @@ float	sum	= 0.0;
 
 	for (int i = 0; i < filterSize; i ++) {
 	   if (i == filterSize / 2)
-	      filterBase [i] = (float)(2 * M_PI * f);
+	      filterBase [i] = (DRM_FLOAT)(2 * M_PI * f);
 	   else 
-	      filterBase [i] = (float)sin (2 * M_PI * f * (i - filterSize /2)) / (i - filterSize/2);
+	      filterBase [i] = (DRM_FLOAT)sin (2 * M_PI * f * (i - filterSize /2)) / (i - filterSize/2);
 //
 //	windowing, according to Blackman
-	   filterBase [i]  *= (float)(0.42 -
-		    0.5 * cos (2 * M_PI * (float)i / (float)filterSize) +
-		    0.08 * cos (4 * M_PI * (float)i / (float)filterSize));
+	   filterBase [i]  *= (DRM_FLOAT)(0.42 -
+		    0.5 * cos (2 * M_PI * (DRM_FLOAT)i / (DRM_FLOAT)filterSize) +
+		    0.08 * cos (4 * M_PI * (DRM_FLOAT)i / (DRM_FLOAT)filterSize));
 
 	   sum += filterBase [i];
 	}
@@ -62,16 +58,16 @@ float	sum	= 0.0;
 	   filterBase [i] /= sum;
 
 	for (int i = 0; i < filterSize; i++)
-		filterKernel[i] = std::complex<float>(filterBase[i], 0);
+		filterKernel[i] = std::complex<DRM_FLOAT>(filterBase[i], 0);
 }
 
 	drmBandfilter::~drmBandfilter () {
 }
 
-std::complex<float>
-	drmBandfilter::Pass (std::complex<float> z) {
+std::complex<DRM_FLOAT>
+	drmBandfilter::Pass (std::complex<DRM_FLOAT> z) {
 int16_t	i;
-std::complex<float>	tmp = std::complex<float>(0, 0);
+std::complex<DRM_FLOAT>	tmp = std::complex<DRM_FLOAT>(0, 0);
 
 	Buffer [ip]	= z;
 	for (i = 0; i < filterSize; i ++) {
@@ -86,10 +82,10 @@ std::complex<float>	tmp = std::complex<float>(0, 0);
 }
 
 void	drmBandfilter::modulate	(int shift) {
-	float rshift = (float)shift / sampleRate;
+	DRM_FLOAT rshift = (DRM_FLOAT)shift / sampleRate;
 	for (int i = 0; i < filterSize; i ++) { // shifting
-           float v = (float) (i - filterSize / 2) * (2 * M_PI * rshift);
-           filterKernel [i] = std::complex<float> (filterBase [i] * cos (v),
+           DRM_FLOAT v = (DRM_FLOAT) (i - filterSize / 2) * (2 * M_PI * rshift);
+           filterKernel [i] = std::complex<DRM_FLOAT> (filterBase [i] * cos (v),
                                                    filterBase [i] * sin (v));
         }
 	centerFreq	= shift;

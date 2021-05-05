@@ -24,7 +24,7 @@
 #include	"qam4-metrics.h"
 
 static
-const double rTableQAM4[2][2] = {
+const DRM_FLOAT rTableQAM4[2][2] = {
     { 0.7071067811f,  0.7071067811f},
     {-0.7071067811f, -0.7071067811f}
 };

@@ -14,7 +14,7 @@
 //	drm specifics
 
 #include	"drm-bandfilter.h"
-#include	"drm-shifter.h"
+#include	".\support\drm-shifter.h"
 #include	"utilities.h"
 
 #include	"ofdm\timesync.h"
@@ -55,7 +55,7 @@
 //      from IN_RATE we first decimate and filter to 12500 and then
 //      interpolate for the rest
 	for (int i = 0; i < WORKING_RATE / 10; i ++) {
-	   float inVal  = float (INTERM_RATE / 10);
+	   DRM_FLOAT inVal	= DRM_FLOAT (INTERM_RATE / 10.0);
 	   mapTable_int [i]     = int (floor (i * (inVal / (WORKING_RATE / 10))));
 	   mapTable_float [i]   = i * (inVal / (WORKING_RATE / 10)) - mapTable_int [i];
 	}
@@ -96,11 +96,6 @@
 	m_worker = nullptr;
 }
 
-static inline
-std::complex<float> cmul (std::complex<float> x, float y) {
-	return std::complex<float>(real(x) * y, imag(x) * y);
-}
-
 void	SDRunoPlugin_drm::
 	         StreamProcessorProcess (channel_t channel,
 	                                 Complex* buffer,
@@ -117,7 +112,7 @@ void	SDRunoPlugin_drm::
 	theOffset = passbandFilter.offset();
 
 	for (int i = 0; i < length; i ++) {
-	   std::complex<float> sample =
+	   std::complex<DRM_FLOAT> sample =
 	                std::complex<float>(buffer [i]. real, buffer [i]. imag);
 	   sample   = passbandFilter. Pass (sample);
 	   sample   = theMixer. do_shift (sample, theOffset);
@@ -126,10 +121,10 @@ void	SDRunoPlugin_drm::
 
 	   convBuffer [convIndex ++] = sample;
 	   if (convIndex >= convBuffer. size ()) {
-	      std::complex<float> out [WORKING_RATE / 10];
+	      std::complex<DRM_FLOAT> out [WORKING_RATE / 10];
 	      for (int j = 0; j < WORKING_RATE / 10; j ++) {
 	         int16_t  inpBase   = mapTable_int [j];
-	         float    inpRatio  = mapTable_float [j];
+	         DRM_FLOAT    inpRatio  = mapTable_float [j];
 	         out [j]  = cmul (convBuffer [inpBase + 1], inpRatio) +
 	                          cmul (convBuffer [inpBase], 1 - inpRatio);
 	      }
@@ -185,8 +180,8 @@ bool	inSync;
 int16_t	symbol_no       = 0;
 bool	frameReady;
 int counter = 0;
-float     deltaFreqOffset         = 0;
-float     sampleclockOffset       = 0;
+DRM_FLOAT     deltaFreqOffset         = 0;
+DRM_FLOAT     sampleclockOffset       = 0;
 
 
 	running. store (true);
@@ -231,12 +226,12 @@ float     sampleclockOffset       = 0;
 	      int nrCarriers       = Kmax (modeInf. Mode, modeInf. Spectrum) -
 	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1;
 
-	      myArray<std::complex<float>> inbank (nrSymbols, nrCarriers);
+	      myArray<std::complex<DRM_FLOAT>> inbank (nrSymbols, nrCarriers);
 	      myArray<theSignal> outbank (nrSymbols, nrCarriers);
 	      correlator myCorrelator (&modeInf);
 	      equalizer_1 my_Equalizer (modeInf.Mode,
 	                                modeInf.Spectrum, 4);
-	      std::vector<std::complex<float>> displayVector;
+	      std::vector<std::complex<DRM_FLOAT>> displayVector;
 	      displayVector. resize (Kmax (modeInf. Mode, modeInf. Spectrum) -
 	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1);
 	      wordCollector my_wordCollector (&m_form,
@@ -291,7 +286,7 @@ float     sampleclockOffset       = 0;
 	      frameReady   = false;
 
 	      while (running. load () && !frameReady) {
-			  my_wordCollector.getWord(inbank.element(lc),
+		  my_wordCollector.getWord(inbank.element(lc),
 				  modeInf.freqOffset_integer,
 				  false,        // no-op
 				  modeInf.timeOffset_fractional,
@@ -315,16 +310,14 @@ float     sampleclockOffset       = 0;
 
 //	when we are here, we do have  our first full "frame".
 //	so, we will be convinced that we are OK when we have a decent FAC
-	      inSync = my_facProcessor. 
-	                  processFAC  (my_Equalizer. getMeanEnergy (),
-	                               my_Equalizer. getChannels   (),
-	                               &outbank, &theState);
+	      inSync = my_facProcessor.  processFAC  (&outbank, &theState);
+
 	  //	one test:
 	      if (!inSync)
 	         throw (33);
 	      if (modeInf.Spectrum != getSpectrum(&theState))
 	         throw (34);
-	      m_form.set_facSyncLabel(true);
+	      m_form.set_facSyncLabel (true);
 		
 //
 //	prepare for sdc processing
@@ -339,8 +332,8 @@ float     sampleclockOffset       = 0;
 	      int	threeinaRow		= 0;
 	      int	missers			= 0;
 	      bool	firstTime		= true;
-	      float	deltaFreqOffset		= 0;
-	      float	sampleclockOffset	= 0;
+	      DRM_FLOAT	deltaFreqOffset		= 0;
+	      DRM_FLOAT	sampleclockOffset	= 0;
 		  
 		
 	      while (true) {
@@ -398,9 +391,7 @@ float     sampleclockOffset       = 0;
 			 
 //	OK, let us check the FAC
 	         bool success  = my_facProcessor.
-	                          processFAC (my_Equalizer. getMeanEnergy (),
-	                                      my_Equalizer. getChannels   (),
-	                                      &outbank, &theState);
+	                          processFAC (&outbank, &theState);
 	         if (success) {
 	            m_form. set_facSyncLabel	(true);
 	            missers = 0;
@@ -608,10 +599,4 @@ void	SDRunoPlugin_drm::activate_channel_2	() {
 	theState. activate_channel_2 ();
 }
 //
-//	showLines is called whenever we feel that the display is to be updated
-void	SDRunoPlugin_drm::showLines	(std::vector<std::complex<float>> &v) {
-}
-
-void	SDRunoPlugin_drm::clearScreen	() {
-}
 

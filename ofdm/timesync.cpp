@@ -49,9 +49,9 @@
 //	Phi (m) is minimal
 //
 void	timeSyncer::getMode (smodeInfo	*result) {
-float	gammaRelative;
-float	list_gammaRelative 	[]	= {0.0, 0.0, 0.0, 0.0};
-float	list_epsilon		[]	= {0.0, 0.0, 0.0, 0.0};
+DRM_FLOAT	gammaRelative;
+DRM_FLOAT	list_gammaRelative 	[]	= {0.0, 0.0, 0.0, 0.0};
+DRM_FLOAT	list_epsilon		[]	= {0.0, 0.0, 0.0, 0.0};
 int16_t	list_Offsets 		[]	= {0,   0,   0,   0};
 int16_t	averageOffset	= 0;
 int16_t	theMode;
@@ -113,27 +113,27 @@ int16_t	theMode;
 }
 
 void	timeSyncer::compute_gammaRelative (uint8_t	mode,
-	                                   float	*gammaRelative,
-	                                   float	*Epsilon,
+	                                   DRM_FLOAT	*gammaRelative,
+	                                   DRM_FLOAT	*Epsilon,
 	                                   int16_t	*Offsets) {
 int16_t	Ts		= Ts_of (mode);
 int16_t Tu		= Tu_of (mode);
 int16_t Tg		= Ts - Tu;
-std::complex<float> *gamma	=
-	  (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));	// large enough
-float *squareTerm = (float*)_malloca (Ts * sizeof(float));
+std::complex<DRM_FLOAT> *gamma	=
+	  (std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<DRM_FLOAT>));	// large enough
+DRM_FLOAT *squareTerm = (DRM_FLOAT*)_malloca (Ts * sizeof(DRM_FLOAT));
 int32_t theOffset;
 
 	for (int i = 0; i < Ts; i ++) {
-	   gamma [i]	= std::complex<float> (0, 0);
-	   squareTerm [i] = float (0);
+	   gamma [i]	= std::complex<DRM_FLOAT> (0, 0);
+	   squareTerm [i] = DRM_FLOAT (0);
 	   for (int j = 0; j < nrSymbols; j ++) {
 	      int32_t base = theReader -> currentIndex + i;
 	      int32_t mask = theReader -> bufSize - 1;
 	      for (int k = 0; k < Tg; k ++) {
-	         std::complex<float> f1	=
+	         std::complex<DRM_FLOAT> f1	=
 	               theReader -> data [(base + j * Ts + k     ) & mask];
-	         std::complex<float> f2	=
+	         std::complex<DRM_FLOAT> f2	=
 	               theReader -> data [(base + j * Ts + Tu + k) & mask];
 	         gamma [i]	+= f1 * conj (f2);
 	         squareTerm [i] += (real (f1 * conj (f1)) +
@@ -143,16 +143,16 @@ int32_t theOffset;
 	}
 
 	theOffset		= 0;
-	float minValue		= 10000.0;
+	DRM_FLOAT minValue		= 10000.0;
 	for (int i = 0; i < Ts; i ++) {
-	   float mmse = abs (squareTerm [i] - 2 * abs (gamma [i]));
+	   DRM_FLOAT mmse = abs (squareTerm [i] - 2 * abs (gamma [i]));
 	   if (mmse < minValue) {
 	      minValue = mmse;
 	      theOffset = i;
 	   }
 	}
 	*gammaRelative	= abs (gamma [theOffset]) / squareTerm [theOffset];
-	*Epsilon	= (float) arg (gamma [theOffset]);
+	*Epsilon	= (DRM_FLOAT) arg (gamma [theOffset]);
 	*Offsets	= theOffset;
 }
 

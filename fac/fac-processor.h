@@ -39,11 +39,8 @@ class	facProcessor  {
 public:
 	                facProcessor	(SDRunoPlugin_drmUi *, smodeInfo *);
 			~facProcessor	();
-	bool		processFAC	(float        meanEnergy,
-                                         std::complex<float> **H,
-                                         myArray<theSignal> *outbank,
+	bool		processFAC	(myArray<theSignal> *outbank,
                                          stateDescriptor *theState);
-
 private:
 	SDRunoPlugin_drmUi *m_form;
 	smodeInfo	*modeInf;

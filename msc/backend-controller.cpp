@@ -72,7 +72,7 @@ void	backendController::addtoMux	(int16_t blockno,
 }
 
 void	backendController::endofFrame		() {
-	if (theWorker == nullptr)	// shoulod not/cannot happen
+	if (theWorker == nullptr)	// should not/cannot happen
 	   return;
 	theWorker	-> endofFrame ();
 }

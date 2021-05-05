@@ -63,10 +63,10 @@
 	                                  int8_t	strength):
 	                                     equalizer_base (Mode, Spectrum) {
 int16_t	i, window;
-float	sigmaq_noise_list [] = {16.0, 14.0, 14.0, 12.0};
-float	sigmaq_noise	= pow (10.0, - sigmaq_noise_list [Mode - Mode_A] / 10.0);
-float	**PHI;
-float	*THETA;
+DRM_FLOAT	sigmaq_noise_list [] = {16.0, 14.0, 14.0, 12.0};
+DRM_FLOAT	sigmaq_noise	= pow (10.0, - sigmaq_noise_list [Mode - Mode_A] / 10.0);
+DRM_FLOAT	**PHI;
+DRM_FLOAT	*THETA;
 
 //	Based on table 92 ETSI ES 201980
 
@@ -122,8 +122,8 @@ int16_t		symbols_per_window_list_5 []	= {15, 15, 15, 6};
 //
 //	values taken from diorama
 	f_cut_t = 0.0675 / symbols_to_delay;
-	f_cut_k = 1.75 * (float) Tg / (float) Tu;
-	f_cut_k = 2.00 * (float) Tg / (float) Tu;
+	f_cut_k = 1.75 * (DRM_FLOAT) Tg / (DRM_FLOAT) Tu;
+	f_cut_k = 2.00 * (DRM_FLOAT) Tg / (DRM_FLOAT) Tu;
 //
 //	This code is based on the diorama Matlab code, and a
 //	(complete)rewrite of the C translation of this Matlab code by Ties Bos.
@@ -149,12 +149,12 @@ int16_t		symbols_per_window_list_5 []	= {15, 15, 15, 6};
 	   for (i = 0; i < carriersinSymbol; i ++)
 	      W_symbol_blk [window][i] = new double [trainers_in_window];
 
-	   PHI		= new float *[trainers_in_window];
+	   PHI		= new DRM_FLOAT *[trainers_in_window];
 	   int cc;
 	   for (cc = 0; cc < trainers_in_window; cc ++) {
-	      PHI [cc] = new float [trainers_in_window];
+	      PHI [cc] = new DRM_FLOAT [trainers_in_window];
 	   }
-	   THETA	= new float [trainers_in_window];
+	   THETA	= new DRM_FLOAT [trainers_in_window];
 //
 //	No need to set the PHI and THETA to zero, first access
 //	is a normal assigment
@@ -178,9 +178,9 @@ int16_t		symbols_per_window_list_5 []	= {15, 15, 15, 6};
 	   for (trainer_1 = 0; trainer_1 < trainers_in_window; trainer_1++) {
 	      int16_t sym	= currentTrainers [trainer_1]. symbol;
 	      int16_t car	= currentTrainers [trainer_1]. carrier;
-	      std::complex<float> v = getPilotValue (Mode, Spectrum,
+	      std::complex<DRM_FLOAT> v = getPilotValue (Mode, Spectrum,
 	                                             sym + window, car);
-	      float amp = real (v * conj (v));
+	      DRM_FLOAT amp = real (v * conj (v));
 	      PHI [trainer_1][trainer_1] += sigmaq_noise * 2.0 / amp;
 	   }
 //
@@ -267,13 +267,13 @@ int16_t	myCount	= 0;
 	return myCount;
 }
 
-bool	equalizer_1::equalize (std::complex<float> *testRow,
+bool	equalizer_1::equalize (std::complex<DRM_FLOAT> *testRow,
 	                       int16_t	newSymbol,
 	                       myArray<theSignal>*outFrame,
-	                       float	*offset_fractional,
-	                       float	*delta_freq_offset,
-	                       float	*sampleclockOffset,
-	                       std::vector<std::complex<float>> &v) {
+	                       DRM_FLOAT	*offset_fractional,
+	                       DRM_FLOAT	*delta_freq_offset,
+	                       DRM_FLOAT	*sampleclockOffset,
+	                       std::vector<std::complex<DRM_FLOAT>> &v) {
 int16_t	carrier;
 int16_t	symbol_to_process;
 int16_t	i;
@@ -284,17 +284,17 @@ int16_t	i;
 //
 //	Tracking the freqency offset is done by looking at the
 //	phase difference of frequency pilots in subsequent words
-	std::complex<float>	offs1	= std::complex<float> (0, 0);
-	std::complex<float>	offs2	= std::complex<float> (0, 0);
-	float		offsa	= 0;
+	std::complex<DRM_FLOAT>	offs1	= std::complex<DRM_FLOAT> (0, 0);
+	std::complex<DRM_FLOAT>	offs2	= std::complex<DRM_FLOAT> (0, 0);
+	DRM_FLOAT		offsa	= 0;
 	int		offs3	= 0;
 	int		offsb	= 0;
-	std::complex<float>	offs7	= std::complex<float> (0, 0);
+	std::complex<DRM_FLOAT>	offs7	= std::complex<DRM_FLOAT> (0, 0);
 	
 	for (carrier = K_min; carrier <= K_max; carrier ++) {
 	   if (carrier == 0)
 	      continue;
-	   std::complex<float> oldValue	= 
+	   std::complex<DRM_FLOAT> oldValue	= 
 	                  testFrame [newSymbol][indexFor (carrier)];
 	   testFrame [newSymbol][indexFor (carrier)] = 
 	                                 testRow [indexFor (carrier)];
@@ -321,10 +321,10 @@ int16_t	i;
 //	symbols with the same pilot layout
 	   if (isPilotCell (Mode, newSymbol, carrier)) {
 	      int16_t helpme = realSym (newSymbol - periodforSymbols);
-	      std::complex<float> f1 =
+	      std::complex<DRM_FLOAT> f1 =
 	               testFrame [newSymbol][indexFor (carrier)] *
 	                   conj (getPilotValue (Mode, Spectrum, newSymbol, carrier));
-	      std::complex<float> f2 =
+	      std::complex<DRM_FLOAT> f2 =
 	               testFrame [helpme][indexFor (carrier)] *
 	                   conj (getPilotValue (Mode, Spectrum, helpme, carrier));
 	      offs7 += f1 * conj (f2);
@@ -334,8 +334,8 @@ int16_t	i;
 //	For an estimate of the residual sample time offset (includes
 //	the phase offset of the LO), we look at the average of the
 //	phase offsets of the subsequent pilots in the current symbol
-	std::complex<float> prev_1 = std::complex<float> (0, 0);
-	std::complex<float> prev_2 = std::complex<float> (0, 0);
+	std::complex<DRM_FLOAT> prev_1 = std::complex<DRM_FLOAT> (0, 0);
+	std::complex<DRM_FLOAT> prev_2 = std::complex<DRM_FLOAT> (0, 0);
 	for (carrier = K_min; carrier <= K_max; carrier ++) {
 	   if (isPilotCell (Mode, newSymbol, carrier)) {
 //	Formula 5.26 (page 99, Tsai et al), average phase offset
@@ -353,7 +353,7 @@ int16_t	i;
 //	the SCO is then
 //	arg (offsa) / symbolsinFrame / (2 * M_PI * Ts / Tu * offsb)) * Ts;
 //	The measured offset is in radials
-	*sampleclockOffset = offsa / (2 * M_PI * (float (Ts) / Tu) * offsb);
+	*sampleclockOffset = offsa / (2 * M_PI * (DRM_FLOAT (Ts) / Tu) * offsb);
 
 //	still wondering about the scale
 	*offset_fractional	= arg (offs2) / (2 * M_PI * periodforPilots);
@@ -388,10 +388,10 @@ int16_t	i;
 	return symbol_to_process == symbolsinFrame - 1;
 }
 //
-bool	equalizer_1::equalize (std::complex<float> *testRow,
+bool	equalizer_1::equalize (std::complex<DRM_FLOAT> *testRow,
 	                       int16_t newSymbol,
 	                       myArray<theSignal>*outFrame,
-	                       std::vector<std::complex<float>> &v) {
+	                       std::vector<std::complex<DRM_FLOAT>> &v) {
 int16_t	carrier;
 int16_t	symbol_to_process;
 
@@ -424,20 +424,11 @@ int16_t	symbol_to_process;
 //	If we have a frame full of output: return true
 	return symbol_to_process == symbolsinFrame - 1;
 }
-
-static inline
-std::complex<float> cmul(std::complex<float> x, float y) {
-	return std::complex<float>(real(x) * y, imag(x) * y);
-}
-static inline
-std::complex<float> cdiv(std::complex<float> x, float y) {
-	return std::complex<float>(real(x) / y, imag(x) / y);
-}
 //
 //	process symbol "symbol", 
 void	equalizer_1::processSymbol (int16_t symbol,
 	                                theSignal *outVector,
-	                                std::vector<std::complex<float>> &v) {
+	                                std::vector<std::complex<DRM_FLOAT>> &v) {
 //	"ntwee" will indicate the "model" of the window, we deal with
 //	while windowBase indicates the REAL window, i.e. the
 //	the first symbol of the window as appearing in the frame.
@@ -489,13 +480,13 @@ int16_t	carrier;
 //	The transfer function is now there, stored in the appropriate
 //	entry in the refFrame, so let us equalize
 	for (carrier = K_min; carrier <= K_max; carrier ++) {
-	   std::complex<float> temp	=
+	   std::complex<DRM_FLOAT> temp	=
 	                   refFrame [symbol] [indexFor (carrier)];
 	   if (carrier == 0)
 	      outVector [indexFor (0)]. signalValue = 
-	                                     std::complex<float> (0, 0);
+	                                     std::complex<DRM_FLOAT> (0, 0);
 	   else {
-	      std::complex<float> qq =
+	      std::complex<DRM_FLOAT> qq =
 	                 testFrame [symbol][indexFor (carrier)] / temp;
 	      outVector [indexFor (carrier)] . signalValue = qq;
 	   }

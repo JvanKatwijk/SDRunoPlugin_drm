@@ -28,17 +28,17 @@
 	decimator_25::decimator_25 (int amount) {
 	this -> amount	= amount;
 	counter	= amount;
-	iValue = 0;
+	iValue = std::complex<DRM_FLOAT> (0, 0);
 }
 
 	decimator_25::~decimator_25 () {}
 
-bool	decimator_25::Pass (std::complex<float> in, std::complex<float> *out) {
+bool	decimator_25::Pass (std::complex<DRM_FLOAT> in, std::complex<DRM_FLOAT> *out) {
 	counter --;
 	iValue += in;
 	if (counter == 0) {
 	   *out = iValue;
-	   iValue = 0;
+	   iValue = std::complex<DRM_FLOAT> (0, 0);
 	   counter = amount;
 	   return true;
 	}

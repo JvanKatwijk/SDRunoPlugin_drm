@@ -33,7 +33,7 @@
 //	from one symbol to the next one by passing on the channel
 //	obtained in the time domain
 //
-	estimator_1::estimator_1 (std::complex<float> 	**refFrame,
+	estimator_1::estimator_1 (std::complex<DRM_FLOAT> 	**refFrame,
 	                          uint8_t	Mode,
 	                          uint8_t	Spectrum,
 	                          int16_t	refSymbol) {
@@ -48,8 +48,8 @@
 	estimator_1::~estimator_1 (void) {
 }
 //
-void	estimator_1::estimate (std::complex<float> *testRow,
-	                               std::complex<float> *resultRow) {
+void	estimator_1::estimate (std::complex<DRM_FLOAT> *testRow,
+	                               std::complex<DRM_FLOAT> *resultRow) {
 int16_t	carrier;
 
 	for (carrier = K_min; carrier <= K_max; carrier ++) {

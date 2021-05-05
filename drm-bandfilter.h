@@ -24,6 +24,7 @@
 #ifndef __BANDPASS_FILTER_H
 #define __BANDPASS_FILTER_H
 
+#include	"basics.h"
 #include	<complex>
 #include	<vector>
 
@@ -31,13 +32,13 @@ class	drmBandfilter {
 public:
 			drmBandfilter	(int16_t, int32_t, int32_t);
 			~drmBandfilter	();
-	std::complex<float> Pass (std::complex<float>);
+	std::complex<DRM_FLOAT> Pass (std::complex<DRM_FLOAT>);
 	void		modulate	(int);
 	int		offset	();
 private:
-	std::vector<float> filterBase;
-	std::vector<std::complex <float>> filterKernel;
-	std::vector<std::complex<float>> Buffer;
+	std::vector<DRM_FLOAT> filterBase;
+	std::vector<std::complex <DRM_FLOAT>> filterKernel;
+	std::vector<std::complex<DRM_FLOAT>> Buffer;
 	int	sampleRate;
 	int	ip;
 	int	filterSize;

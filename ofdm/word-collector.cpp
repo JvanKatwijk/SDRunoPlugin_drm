@@ -31,11 +31,6 @@
 
 #define	NR_SYMBOLS	24
 
-static inline 
-std::complex<float> cmul (std::complex<float> x, float y) {
-	return std::complex<float> (real (x) * y, imag (x) * y);
-}
-
 //	The frequency shifter is in steps of 0.01 Hz
 	wordCollector::wordCollector (SDRunoPlugin_drmUi *m_form,
 	                              Reader	*b,
@@ -55,36 +50,27 @@ std::complex<float> cmul (std::complex<float> x, float y) {
 	this	-> K_min	= Kmin	(Mode, Spectrum);
 	this	-> K_max	= Kmax	(Mode, Spectrum);
 	this	-> displayCount	= 0;
-	fft_vector		= (std::complex<float> *)
-	                               fftwf_malloc (Tu *
-	                                            sizeof (fftwf_complex));
-	hetPlan			= fftwf_plan_dft_1d (Tu,
-	                    reinterpret_cast <fftwf_complex *>(fft_vector),
-	                    reinterpret_cast <fftwf_complex *>(fft_vector),
-	                    FFTW_FORWARD, FFTW_ESTIMATE);
 }
 
-		wordCollector::~wordCollector (void) {
-	fftwf_free (fft_vector);
-	fftwf_destroy_plan (hetPlan);
+		wordCollector::~wordCollector () {
 }
 
-static float theOffset= 0;
+static DRM_FLOAT theOffset= 0;
 //      when starting up, we "borrow" the precomputed frequency offset
 //      and start building up the spectrumbuffer.
 //
 
-void	wordCollector::reset	(float v) {
+void	wordCollector::reset	(DRM_FLOAT v) {
 	theOffset	= v;
 	theAngle	= 0;
 }
 
-void	wordCollector::getWord (std::complex<float>	*out,
+void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		offsetInteger,
-	                        float		offsetFractional) {
-std::complex<float> *temp  =
-	  (std::complex<float> *)_malloca (Ts * sizeof (std::complex<float>));
-std::complex<float>	angle	= std::complex<float> (0, 0);
+	                        DRM_FLOAT	offsetFractional) {
+std::complex<DRM_FLOAT> *temp  =
+	  (std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<FLOAT>));
+std::complex<DRM_FLOAT>	angle	= std::complex<FLOAT> (0, 0);
 int	f	= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
@@ -92,9 +78,9 @@ int	f	= buffer -> currentIndex;
 
 //	correction of the time offset by interpolation
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<float> one =
+	   std::complex<DRM_FLOAT> one =
 	                  buffer -> data [(f + i) % buffer -> bufSize];
-	   std::complex<float> two =
+	   std::complex<DRM_FLOAT> two =
 	                  buffer -> data [(f + i + 1) % buffer -> bufSize];
 	   temp [i] = one;
 	}
@@ -109,8 +95,8 @@ int	f	= buffer -> currentIndex;
 	theAngle	= 0.9 * theAngle + 0.1 * arg (angle);
 //
 //	offset  (and shift) in Hz / 100
-	float offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan<float> (offset)) 	// precaution to handle undefines
+	DRM_FLOAT offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	if (!isnan<DRM_FLOAT> (offset)) 	// precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                            100 * offsetInteger - offset);
 	else
@@ -130,14 +116,14 @@ int	f	= buffer -> currentIndex;
 //	The getWord as below is used in the main loop, to obtain
 //	a next ofdm word
 //
-void	wordCollector::getWord (std::complex<float>	*out,
+void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		initialFreq,
 	                        bool		firstTime,
-	                        float		offsetFractional,
-	                        float		angle,
-	                        float		clockOffset) {
-std::complex<float>* temp =
-	(std::complex<float> *)_malloca  (Ts * sizeof (std::complex<float>));
+	                        DRM_FLOAT		offsetFractional,
+	                        DRM_FLOAT		angle,
+	                        DRM_FLOAT		clockOffset) {
+std::complex<DRM_FLOAT>* temp =
+	(std::complex<DRM_FLOAT> *)_malloca  (Ts * sizeof (std::complex<FLOAT>));
 int	f			= buffer -> currentIndex;
 
 	(void)offsetFractional;		// maybe later??
@@ -155,9 +141,9 @@ int	f			= buffer -> currentIndex;
 
 //	correcting for timeoffsets is still to be reseaerched
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<float> one =
+	   std::complex<DRM_FLOAT> one =
 	              buffer -> data [(f + i) % buffer ->  bufSize];
-	   std::complex<float> two =
+	   std::complex<DRM_FLOAT> two =
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
 	   temp [i] = cmul (one, 1 - theOffset) +
 	                    cmul (two, theOffset);
@@ -168,7 +154,7 @@ int	f			= buffer -> currentIndex;
 //	There are two approaches for computing the angle offset,
 //	one based on the current "word", the other one based
 //	on the result of the equalization of the previous set of words
-//	std::complex<float> faseError = std::complex<float> (0, 0);
+//	std::complex<DRM_FLOAT.gp> faseError = std::complex<FLOAT> (0, 0);
 //      Now: determine the fine grain offset.
 //        for (int i = 0; i < Tg; i ++)
 //           faseError += conj (temp [Tu + i]) * temp [i];
@@ -179,8 +165,8 @@ int	f			= buffer -> currentIndex;
 //	corrector
 	theAngle	= theAngle - 0.1 * angle;
 //	offset in 0.01 * Hz
-	float offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan<float>(offset))  // precaution to handle undefines
+	DRM_FLOAT offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	if (!isnan<DRM_FLOAT>(offset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                        100 * modeInf -> freqOffset_integer - offset);
 	else
@@ -198,27 +184,26 @@ int	f			= buffer -> currentIndex;
 	fft_and_extract (&temp [Tg], out);
 }
 
-void	wordCollector::fft_and_extract (std::complex<float> *in,
-	                                std::complex<float> *out) {
+void	wordCollector::fft_and_extract (std::complex<DRM_FLOAT> *in,
+	                                std::complex<DRM_FLOAT> *out) {
 //	and extract the Tu set of samples for fft processsing
-	memcpy (fft_vector, in, Tu * sizeof (std::complex<float>));
 
-	fftwf_execute (hetPlan);
+	Fft_transform (in, Tu, false);
 //	extract the "useful" data
 	if (K_min < 0) {
 	   memcpy (out,
-	           &fft_vector [Tu + K_min],
-	           - K_min * sizeof (std::complex<float>));
+	           &in [Tu + K_min],
+	           - K_min * sizeof (std::complex<DRM_FLOAT>));
 	   memcpy (&out [- K_min],
-	           &fft_vector [0], (K_max + 1) * sizeof (std::complex<float>));
+	           &in [0], (K_max + 1) * sizeof (std::complex<DRM_FLOAT>));
 	}
 	else
 	   memcpy (out,
-	           &fft_vector [K_min],
-	           (K_max - K_min + 1) * sizeof (std::complex<float>));
+	           &in [K_min],
+	           (K_max - K_min + 1) * sizeof (std::complex<DRM_FLOAT>));
 }
 
-float	wordCollector::get_timeOffset	(int nSymbols,
+DRM_FLOAT	wordCollector::get_timeOffset	(int nSymbols,
 	                                 int range, int *offs) {
 int	*b = (int *)_malloca (nSymbols * sizeof (int));
 
@@ -227,20 +212,20 @@ int	*b = (int *)_malloca (nSymbols * sizeof (int));
 	for (int i = 0; i < nSymbols; i ++)
 	   b [i] = get_intOffset (i * Ts, nSymbols, range);
 
-	float   sumx    = 0.0;
-        float   sumy    = 0.0;
-        float   sumxx   = 0.0;
-        float   sumxy   = 0.0;
+	DRM_FLOAT   sumx    = 0.0;
+        DRM_FLOAT   sumy    = 0.0;
+        DRM_FLOAT   sumxx   = 0.0;
+        DRM_FLOAT   sumxy   = 0.0;
 
         for (int i = 0; i < nSymbols; i++) {
-           sumx += (float) i;
-           sumy += (float) b [i];
-           sumxx += (float) i * (float) i;
-           sumxy += (float) i * (float) b [i];
+           sumx += (DRM_FLOAT) i;
+           sumy += (DRM_FLOAT) b [i];
+           sumxx += (DRM_FLOAT) i * (FLOAT) i;
+           sumxy += (DRM_FLOAT) i * (FLOAT) b [i];
         }
 
-        float boffs;
-        boffs = (float) ((sumy * sumxx - sumx * sumxy) /
+        DRM_FLOAT boffs;
+        boffs = (DRM_FLOAT) ((sumy * sumxx - sumx * sumxy) /
                          ((nSymbols - 1) * sumxx - sumx * sumx));
 
 	return boffs;
@@ -264,7 +249,7 @@ double	min_mmse = 10E20;
 }
 
 double	wordCollector::compute_mmse (int starter, int nSymbols) {
-std::complex<float> gamma = std::complex<float> (0, 0);
+std::complex<DRM_FLOAT> gamma = std::complex<FLOAT> (0, 0);
 double	squares = 0;
 int32_t		bufMask	= buffer -> bufSize - 1;
 
@@ -272,9 +257,9 @@ int32_t		bufMask	= buffer -> bufSize - 1;
 	for (int i = 0; i < nSymbols; i ++) {
 	   int startSample = starter + i * Ts;
 	   for (int j = 0; j < Tg; j ++) {
-	      std::complex<float> f1 =
+	      std::complex<DRM_FLOAT> f1 =
 	             buffer -> data [(startSample + j) & bufMask];
-	      std::complex<float> f2 =
+	      std::complex<DRM_FLOAT> f2 =
 	             buffer -> data [(startSample + Tu + j) & bufMask];
 	      gamma	+= f1 * conj (f2);
 	      squares	+= real (f1 * conj (f1)) + real (f2 * conj (f2));

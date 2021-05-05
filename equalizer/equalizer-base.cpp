@@ -36,12 +36,12 @@ int16_t	i;
 	                                  Kmin (Mode, Spectrum) + 1;
 	
 	init_gain_ref_cells ();
-	this	-> refFrame	= new std::complex<float> *[symbolsinFrame];
+	this	-> refFrame	= new std::complex<DRM_FLOAT> *[symbolsinFrame];
 	for (i = 0; i < symbolsinFrame; i ++)
-	   refFrame [i] = new std::complex<float> [carriersinSymbol];
-	this	-> testFrame	= new std::complex<float> *[symbolsinFrame];
+	   refFrame [i] = new std::complex<DRM_FLOAT> [carriersinSymbol];
+	this	-> testFrame	= new std::complex<DRM_FLOAT> *[symbolsinFrame];
 	for (i = 0; i < symbolsinFrame; i ++)
-	   testFrame [i] = new std::complex<float> [carriersinSymbol];
+	   testFrame [i] = new std::complex<DRM_FLOAT> [carriersinSymbol];
 }
 
 		equalizer_base::~equalizer_base (void) {
@@ -60,7 +60,7 @@ int16_t	equalizer_base::indexFor (int16_t carrier) {
 	
 void	equalizer_base::init_gain_ref_cells (void) {
 int16_t symbol, carrier;
-float	mean_energy	= 0;
+DRM_FLOAT	mean_energy	= 0;
 int16_t	cellCount	= 0;
 int16_t	totalCount	= 0;
 
@@ -104,20 +104,20 @@ int16_t	equalizer_base::actualRow (int16_t symbol, int16_t firstRow) {
 	         symbol + firstRow - symbolsinFrame : symbol + firstRow;
 }
 
-float	equalizer_base::getMeanEnergy	(void) {
+DRM_FLOAT	equalizer_base::getMeanEnergy	(void) {
 	return meanEnergy;
 }
 
-std::complex<float> **equalizer_base::getChannels	(void) {
+std::complex<DRM_FLOAT> **equalizer_base::getChannels	(void) {
 	return refFrame;
 }
 
 //
 //
-bool	equalizer_base::equalize (std::complex<float> *testRow,
+bool	equalizer_base::equalize (std::complex<DRM_FLOAT> *testRow,
 	                          int16_t index,
 	                          theSignal **outFrame,
-	                          std::vector<std::complex<float>> &v) {
+	                          std::vector<std::complex<DRM_FLOAT>> &v) {
 	(void) testRow;
 	(void) index;
 	(void) outFrame; 
@@ -125,13 +125,13 @@ bool	equalizer_base::equalize (std::complex<float> *testRow,
 	return false;
 }
 
-bool	equalizer_base::equalize (std::complex<float> *testRow,
+bool	equalizer_base::equalize (std::complex<DRM_FLOAT> *testRow,
 	                          int16_t index,
 	                          theSignal **outFrame,
-	                          float *fractout,
-	                          float *freqOut,
-	                          float *sampleclockOffset,
-	                          std::vector<std::complex<float>> &v) {
+	                          DRM_FLOAT *fractout,
+	                          DRM_FLOAT *freqOut,
+	                          DRM_FLOAT *sampleclockOffset,
+	                          std::vector<std::complex<DRM_FLOAT>> &v) {
 	(void) testRow;
 	(void) index;
 	(void) outFrame; 

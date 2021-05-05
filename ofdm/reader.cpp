@@ -30,7 +30,7 @@
 //	A simple interface class to the ringBuffer
 //	The methods are called from the drmdecoder
 
-	Reader::Reader (RingBuffer<std::complex<float>> *r,
+	Reader::Reader (RingBuffer<std::complex<DRM_FLOAT>> *r,
 	                uint32_t bufSize, SDRunoPlugin_drmUi *m_form) {
 	ringBuffer		= r;
 	if ((bufSize & (bufSize - 1)) == 0)
@@ -39,8 +39,8 @@
 	   this -> bufSize	= 2 * 32768;
 	this	-> bufMask	= this -> bufSize - 1;
 	this	-> m_form	= m_form;
-	data			= new std::complex<float> [this -> bufSize + 1];
-	memset (data, 0, this -> bufSize * sizeof (std::complex<float>));
+	data			= new std::complex<DRM_FLOAT> [this -> bufSize + 1];
+	memset (data, 0, this -> bufSize * sizeof (std::complex<DRM_FLOAT>));
 	currentIndex		= 0;
 	firstFreeCell		= 0;
 	stopSignal		= false;

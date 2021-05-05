@@ -24,6 +24,7 @@
 #ifndef	__EQUALIZER_1__
 #define	__EQUALIZER_1__
 
+#include	"..\basics.h"
 #include	"equalizer-base.h"
 #include	"..\ringbuffer.h"
 #include	<vector>
@@ -41,17 +42,17 @@ public:
 	                                 uint8_t	Spectrum,
 	                                 int8_t		strength);
 			~equalizer_1 	(void);
-	bool		equalize	(std::complex<float> *,
+	bool		equalize	(std::complex<DRM_FLOAT> *,
 	                                 int16_t,
 	                                 myArray<theSignal>*,
-	                                 std::vector<std::complex<float>> &);
-	bool		equalize	(std::complex<float> *,
+	                                 std::vector<std::complex<DRM_FLOAT>> &);
+	bool		equalize	(std::complex<DRM_FLOAT> *,
 	                                 int16_t,
 	                                 myArray<theSignal>*,
-	                                 float *,
-	                                 float *,
-	                                 float *,
-	                                 std::vector<std::complex<float>> &);
+	                                 DRM_FLOAT *,
+	                                 DRM_FLOAT *,
+	                                 DRM_FLOAT *,
+	                                 std::vector<std::complex<DRM_FLOAT>> &);
 private:
 	void		getRelAddress	(int16_t, int16_t *, int16_t *);
 	int16_t		buildTrainers	(int16_t);
@@ -61,16 +62,16 @@ private:
 	int16_t		periodforPilots;
 	int16_t		periodforSymbols;
 	double		**W_symbol_blk [10];
-	float		f_cut_t;
-	float		f_cut_k;
+	DRM_FLOAT		f_cut_t;
+	DRM_FLOAT		f_cut_k;
 	std::vector<std::vector<trainer>> theTrainers;
-	std::vector<std::vector<std::complex<float>>> pilotEstimates;
+	std::vector<std::vector<std::complex<DRM_FLOAT>>> pilotEstimates;
 	int16_t		trainers_per_window [10];
 	int16_t		symbols_to_delay;
 	int16_t		symbols_per_window;
 	void		processSymbol	(int16_t,
 	                             theSignal *,
-	                             std::vector<std::complex<float>> &);
+	                             std::vector<std::complex<DRM_FLOAT>> &);
 	int16_t		Ts;
 	int16_t		Tu;
 	int16_t		Tg;

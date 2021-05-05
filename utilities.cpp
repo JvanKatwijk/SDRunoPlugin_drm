@@ -24,13 +24,13 @@
 #include	"utilities.h"
 #include	<cstring>
 
-float	decayingAverage (float old, float input, float weight) {
+DRM_FLOAT	decayingAverage (DRM_FLOAT old, DRM_FLOAT input, DRM_FLOAT weight) {
 	if (weight <= 1)
 	   return input;
-	return (float)(input * (1.0 / weight) + old * (1.0 - (1.0 / weight)));
+	return (DRM_FLOAT)(input * (1.0 / weight) + old * (1.0 - (1.0 / weight)));
 }
 
-float	clamp (float X, float Min, float Max) {
+DRM_FLOAT	clamp (DRM_FLOAT X, DRM_FLOAT Min, DRM_FLOAT Max) {
 	if (X > Max)
 	   return Max;
 	if (X < Min)
@@ -40,18 +40,18 @@ float	clamp (float X, float Min, float Max) {
 
 	rttyAverage::rttyAverage (int16_t s) {
 	size	= s;
-	vec	= new float [s];
+	vec	= new DRM_FLOAT [s];
 	filp	= 0;
 
-	memset (vec, 0, s * sizeof (float));
+	memset (vec, 0, s * sizeof (DRM_FLOAT));
 }
 
 	rttyAverage::~rttyAverage () {
 	delete[]	vec;
 }
 
-float	rttyAverage::filter (float e) {
-float	out	= 0.0;
+DRM_FLOAT	rttyAverage::filter (DRM_FLOAT e) {
+DRM_FLOAT	out	= 0.0;
 
 	vec [filp] = e;
 	filp = (filp + 1) % size;
@@ -62,7 +62,7 @@ float	out	= 0.0;
 	return out / size;
 }
 
-void	rttyAverage::clear (float c ) {
+void	rttyAverage::clear (DRM_FLOAT c ) {
 int16_t	i;
 
 	for (i = 0; i < size; i ++)

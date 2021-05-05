@@ -78,37 +78,20 @@ uint8_t punctureTable [] = {
 //	5. dispersion
 //	6. CRC checking, resulting in 64 nice bits
 //
-bool	facProcessor:: processFAC (float	meanEnergy,
-	                           std::complex<float> **H,
-	                           myArray<theSignal> *outbank,
+bool	facProcessor:: processFAC (myArray<theSignal> *outbank,
 	                           stateDescriptor *theState) {
 theSignal       facVector [100];
-float           sqrdNoiseSeq [100];
-float           sqrdWeightSeq [100];
-int16_t         i;
-float		sum_WMERFAC     = 0;
-float		sum_weight_FAC  = 0;
-float		WMERFAC;
 uint8_t	 facBits [2 * (FAC_BITS + FAC_CRC)];
 mer4_compute computeMER;
 
 //	first extract data from the cells for the FAC
-	for (i = 0; facTable [i]. symbol != -1; i ++) {
+	for (int i = 0; facTable [i]. symbol != -1; i ++) {
 	   int16_t symbol	= facTable [i]. symbol;
 	   int16_t index	= facTable [i]. carrier -
 	                               Kmin (Mode, Spectrum);
 	   facVector [i]	= outbank -> element (symbol)[index];
-	   sqrdNoiseSeq [i]	= abs (facVector [i]. signalValue) - sqrt (0.5);
-	   sqrdNoiseSeq [i]	*= sqrdNoiseSeq [i];
-	   sqrdWeightSeq [i]	= real (H [symbol][index] *
-	                                    conj (H [symbol][index]));
-	   sum_WMERFAC		+= sqrdNoiseSeq [i] * 
-	                                (sqrdWeightSeq [i] + 1.0E-10);
-	   sum_weight_FAC	+= sqrdWeightSeq [i];
 	}
-	WMERFAC		= -10 * log10 (sum_WMERFAC /
-	                     (meanEnergy * (sum_weight_FAC + FAC_SAMPLES * 1.0E-10)));
-	float mer	= computeMER. computemer (facVector, FAC_SAMPLES);
+	DRM_FLOAT mer	= computeMER. computemer (facVector, FAC_SAMPLES);
 	m_form -> show_fac_mer (mer);
 
 	fromSamplestoBits (facVector, facBits);

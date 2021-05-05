@@ -98,7 +98,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\nana\build\bin\nana_v141_Release_x86.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;.\libfftw3f-3.lib;libfaad_drm-2.lib; odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\nana\build\bin\nana_v141_Release_x86.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;libfaad_drm-2.lib; odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ResourceCompile>
@@ -111,7 +111,6 @@
     <ClCompile Include="SDRunoPlugin_drmForm.cpp" />
     <ClCompile Include="SDRunoPlugin_drmProject.cpp" />
     <ClCompile Include="SDRunoPlugin_drmUi.cpp" />
-    <ClCompile Include="drm-shifter.cpp" />
     <ClCompile Include="drm-bandfilter.cpp" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="decimator-25.cpp" />
@@ -121,10 +120,10 @@
     <ClCompile Include="parameters\puncture-tables.cpp" />
     <ClCompile Include="ofdm\reader.cpp" />
     <ClCompile Include="ofdm\timesync.cpp" />
-    <ClCompile Include="ofdm\shifter.cpp" />
     <ClCompile Include="ofdm\freqsyncer.cpp" />
     <ClCompile Include="ofdm\word-collector.cpp" />
     <ClCompile Include="ofdm\correlator.cpp" />
+    <ClCompile Include="support\drm-shifter.cpp" />
     <ClCompile Include="support\checkcrc.cpp" />
     <ClCompile Include="support\deinterleaver.cpp" />
     <ClCompile Include="support\mapper.cpp" />
@@ -137,6 +136,7 @@
     <ClCompile Include="support\mer4-values.cpp" />
     <ClCompile Include="support\mer16-values.cpp" />
     <ClCompile Include="support\mer64-values.cpp" />
+    <ClCompile Include="support\fft-complex.cpp" />
     <ClCompile Include="equalizer\equalizer-base.cpp" />
     <ClCompile Include="equalizer\equalizer-1.cpp" />
     <ClCompile Include="equalizer\estimator-1.cpp" />
@@ -166,7 +166,6 @@
     <ClInclude Include="SDRunoPlugin_drm.h" />
     <ClInclude Include="SDRunoPlugin_drmForm.h" />
     <ClInclude Include="SDRunoPlugin_drmUi.h" />
-    <ClInclude Include="drm-shifter.h" />
     <ClInclude Include="drm-bandfilter.h" />
     <ClInclude Include="utilities.h" />
     <ClInclude Include="decimator-25.h" />
@@ -174,15 +173,14 @@
     <ClInclude Include="low-assfilter.h" />
     <ClInclude Include="ringbuffer.h" />
     <ClInclude Include="basics.h" />
-    <ClInclude Include="fftw3.h" />
     <ClInclude Include="parameters\state-descriptor.h" />
     <ClInclude Include="parameters\puncture-tables.h" />
     <ClInclude Include="ofdm\reader.h" />
     <ClInclude Include="ofdm\timesync.h" />
-    <ClInclude Include="ofdm\shifter.h" />
     <ClInclude Include="ofdm\freqsyncer.h" />
     <ClInclude Include="ofdm\word-collector.h" />
     <ClInclude Include="ofdm\correlator.h" />
+    <ClInclude Include="support\drm-shifter.h" />
     <ClInclude Include="support\checkcrc.h" />
     <ClInclude Include="support\deinterleaver.h" />
     <ClInclude Include="support\mapper.h" />
@@ -196,6 +194,7 @@
     <ClInclude Include="support\mer4-values.h" />
     <ClInclude Include="support\mer16-values.h" />
     <ClInclude Include="support\mer64-values.h" />
+    <ClInclude Include="support\fft-complex.h" />
     <ClInclude Include="equalizer\equalizer-base.h" />
     <ClInclude Include="equalizer\equalizer-1.h" />
     <ClInclude Include="equalizer\estimator-1.h" />

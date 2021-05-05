@@ -29,8 +29,7 @@
 #include	<cstring>
 #define  _USE_MATH_DEFINES
 #include        <math.h>
-#include	"../fftw3.h"
-#include	"shifter.h"
+#include	"..\support\drm-shifter.h"
 
 class	Reader;
 class	SDRunoPlugin_drmUi;
@@ -48,9 +47,9 @@ private:
 	void		getWord			(Reader	*,
 	                                         int32_t,
 	                                         int32_t,
-	                                         float);
+	                                         DRM_FLOAT);
 	int32_t		get_zeroBin 		(int16_t);
-	float		get_spectrumOccupancy	(uint8_t,
+	DRM_FLOAT		get_spectrumOccupancy	(uint8_t,
 	                                         int16_t);
 	SDRunoPlugin_drmUi	*m_form;
 	Reader		* buffer;
@@ -60,17 +59,16 @@ private:
 	int16_t		k_pilot1;
 	int16_t		k_pilot2;
 	int16_t		k_pilot3;
-	float		theAngle;
+	DRM_FLOAT		theAngle;
 	int16_t		Tu;
 	int16_t		Ts;
 	int16_t		Tg;
 	int16_t		displayCount;
 	int16_t		nrSymbols;
 	int16_t		bufferIndex;
-	std::complex<float>	**symbolBuffer;
-	std::complex<float>	*fft_vector;
-	fftwf_plan	hetPlan;
-	shifter		theShifter;
+	std::complex<DRM_FLOAT>	**symbolBuffer;
+
+	drmShifter	theShifter;
 };
 
 #endif

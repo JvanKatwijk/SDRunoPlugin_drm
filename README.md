@@ -20,6 +20,12 @@ Different Modes have different measures against fading in the signal.
 
 The picture shows  a reasonable signal on 9760 KHz, a transmission of the
 Radio Rumenia International, in Mode B, with a spectrum of 10 KHz.
+The waterfall clearly shows the effect of fading on the signal,
+the signal can be decoded however.
+
+The picture shows that the receiver is tuned to 9760 KHz, that
+the samplerate is already reduced to 62.5 KHz (the decoder will do the
+further filtering an reduction to 12 KHz). 
 
 The DRM plugin is an EXPERIMENTAL decoder,
 developed for the SDRuno framework: it will attempt
@@ -37,11 +43,13 @@ The decoder is derived from the drm decoder for the swradio-8 software.
 
 There are no controls on the widget, as soon as the plugin is activated
 it will start reading in samples and trying to decode DRM.
+
+A DRM signal is in one of 4 modes, Mode B is the one being decoded here.
+The spectrum is "3", telling that the qwidth is 19 KHz, symmetrically
+around 0.
+
 The different labels in the
 widget give information on the reception.
-The picture shows that the receiver is tuned to 9760 KHz, that
-the samplerate is already reduced to 62.5 KHz (the decoder will do the
-further filtering an reduction to 12 KHz). 
 The name of the receiver service is "SNR Tiganesti E1".
 
 On the right hand side of the widget, there are four labels, 
@@ -84,11 +92,9 @@ Building the plugin.
 -----------------------------------------------------------------------------
 
 The plugin is - as other plugins - developed under MSVC. Note that
-the plugin uses to additional libraries (dll's):
+the plugin uses an additional library (dll's):
 
-   * fftw, for the various Fast Fourier Transdorms
-
-   * faad, for the decoding of the AAC data
+   * libaad_drm-2.dll, for the decoding of the AAC data
 
 
 --------------------------------------------------------------------------

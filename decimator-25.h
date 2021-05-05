@@ -24,6 +24,7 @@
 #ifndef __DECIMATOR_25_H
 #define __DECIMATOR_25_H
 
+#include	".\basics.h"
 #include	<stdint.h>
 #include	<complex>
 #include	<vector>
@@ -34,11 +35,11 @@ class	decimator_25 {
 public:
 	                 decimator_25	(int32_t);
 			~decimator_25	();
-	bool		Pass	(std::complex<float>, std::complex<float> *);
+	bool		Pass	(std::complex<DRM_FLOAT>, std::complex<DRM_FLOAT> *);
 private:
 	int		counter;
 	int		amount;
-	std::complex<float>	iValue;
+	std::complex<DRM_FLOAT>	iValue;
 };
 
 #endif

@@ -16,7 +16,6 @@
 
 //      for the payload we have
 #include	"ringbuffer.h"
-#include	"drm-shifter.h"
 #include	"decimator-25.h"
 #include	"drm-bandfilter.h"
 #include	"lowpassfilter.h"
@@ -25,6 +24,7 @@
 #include	"ofdm\reader.h"
 #include	"msc\backend-controller.h"
 #include	"parameters\state-descriptor.h"
+#include	".\support\drm-shifter.h"
 #include	"support\my-array.h"
 
 
@@ -65,7 +65,7 @@ private:
 	SDRunoPlugin_drmUi      m_form;
 	std::mutex	        locker;
 	IUnoPluginController	*m_controller;
-	RingBuffer<std::complex<float>>	inputBuffer;
+	RingBuffer<std::complex<DRM_FLOAT>>	inputBuffer;
 	drmShifter	        theMixer;
 	drmBandfilter	        passbandFilter;
 	decimator_25	        theDecimator;
@@ -73,25 +73,24 @@ private:
 	RingBuffer<std::complex<float>>	drmAudioBuffer;
 	void			WorkerFunction	();
 	std::thread		* m_worker;
-	void			process		(std::complex<float>);
-	void			processSample	(std::complex<float>);
-	int			resample	(std::complex<float>,
-                                                 std::complex<float> *);
+	void			process		(std::complex<DRM_FLOAT>);
+	void			processSample	(std::complex<DRM_FLOAT>);
+	int			resample	(std::complex<DRM_FLOAT>,
+                                                 std::complex<DRM_FLOAT> *);
 	uint8_t			getSpectrum	(stateDescriptor *);
 	void			getMode		(Reader *my_Reader,
 	                                                 smodeInfo *m);
 
 
-	void		showLines	(std::vector<std::complex<float>> &);
-        std::vector<std::complex<float>> convBuffer;
-        int              convIndex;
-        int16_t          mapTable_int   [WORKING_RATE / 10];
-        float            mapTable_float [WORKING_RATE / 10];
+        std::vector<std::complex<DRM_FLOAT>> convBuffer;
+        int		convIndex;
+        int16_t		mapTable_int   [WORKING_RATE / 10];
+        DRM_FLOAT	mapTable_float [WORKING_RATE / 10];
 //
 //
         std::atomic<bool>       running;
 
-	bool			drmError;
+	bool		drmError;
 	int		centerFrequency;
         int             VFOFRequency;
         int             selectedFrequency;
@@ -123,11 +122,4 @@ private:
 	void		addtoSuperFrame		(smodeInfo *,
                                                  int16_t,
 	                                         myArray<theSignal> *);
-//
-//	for the graphics
-	
-	void		show_eq			(std::vector<std::complex<float>> &);
-	void		clearScreen();
-
-
 };

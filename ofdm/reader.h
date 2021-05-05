@@ -34,7 +34,7 @@
 //	a secret. In a next version we eliminate the ringbuffer.
 class	Reader {
 public:
-			Reader (RingBuffer<std::complex<float>> *, 
+			Reader (RingBuffer<std::complex<DRM_FLOAT>> *, 
 	                        uint32_t, SDRunoPlugin_drmUi *);
 			~Reader		();
 	void		waitfor		(int32_t);
@@ -42,7 +42,7 @@ public:
 	void		stop		();
 	uint32_t	bufSize;
 	uint32_t	bufMask;
-	std::complex<float>	*data;
+	std::complex<DRM_FLOAT>	*data;
 	uint32_t	currentIndex;
 	bool		stopSignal;
 	uint32_t	firstFreeCell;
@@ -50,7 +50,7 @@ private:
 	SDRunoPlugin_drmUi	*m_form;
 	uint32_t	Contents	();
 	
-	RingBuffer<std::complex<float>> * ringBuffer;
+	RingBuffer<std::complex<DRM_FLOAT>> * ringBuffer;
 	int		counter;
 };
 

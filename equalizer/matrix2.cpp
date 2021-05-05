@@ -18,23 +18,23 @@
 #include	"matrix2.h"
 #define   TINY 1.0e-20
 
-void	inverse		(float**, int);
-void	ludcmp		(float**, int, int*, float*);
-void	lubksb		(float**, int, int*, float*);
-float	**matrix	(int, int, int, int);
-float	*vector		(int, int);
-void	free_matrix	(float**, int, int, int, int);
-void	free_vector	(float*, int, int);
+void	inverse		(DRM_FLOAT**, int);
+void	ludcmp		(DRM_FLOAT**, int, int*, DRM_FLOAT*);
+void	lubksb		(DRM_FLOAT**, int, int*, DRM_FLOAT*);
+DRM_FLOAT	**matrix	(int, int, int, int);
+DRM_FLOAT	*vector		(int, int);
+void	free_matrix	(DRM_FLOAT**, int, int, int, int);
+void	free_vector	(DRM_FLOAT*, int, int);
 
-void inverse (float **mat, int dim) {
+void inverse (DRM_FLOAT **mat, int dim) {
 int i, j, *indx;
-float **y, d, *col;
+DRM_FLOAT **y, d, *col;
 
-	y = new float *[dim];
+	y = new DRM_FLOAT *[dim];
 	for (i = 0; i < dim; i ++)
-	   y [i] = new float [dim];
+	   y [i] = new DRM_FLOAT [dim];
 	indx = new int [dim];
-	col = new float [dim];
+	col = new DRM_FLOAT [dim];
 	ludcmp (mat, dim, indx, &d);
 	for (j = 0; j < dim; j++) {
 	   for (i = 0; i < dim; i++)
@@ -55,12 +55,12 @@ float **y, d, *col;
 	delete [] y;
 }
 
-void	ludcmp (float **a, int n, int *indx, float *d) {
+void	ludcmp (DRM_FLOAT **a, int n, int *indx, DRM_FLOAT *d) {
 int i, imax = 0, j, k;
-float   big,dum,sum,temp;
-float   *vv;
+DRM_FLOAT   big,dum,sum,temp;
+DRM_FLOAT   *vv;
 
-	vv = new float [n];
+	vv = new DRM_FLOAT [n];
 	*d = 1.0;
 	for (i = 0; i < n; i++) {
 	   big = 0.0;
@@ -120,9 +120,9 @@ float   *vv;
 	delete[] vv;
 }
 
-void lubksb (float **a, int n, int *indx, float *b) {
+void lubksb (DRM_FLOAT **a, int n, int *indx, DRM_FLOAT *b) {
 int i,ip,j,ii=-1;
-float   sum;
+DRM_FLOAT   sum;
 
 	for (i = 0; i < n; i++) {
 	   ip = indx [i];
