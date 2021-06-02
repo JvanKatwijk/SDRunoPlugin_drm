@@ -239,8 +239,8 @@ int16_t	i;
 //	W_symbol_blk is a matrix with three dimensions
 	for (int window = 0; window < windowsinFrame; window ++) { 
 	   for (i = 0; i < carriersinSymbol; i ++)
-	      delete W_symbol_blk [window][i];
-	   delete W_symbol_blk [window];
+	      delete [] W_symbol_blk [window][i];
+	   delete [] W_symbol_blk [window];
 	}
 }
 //

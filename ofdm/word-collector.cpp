@@ -55,26 +55,16 @@
 		wordCollector::~wordCollector () {
 }
 
-static DRM_FLOAT theOffset= 0;
-//      when starting up, we "borrow" the precomputed frequency offset
-//      and start building up the spectrumbuffer.
-//
-
-void	wordCollector::reset	(DRM_FLOAT v) {
-	theOffset	= v;
-	theAngle	= 0;
-}
-
 void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		offsetInteger,
-	                        DRM_FLOAT	offsetFractional) {
+	                        DRM_FLOAT	offsetFractional,
+	                        DRM_FLOAT	freqOffset_fractional) {
 std::complex<DRM_FLOAT> *temp  =
 	  (std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<FLOAT>));
-std::complex<DRM_FLOAT>	angle	= std::complex<FLOAT> (0, 0);
 int	f	= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
-	theOffset	= 0;
+	theAngle	= freqOffset_fractional;
 
 //	correction of the time offset by interpolation
 	for (int i = 0; i < Ts; i ++) {
@@ -82,21 +72,16 @@ int	f	= buffer -> currentIndex;
 	                  buffer -> data [(f + i) % buffer -> bufSize];
 	   std::complex<DRM_FLOAT> two =
 	                  buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = one;
+	   temp [i] = 
+	            cmul (one, 1 - offsetFractional) +
+                                 cmul (two, offsetFractional);
 	}
 
 //	And we shift the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
-
-//	Now: determine the fine grain offset.
-	for (int i = 0; i < Tg; i ++)
-	   angle += conj (temp [Tu + i]) * temp [i];
-//	simple averaging
-	theAngle	= 0.9 * theAngle + 0.1 * arg (angle);
-//
 //	offset  (and shift) in Hz / 100
 	DRM_FLOAT offset		= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan<DRM_FLOAT> (offset)) 	// precaution to handle undefines
+	if (!isnan<DRM_FLOAT> (offset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                            100 * offsetInteger - offset);
 	else
@@ -105,9 +90,9 @@ int	f	= buffer -> currentIndex;
 	if (++displayCount > 20) {
 	   displayCount = 0;
 	   m_form -> set_intOffsetDisplay	(offsetInteger);
-	   m_form -> set_smallOffsetDisplay	(- offset / 100);
-	   m_form -> set_angleDisplay		(arg (angle));
-	   m_form -> set_timeDelayDisplay	(theOffset);
+	   m_form -> set_smallOffsetDisplay	(offset / 100);
+	   m_form -> set_angleDisplay		(theAngle);
+	   m_form -> set_timeDelayDisplay	(offsetFractional);
 	}
 
 	fft_and_extract (&temp [Tg], out);
@@ -119,25 +104,14 @@ int	f	= buffer -> currentIndex;
 void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		initialFreq,
 	                        bool		firstTime,
-	                        DRM_FLOAT		offsetFractional,
-	                        DRM_FLOAT		angle,
-	                        DRM_FLOAT		clockOffset) {
+	                        DRM_FLOAT	offsetFractional,
+	                        DRM_FLOAT	angle,
+	                        DRM_FLOAT	clockOffset) {
 std::complex<DRM_FLOAT>* temp =
 	(std::complex<DRM_FLOAT> *)_malloca  (Ts * sizeof (std::complex<FLOAT>));
 int	f			= buffer -> currentIndex;
 
-	(void)offsetFractional;		// maybe later??
 	buffer		-> waitfor (Ts + Ts / 2);
-
-	theOffset += clockOffset;
-        if (theOffset <  0) {
-           f --;
-           theOffset += 1;
-        }
-        if (theOffset >= 1) {
-           f ++;
-           theOffset -= 1;
-        }
 
 //	correcting for timeoffsets is still to be reseaerched
 	for (int i = 0; i < Ts; i ++) {
@@ -145,25 +119,17 @@ int	f			= buffer -> currentIndex;
 	              buffer -> data [(f + i) % buffer ->  bufSize];
 	   std::complex<DRM_FLOAT> two =
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = cmul (one, 1 - theOffset) +
-	                    cmul (two, theOffset);
+	   temp [i] = cmul (one, 1 - offsetFractional) +
+	                       cmul (two, offsetFractional);
+	   temp [i] = one;
 	}
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
 //
-//	There are two approaches for computing the angle offset,
-//	one based on the current "word", the other one based
-//	on the result of the equalization of the previous set of words
-//	std::complex<DRM_FLOAT.gp> faseError = std::complex<FLOAT> (0, 0);
-//      Now: determine the fine grain offset.
-//        for (int i = 0; i < Tg; i ++)
-//           faseError += conj (temp [Tu + i]) * temp [i];
-//      simple averaging
-//	theAngle        = 0.9 * theAngle + 0.1 * arg (faseError);
-//
-//	or, integrate the phase error in the previous words in the error
 //	corrector
-	theAngle	= theAngle - 0.1 * angle;
+	theAngle	= theAngle - 0.2 * angle;
+	if (theAngle > 0.5 * M_PI)
+		theAngle -= M_PI;
 //	offset in 0.01 * Hz
 	DRM_FLOAT offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (!isnan<DRM_FLOAT>(offset))  // precaution to handle undefines

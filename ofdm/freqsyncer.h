@@ -27,6 +27,7 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<cstring>
+#include	<vector>
 #define  _USE_MATH_DEFINES
 #include        <math.h>
 #include	"..\support\drm-shifter.h"
@@ -44,15 +45,17 @@ public:
 			~freqSyncer 		(void);
 	bool		frequencySync 		(smodeInfo *);
 private:
-	void		getWord			(Reader	*,
+	int16_t		getWord			(std::complex<DRM_FLOAT>	*,
 	                                         int32_t,
 	                                         int32_t,
+	                                         int16_t,
+	                                         int,
 	                                         DRM_FLOAT);
 	int32_t		get_zeroBin 		(int16_t);
 	DRM_FLOAT		get_spectrumOccupancy	(uint8_t,
 	                                         int16_t);
 	SDRunoPlugin_drmUi	*m_form;
-	Reader		* buffer;
+	Reader		*theReader;
 	int32_t		sampleRate;
 	uint8_t		Mode;
 	uint8_t		Spectrum;
@@ -67,6 +70,7 @@ private:
 	int16_t		nrSymbols;
 	int16_t		bufferIndex;
 	std::complex<DRM_FLOAT>	**symbolBuffer;
+	std::vector<float> corrV;
 
 	drmShifter	theShifter;
 };

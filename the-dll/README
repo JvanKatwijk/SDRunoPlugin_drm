@@ -3,7 +3,10 @@
 IMPORTANT NOTE
 ---------------------------------------------------------------------
 
-Note that the plugin - in its current version - requires two dll's
+Note that the plugin - in its current version - requires libfaad_drm2.dll
 to be installed in the ...\SDRplay\SDRuno folder
 
+------------------------------------------------------------------------
+A DRM decoder plugin
+------------------------------------------------------------------------
 

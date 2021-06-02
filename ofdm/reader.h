@@ -51,7 +51,6 @@ private:
 	uint32_t	Contents	();
 	
 	RingBuffer<std::complex<DRM_FLOAT>> * ringBuffer;
-	int		counter;
 };
 
 #endif

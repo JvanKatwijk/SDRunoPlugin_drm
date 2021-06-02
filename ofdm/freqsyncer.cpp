@@ -70,7 +70,7 @@ struct testCells testCellsforModeD [] = {
 	                        int32_t		sampleRate,	
 	                        SDRunoPlugin_drmUi *m_form):
 	                                 theShifter (100 * sampleRate) {
-	this	-> buffer	= b;
+	this	-> theReader	= b;
 	this	-> Mode		= m -> Mode;
 	this	-> Spectrum	= m -> Spectrum;
 	this	-> sampleRate	= sampleRate;
@@ -83,16 +83,14 @@ struct testCells testCellsforModeD [] = {
 	this	-> displayCount	= 0;
 
 //	for detecting pilots:
-	int16_t cnt	= 0;
-
 	struct testCells *base =
 	            Mode == Mode_A ? testCellsforModeA :
 	            Mode == Mode_B ? testCellsforModeB :
 	            Mode == Mode_C ? testCellsforModeC : testCellsforModeD;
 
-	this	-> k_pilot1 = base [0]. index;
-	this	-> k_pilot2 = base [1]. index;
-	this	-> k_pilot3 = base [2]. index;
+	this	-> k_pilot1 = base [0]. index + Tu / 2;
+	this	-> k_pilot2 = base [1]. index + Tu / 2;
+	this	-> k_pilot3 = base [2]. index + Tu / 2;
 
 	this	-> symbolBuffer	= new std::complex<DRM_FLOAT> *[nrSymbols];
 	for (int i = 0; i < nrSymbols; i ++)
@@ -111,31 +109,46 @@ int32_t	localIndex	= 0;
 DRM_FLOAT	occupancyIndicator [6];
 uint8_t	spectrum;
 
-	buffer	-> waitfor (nrSymbols * Ts + Ts);
+	theReader	-> waitfor (nrSymbols * Ts + 4 * Ts);
 
 //	first, load spectra for the first nrSymbol symbols
 //	into the (circular) buffer "symbolBuffer",
 //	However: do not move the "currentIndex" in the Reader,
 //	i.e. do not consume the words from the input
 	for (i = 0; i < nrSymbols; i ++) {
-	   getWord (buffer,
-	            localIndex,
-	            i,
-	            m -> timeOffset_fractional);
-	   localIndex += Ts;
+	   int timeOffset_integer =
+	      getWord (theReader -> data,
+	               theReader -> bufSize,
+	               theReader -> currentIndex + localIndex,
+	               i,
+	               0,
+	               m -> timeOffset_fractional);
+	   localIndex += Ts + timeOffset_integer;
 	}
 
 //	our version of get_zeroBin returns the "bin" number
-//	of the bin with the highest energy level.
+//	of the bin that is supposed to be bin zero
 	int32_t	binNumber = get_zeroBin (0);
 	m -> freqOffset_integer	= binNumber * sampleRate / Tu;
 
-//	binNumber = binNumber < 0 ? binNumber + Tu : binNumber;
+	localIndex	= 0;
+	for (i = 0; i < nrSymbols; i ++) {
+	   int timeOffset_integer =
+	      getWord (theReader -> data,
+	               theReader -> bufSize,
+	               theReader -> currentIndex + localIndex,
+	               i,
+	               m -> freqOffset_integer,
+	               m -> timeOffset_fractional);
+	   localIndex += Ts + timeOffset_integer;;
+	}
+
 	for (i = 0; i <= 3; i ++) 
-	   occupancyIndicator [i] = get_spectrumOccupancy (i, binNumber);
+	   occupancyIndicator [i] = get_spectrumOccupancy (i, 0);
 
 	DRM_FLOAT tmp1	= 0.0;
 	m	-> Spectrum = 3;
+	return true;
 	for (spectrum = 0; spectrum <= 3; spectrum ++) {	
 	   if (occupancyIndicator [spectrum] >= tmp1) {
 	      tmp1 = occupancyIndicator [spectrum];
@@ -166,7 +179,7 @@ DRM_FLOAT	*squares = (DRM_FLOAT *) _malloca (Tu * sizeof (DRM_FLOAT));
 	memset (squares, 0, Tu * sizeof (DRM_FLOAT));
 
 //	accumulate phase diffs of all carriers in subsequent symbols
-	for (int j = start + 1; j < start + nrSymbols; j++) {
+	for (int j = start + 1; j < start + nrSymbols - 1; j++) {
 	   int16_t jmin1 	= (j - 1) % nrSymbols;
 	   int16_t jj		= j % nrSymbols;
 	   for (int i = 0; i < Tu; i++) {
@@ -181,26 +194,52 @@ DRM_FLOAT	*squares = (DRM_FLOAT *) _malloca (Tu * sizeof (DRM_FLOAT));
 	for (int i = 0; i < Tu; i++) 
 	   abs_sum [i] = abs (squares [i] - 2 * abs (correlationSum [i]));
 
+//
+//	finding the int freq offset:
+//	The best result we get by looking at the frequency pilots in
+//	their direct environment
 	DRM_FLOAT	lowest		= 1.0E20;
 	int	dcOffset	= 0;
-//
+
+	float	highest		= 0;
+	int	altOffset	= 0;
+
+	for (int i = -10; i < 10; i ++) {
+	   float h = squares [k_pilot1 + i - 2] + squares [k_pilot1 + i - 1] +
+	             squares [k_pilot1 + i + 1] + squares [k_pilot1 + i + 2];
+	   float sum_1 = 4 * squares [k_pilot1 + i] / h;
+	   h = squares [k_pilot2 + i - 2] + squares [k_pilot2 + i - 1] +
+	             squares [k_pilot2 + i + 1] + squares [k_pilot2 + i + 2];
+	   float sum_2 = 4 * squares [k_pilot2 + i] / h;
+	   h = squares [k_pilot3 + i - 2] + squares [k_pilot3 + i - 1] +
+	             squares [k_pilot3 + i + 1] + squares [k_pilot3 + i + 2];
+	   float sum_3 = 4 * squares [k_pilot3 + i] / h;
+	   if ((sum_1 > 1) && (sum_2 > 1) && (sum_3 > 1)) {
+	      if (sum_1 + sum_2 + sum_3 > highest) {
+	         highest = sum_1 + sum_2 + sum_3;
+	         altOffset = i;
+	      }
+	   }
+	}
+	   
 //	recall that the pilots are relative to -Tu / 2
-	for (int i = - Tu / 10; i < Tu / 10; i ++) {
-	   DRM_FLOAT sum = abs_sum [Tu / 2 + k_pilot1 + i] +
-	               abs_sum [Tu / 2 + k_pilot2 + i] +
-	               abs_sum [Tu / 2 + k_pilot3 + i];
+	for (int i = -10; i < 10; i ++) {
+		DRM_FLOAT sum = abs_sum [k_pilot1 + i] +
+	                    abs_sum [k_pilot2 + i] +
+	                    abs_sum [k_pilot3 + i];
 	   if (sum < lowest) {
-	      dcOffset = i;
+	      dcOffset = i ;
 	      lowest = sum;
 	   }
 	}
 
+	return altOffset;
 	return dcOffset;
+	return 0;
 }
 
 DRM_FLOAT	freqSyncer::get_spectrumOccupancy (uint8_t spectrum,
 	                                   int16_t baseBin) {
-int16_t	i, j;
 int16_t K_min_ = Kmin (Mode, spectrum);
 int16_t K_max_ = Kmax (Mode, spectrum);
 
@@ -218,24 +257,24 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 	DRM_FLOAT tmp5	= 0;
 	DRM_FLOAT tmp6	= 0;
 
-	for (i = 0; i < nrSymbols; i ++) {
+	for (int i = 0; i < nrSymbols; i ++) {
 //	near the carrier with the lowest index
-	   for (j = 0; j < 15; j ++) {
+	   for (int j = 0; j < 10; j ++) {
 	      int ind1 = (K_min_indx - 2 - j) % Tu;
 	      int ind2 = (K_min_indx + 2 + j) % Tu;
-	      tmp3 += real (symbolBuffer [i][ind1] *
-	                                  conj (symbolBuffer [i][ind1]));
-	      tmp4 += real (symbolBuffer [i][ind2] *
-	                                  conj (symbolBuffer [i][ind2]));
+	      tmp3 += abs (real (symbolBuffer [i][ind1] *
+	                                  conj (symbolBuffer [i][ind1])));
+	      tmp4 += abs (real (symbolBuffer [i][ind2] *
+	                                  conj (symbolBuffer [i][ind2])));
 	   }
 //	near the carrier with the highest index
-	   for (j = 0; j < 25; j ++) {
+	   for (int j = 0; j < 20; j ++) {
 	      int ind1 = (K_max_indx - 2 - j) % Tu;
 	      int ind2 = (K_max_indx + 2 + j) % Tu;
-	      tmp5 += real (symbolBuffer [i][ind1] *
-	                                     conj (symbolBuffer [i][ind1]));
-	      tmp6 += real (symbolBuffer [i][ind2] *
-	                                     conj (symbolBuffer [i][ind2]));
+	      tmp5 += abs (real (symbolBuffer [i][ind1] *
+	                                 conj (symbolBuffer [i][ind1])));
+	      tmp6 += abs (real (symbolBuffer [i][ind2] *
+	                                 conj (symbolBuffer [i][ind2])));
 	   }
 	}
 
@@ -255,32 +294,34 @@ int16_t K_max_ = Kmax (Mode, spectrum);
 //	at, not read!! It is called by the frequency synchronizer
 //	No reduction of the output to the Kmin .. Kmax useful
 //	carriers is made, but the order of the low-high freqencies
-//	is change to reflect the "lower .. higher" frequencies in order.
-void	freqSyncer::getWord (Reader	*buffer,
-	                     int32_t	localIndex,
-	                     int32_t	wordNumber,
+//	is changed to reflect the "lower .. higher" frequencies in order.
+int16_t	freqSyncer::getWord (std::complex<DRM_FLOAT>	*buffer,
+	                     int32_t	bufSize,
+	                     int32_t	theIndex,
+	                     int16_t	wordNumber,
+	                     int	intOffset,
 	                     DRM_FLOAT	offsetFractional) {
 std::complex<DRM_FLOAT> *temp  =
 	   (std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<DRM_FLOAT>));
+uint32_t	bufMask = bufSize - 1;
 std::complex<DRM_FLOAT> angle	= std::complex<DRM_FLOAT> (0, 0);
 
 //	To take into account the fractional timing difference,
 //	we do some interpolation between samples in the time domain
-	int f	= (buffer -> currentIndex + localIndex) % buffer -> bufSize;
+	int f	= (int)(floor (theIndex)) & bufMask;
 	if (offsetFractional < 0) {
 	   offsetFractional = 1 + offsetFractional;
 	   f -= 1;
 	}
 
 	for (int i = 0; i < Ts; i ++) {
-	   std::complex<DRM_FLOAT> een = buffer -> data  [(f + i) & 
-	                                              buffer -> bufMask];
-	   std::complex<DRM_FLOAT> twee = buffer -> data  [(f + i + 1) &
-	                                              buffer -> bufMask];
+	   std::complex<DRM_FLOAT> een = buffer  [(f + i) & bufMask];
+	   std::complex<DRM_FLOAT> twee = buffer [(f + i + 1) & bufMask];
 	   temp [i] = cmul (een, 1 - offsetFractional) +
 	              cmul (twee, offsetFractional);
 	}
 
+	theShifter. do_shift (temp, Ts, intOffset * 100);
 //	Now: estimate the fine grain offset.
 	for (int i = 0; i < Tg; i ++)
 	   angle += conj (temp [Tu + i]) * temp [i];
@@ -289,6 +330,7 @@ std::complex<DRM_FLOAT> angle	= std::complex<DRM_FLOAT> (0, 0);
 
 //	offset in Hz / 100
 	DRM_FLOAT offset	= theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	
 	if (++displayCount >= 10) {
 	   displayCount = 0;
 	   m_form -> set_smallOffsetDisplay	(- offset / 100.0);
@@ -300,11 +342,13 @@ std::complex<DRM_FLOAT> angle	= std::complex<DRM_FLOAT> (0, 0);
 	   theShifter. do_shift (temp, Ts, -offset);
 	else
 	   theAngle = 0;
+
 //	and extract the Tu set of samples for fft processsing
 	Fft_transform (&temp[Tg], Tu, false);
 	memcpy (symbolBuffer [wordNumber],
 	        &temp [Tg + Tu / 2], Tu / 2 * sizeof (std::complex<DRM_FLOAT>));
 	memcpy (&symbolBuffer [wordNumber] [Tu / 2],
 	        &temp [Tg] , Tu / 2 * sizeof (std::complex<DRM_FLOAT>));
+	return 0;
 }
 

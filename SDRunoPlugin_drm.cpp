@@ -38,7 +38,7 @@
 	                                 m_worker (nullptr),
 	                                 inputBuffer  (16 * 32768),
 	                                 theMixer     (INRATE),
-	                                 passbandFilter (11,
+	                                 passbandFilter (15,
 	                                                6000,
 	                                                INRATE),
 	                                theDecimator (DECIMATOR),
@@ -110,10 +110,11 @@ void	SDRunoPlugin_drm::
 	if (passbandFilter. offset () != selectedFrequency - centerFrequency)
 		passbandFilter.modulate (selectedFrequency - centerFrequency);
 	theOffset = passbandFilter.offset();
+	m_form. set_countryLabel (std::to_string (theOffset));
 
 	for (int i = 0; i < length; i ++) {
 	   std::complex<DRM_FLOAT> sample =
-	                std::complex<float>(buffer [i]. real, buffer [i]. imag);
+	                std::complex<DRM_FLOAT>(buffer [i]. real, buffer [i]. imag);
 	   sample   = passbandFilter. Pass (sample);
 	   sample   = theMixer. do_shift (sample, theOffset);
 	   if (!theDecimator. Pass (sample, &sample)) 
@@ -210,7 +211,7 @@ DRM_FLOAT     sampleclockOffset       = 0;
 
 	      m_form. set_modeIndicator (modeInf. Mode);
 	      m_form. set_timeOffsetDisplay (modeInf. timeOffset_integer);
-	      m_form. set_smallOffsetDisplay (modeInf. freqOffset_fract);
+	      m_form. set_smallOffsetDisplay (modeInf. freqOffset_fractional);
 
 	      my_Reader. shiftBuffer (modeInf. timeOffset_integer);
 	      frequencySync (&my_Reader, &modeInf);
@@ -242,12 +243,13 @@ DRM_FLOAT     sampleclockOffset       = 0;
 
 //	   we know that - when starting - we are not "in sync" yet
 	      inSync	= false;
-	      my_wordCollector. reset (modeInf. timeOffset_fractional);
-
+	 
 	      for (int symbol = 0; symbol < nrSymbols; symbol ++) {
 	         my_wordCollector. getWord (inbank. element (symbol),
 	                                    modeInf. freqOffset_integer,
-	                                    modeInf. sampleRate_offset);
+	                                    modeInf. timeOffset_fractional,
+	                                    modeInf. freqOffset_fractional
+	                              );
 	         myCorrelator. correlate (inbank. element (symbol), symbol);
 	       }
 
@@ -259,7 +261,9 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	      while (running. load ()) {
 	         my_wordCollector. getWord (inbank. element (lc),
 	                                    modeInf. freqOffset_integer,
-	                                    modeInf. sampleRate_offset);
+	                                    modeInf. timeOffset_fractional,
+	                                    modeInf. freqOffset_fractional
+	                                   );
 	         myCorrelator. correlate (inbank. element (lc), lc);
 	         lc = (lc + 1) % symbolsperFrame (modeInf. Mode);
 	         if (myCorrelator. bestIndex (lc))  {
@@ -329,7 +333,6 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	                                    sdcTable, &theState);
 
 	      bool	superframer		= false;
-	      int	threeinaRow		= 0;
 	      int	missers			= 0;
 	      bool	firstTime		= true;
 	      DRM_FLOAT	deltaFreqOffset		= 0;
@@ -343,19 +346,14 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	            bool sdcOK = my_sdcProcessor. processSDC (&outbank);
 	            m_form. set_sdcSyncLabel (sdcOK);
 	            if (sdcOK) {
-	               threeinaRow ++;
+	               blockCount	= 0;
 	            }
-	            blockCount	= 0;
 //
 //	if we seem to have the start of a superframe, we
 //	re-create a backend with the right parameters
 	            if (!superframer && sdcOK)
 	               my_backendController. reset (&theState);
-//	we allow one sdc to fail, but only after having at least
-//	three frames correct
-	            superframer	= sdcOK || threeinaRow >= 3;
-	            if (!sdcOK)
-	               threeinaRow	= 0;
+	            superframer	= sdcOK;
 	         }
 //
 //	when here, add the current frame to the superframe.
@@ -400,7 +398,7 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	            m_form. set_facSyncLabel	(false);
 	            m_form. set_sdcSyncLabel	(false);
 	            superframer		= false;
-	            if (missers++ < 3)
+	            if (missers++ < 2)
 	               continue;
 	            throw (35);	// ... or give up and start all over
 	         }

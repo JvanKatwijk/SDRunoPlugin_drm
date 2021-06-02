@@ -45,6 +45,7 @@ public:
 			~wordCollector 		();
 	void		getWord			(std::complex<DRM_FLOAT> *,
 	                                         int32_t,
+	                                         DRM_FLOAT,
 	                                         DRM_FLOAT);
 	void		getWord			(std::complex<DRM_FLOAT> *,
 	                                         int32_t,
@@ -52,7 +53,7 @@ public:
 	                                         DRM_FLOAT,
 	                                         DRM_FLOAT,
 	                                         DRM_FLOAT);
-	void		reset			(DRM_FLOAT);
+
 private:
 	drmShifter		theShifter;
 

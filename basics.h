@@ -51,7 +51,7 @@ struct	modeinfo {
 	int16_t		Mode;
 	uint8_t		Spectrum;
 	DRM_FLOAT	sampleRate_offset;
-	DRM_FLOAT	freqOffset_fract;
+	DRM_FLOAT	freqOffset_fractional;
 	int		freqOffset_integer;
 	int16_t		timeOffset_integer;
 	DRM_FLOAT	timeOffset_fractional;

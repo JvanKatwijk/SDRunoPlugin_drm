@@ -33,18 +33,15 @@
 	Reader::Reader (RingBuffer<std::complex<DRM_FLOAT>> *r,
 	                uint32_t bufSize, SDRunoPlugin_drmUi *m_form) {
 	ringBuffer		= r;
-	if ((bufSize & (bufSize - 1)) == 0)
-	   this	-> bufSize	= bufSize;
-	else
-	   this -> bufSize	= 2 * 32768;
+	(void)bufSize;
+	this -> bufSize		= 16 * 8192;
 	this	-> bufMask	= this -> bufSize - 1;
-	this	-> m_form	= m_form;
 	data			= new std::complex<DRM_FLOAT> [this -> bufSize + 1];
+	this	-> m_form	= m_form;
 	memset (data, 0, this -> bufSize * sizeof (std::complex<DRM_FLOAT>));
 	currentIndex		= 0;
 	firstFreeCell		= 0;
 	stopSignal		= false;
-	counter			= 0;
 }
 
 	Reader::~Reader (void) {
@@ -96,12 +93,13 @@ int32_t		contents	= Contents ();
 	                                tobeRead - (bufSize - firstFreeCell));
 	}
 
-	firstFreeCell = (firstFreeCell + tobeRead) % this ->  bufSize;
+	firstFreeCell = (firstFreeCell + tobeRead) & this ->  bufMask;
 }
 
 void	Reader::shiftBuffer (int32_t n) {
-	if (n > 0)
+	if (n > 0) {
 	   waitfor (n + 20);
-	currentIndex = (currentIndex + n) & this -> bufMask;
+	   currentIndex = (currentIndex + n) & this -> bufMask;
+	}
 }
 
