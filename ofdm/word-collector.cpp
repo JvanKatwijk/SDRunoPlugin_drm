@@ -128,20 +128,26 @@ int	f			= buffer -> currentIndex;
 //
 //	corrector
 	theAngle	= theAngle - 0.2 * angle;
-	if (theAngle > 0.5 * M_PI)
+	if (theAngle >= M_PI) {
 		theAngle -= M_PI;
+		modeInf->freqOffset_integer += sampleRate / Tu;
+	}
+	if (theAngle < -M_PI) {
+		theAngle += M_PI;
+		modeInf->freqOffset_integer -= sampleRate / Tu;
+	}
 //	offset in 0.01 * Hz
-	DRM_FLOAT offset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
-	if (!isnan<DRM_FLOAT>(offset))  // precaution to handle undefines
+	DRM_FLOAT fineOffset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	if (!isnan<DRM_FLOAT>(fineOffset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
-	                        100 * modeInf -> freqOffset_integer - offset);
+	                        100 * modeInf -> freqOffset_integer - fineOffset);
 	else
 	   theAngle = 0;
 
 	if (++displayCount > 20) {
 	   displayCount = 0;
 	   m_form -> set_intOffsetDisplay	(modeInf -> freqOffset_integer);
-	   m_form -> set_smallOffsetDisplay	(- offset / 100);
+	   m_form -> set_smallOffsetDisplay	(- fineOffset / 100);
 	   m_form -> set_angleDisplay		(angle);
 	   m_form -> set_timeOffsetDisplay	(offsetFractional);
 	   m_form -> set_clockOffsetDisplay	(Ts * clockOffset);
