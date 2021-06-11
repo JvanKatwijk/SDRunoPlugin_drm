@@ -305,7 +305,7 @@ void	aacProcessor_faad::writeOut (int16_t *buffer,
 
 	if (pcmRate == 24000) {
 	   std::complex<float> *lbuffer =
-	          (std::complex<float> *)_malloca (cnt * sizeof (std::complex<float>));
+	          (std::complex<float> *)_malloca (2 * cnt * sizeof (std::complex<float>));
 	   for (int i = 0; i < cnt / 2; i ++) {
               upFilter_12000. Filter (std::complex<float> (
                                             buffer [2 * i] / 32767.0,

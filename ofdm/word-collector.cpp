@@ -29,8 +29,6 @@
 #include	"word-collector.h"
 #include	"reader.h"
 
-#define	NR_SYMBOLS	24
-
 //	The frequency shifter is in steps of 0.01 Hz
 	wordCollector::wordCollector (SDRunoPlugin_drmUi *m_form,
 	                              Reader	*b,
@@ -55,12 +53,14 @@
 		wordCollector::~wordCollector () {
 }
 
+static int amount	= 0;
+
 void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		offsetInteger,
 	                        DRM_FLOAT	offsetFractional,
 	                        DRM_FLOAT	freqOffset_fractional) {
 std::complex<DRM_FLOAT> *temp  =
-	  (std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<FLOAT>));
+	(std::complex<DRM_FLOAT> *)_malloca (Ts * sizeof (std::complex<FLOAT>));
 int	f	= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
@@ -95,6 +95,7 @@ int	f	= buffer -> currentIndex;
 	   m_form -> set_timeDelayDisplay	(offsetFractional);
 	}
 
+	amount	= 0;
 	fft_and_extract (&temp [Tg], out);
 }
 //
@@ -113,7 +114,25 @@ int	f			= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
 
-//	correcting for timeoffsets is still to be reseaerched
+	if (amount >= 4) {
+	   buffer		-> waitfor (12 * Ts + Ts);
+	   int intOffs = get_intOffset (0, 10, 10);
+	   int sub	= get_intOffset (1 * Ts, 10, 10);
+	   if (intOffs == sub)  {
+	      if (intOffs < 0) {
+//	         fprintf (stderr, "offset %d\n", intOffs);
+	         f --;
+	      }
+	      if (intOffs > 0 ) {
+//	         fprintf (stderr, "offset %d\n", intOffs);
+	         f ++;
+	      }
+	      amount = 0;
+	   }
+	   else
+	      amount--;
+	}
+
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<DRM_FLOAT> one =
 	              buffer -> data [(f + i) % buffer ->  bufSize];
@@ -121,20 +140,19 @@ int	f			= buffer -> currentIndex;
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
 	   temp [i] = cmul (one, 1 - offsetFractional) +
 	                       cmul (two, offsetFractional);
-	   temp [i] = one;
 	}
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
 //
 //	corrector
 	theAngle	= theAngle - 0.2 * angle;
-	if (theAngle >= M_PI) {
-		theAngle -= M_PI;
-		modeInf->freqOffset_integer += sampleRate / Tu;
-	}
 	if (theAngle < -M_PI) {
 		theAngle += M_PI;
 		modeInf->freqOffset_integer -= sampleRate / Tu;
+	}
+	if (theAngle >= M_PI) {
+		theAngle -= M_PI;
+		modeInf->freqOffset_integer += sampleRate / Tu;
 	}
 //	offset in 0.01 * Hz
 	DRM_FLOAT fineOffset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
