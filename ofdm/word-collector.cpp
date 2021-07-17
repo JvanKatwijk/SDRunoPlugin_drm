@@ -110,20 +110,21 @@ void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        DRM_FLOAT	clockOffset) {
 std::complex<DRM_FLOAT>* temp =
 	(std::complex<DRM_FLOAT> *)_malloca  (Ts * sizeof (std::complex<FLOAT>));
-int	f			= buffer -> currentIndex;
+int	f		= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
 
+	amount ++;
 	if (amount >= 4) {
-	   buffer		-> waitfor (12 * Ts + Ts);
-	   int intOffs = get_intOffset (0, 10, 10);
-	   int sub	= get_intOffset (1 * Ts, 10, 10);
+	   buffer		-> waitfor (14 * Ts + Ts);
+	   int intOffs	= get_intOffset (2 * Ts, 10, 10);
+	   int sub	= get_intOffset (4 * Ts, 10, 10);
 	   if (intOffs == sub)  {
-	      if (intOffs < 0) {
+	      if (intOffs < -1) {
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f --;
 	      }
-	      if (intOffs > 0 ) {
+	      if (intOffs > 1 ) {
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f ++;
 	      }
