@@ -267,7 +267,7 @@ void	SDRunoPlugin_drmForm::Setup () {
 	close_button.events().mouse_up([&] { close_button.load(img_close_normal, nana::rectangle(0, 0, 20, 15)); close(); });
 	close_button.events().mouse_leave([&] { close_button.load(img_close_normal, nana::rectangle(0, 0, 20, 15)); });
 
-	//Uncomment the following block of code to Initialise the "Setting button"
+//	Uncomment the following block of code to Initialise the "Setting button"
 	sett_button.load(img_sett_normal, nana::rectangle(0, 0, 40, 15));
 	sett_button.bgcolor(nana::color_rgb(0x000000));
 	sett_button.move(nana::point(10, 9));
@@ -429,8 +429,6 @@ void	SDRunoPlugin_drmForm::set_channel_2 (const std::string s) {
 void	SDRunoPlugin_drmForm::activate_channel_2 () {
 	m_parent, activate_channel_2 ();
 }
-
-
 
 void	SDRunoPlugin_drmForm::set_channel_4 (const std::string s) {
 	channel_4. caption (s);

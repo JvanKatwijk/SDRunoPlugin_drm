@@ -38,11 +38,11 @@
 	                                 m_worker (nullptr),
 	                                 inputBuffer  (16 * 32768),
 	                                 theMixer     (INRATE),
-	                                 passbandFilter (15,
-	                                                6000,
+	                                 passbandFilter (25,
+	                                                5000,
 	                                                INRATE),
-	                                theDecimator (DECIMATOR),
-	                                localMixer (WORKING_RATE),
+	                                theDecimator (SIZE_OUT / SIZE_END),
+//	                                localMixer (WORKING_RATE),
 	                                drmAudioBuffer (32768),
 	                                my_Reader (&inputBuffer,
 	                                           2 * 16384, &m_form),
@@ -54,13 +54,13 @@
 //      we want to "work" with a rate of 12000, and since we arrive
 //      from IN_RATE we first decimate and filter to 12500 and then
 //      interpolate for the rest
-	for (int i = 0; i < WORKING_RATE / 10; i ++) {
-	   DRM_FLOAT inVal	= DRM_FLOAT (INTERM_RATE / 10.0);
-	   mapTable_int [i]     = int (floor (i * (inVal / (WORKING_RATE / 10))));
-	   mapTable_float [i]   = i * (inVal / (WORKING_RATE / 10)) - mapTable_int [i];
+	for (int i = 0; i < SIZE_OUT; i ++) {
+	   DRM_FLOAT inVal	= DRM_FLOAT (SIZE_IN);
+	   mapTable_int [i]     = int (floor (i * (inVal / (SIZE_OUT))));
+	   mapTable_float [i]   = i * (inVal / (SIZE_OUT)) - mapTable_int [i];
 	}
 	convIndex       = 0;
-	convBuffer. resize (INTERM_RATE / 10 + 1);
+	convBuffer. resize (SIZE_IN + 1);
 	
 	m_controller    -> RegisterStreamProcessor (0, this);
 	m_controller    -> RegisterAudioProcessor (0, this);
@@ -95,7 +95,9 @@
 	delete m_worker;
 	m_worker = nullptr;
 }
-
+//
+//	Called by the underlying system
+//
 void	SDRunoPlugin_drm::
 	         StreamProcessorProcess (channel_t channel,
 	                                 Complex* buffer,
@@ -106,34 +108,35 @@ void	SDRunoPlugin_drm::
 	   return;
 	}
 	
-	int theOffset;
-	if (passbandFilter. offset () != selectedFrequency - centerFrequency)
-		passbandFilter.modulate (selectedFrequency - centerFrequency);
-	theOffset = passbandFilter.offset();
-	m_form. set_countryLabel (std::to_string (theOffset));
+	int theOffset = m_controller -> GetVfoFrequency (0) -
+	                m_controller -> GetCenterFrequency (0);
+	if (passbandFilter. offset () != theOffset) {
+	   passbandFilter.modulate (theOffset);
+	   m_form. set_countryLabel (std::to_string (theOffset));
+	}
 
 	for (int i = 0; i < length; i ++) {
 	   std::complex<DRM_FLOAT> sample =
 	                std::complex<DRM_FLOAT>(buffer [i]. real, buffer [i]. imag);
 	   sample   = passbandFilter. Pass (sample);
 	   sample   = theMixer. do_shift (sample, theOffset);
-	   if (!theDecimator. Pass (sample, &sample)) 
-	      continue;
-
+//
+//	interpolating 62500 -> 72000
 	   convBuffer [convIndex ++] = sample;
 	   if (convIndex >= convBuffer. size ()) {
-	      std::complex<DRM_FLOAT> out [WORKING_RATE / 10];
-	      for (int j = 0; j < WORKING_RATE / 10; j ++) {
-	         int16_t  inpBase   = mapTable_int [j];
-	         DRM_FLOAT    inpRatio  = mapTable_float [j];
-	         out [j]  = cmul (convBuffer [inpBase + 1], inpRatio) +
-	                          cmul (convBuffer [inpBase], 1 - inpRatio);
+//	      std::complex<DRM_FLOAT> out [SIZE_OUT];
+	      for (int j = 0; j < SIZE_OUT; j ++) {
+	         int16_t  inpBase	= mapTable_int [j];
+	         DRM_FLOAT inpRatio	= mapTable_float [j];
+	         std::complex<DRM_FLOAT> res =
+	                     cmul (convBuffer [inpBase + 1],  2 * inpRatio) +
+	                      cmul (convBuffer [inpBase], 2 * (1 - inpRatio));
+	         if (theDecimator. Pass (res, &res))
+	            inputBuffer. putDataIntoBuffer (&res, 1);
 	      }
-	      inputBuffer. putDataIntoBuffer (out, WORKING_RATE / 10);
 	      convBuffer [0]  = convBuffer [convBuffer. size () - 1];
 	      convIndex    = 1;
 	   }
-	   
 	}
 	modified = false;
 }
@@ -231,7 +234,7 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	      myArray<theSignal> outbank (nrSymbols, nrCarriers);
 	      correlator myCorrelator (&modeInf);
 	      equalizer_1 my_Equalizer (modeInf.Mode,
-	                                modeInf.Spectrum, 4);
+	                                modeInf.Spectrum, 2);
 	      std::vector<std::complex<DRM_FLOAT>> displayVector;
 	      displayVector. resize (Kmax (modeInf. Mode, modeInf. Spectrum) -
 	                             Kmin (modeInf. Mode, modeInf. Spectrum) + 1);
@@ -243,18 +246,20 @@ DRM_FLOAT     sampleclockOffset       = 0;
 
 //	   we know that - when starting - we are not "in sync" yet
 	      inSync	= false;
-	 
-	      for (int symbol = 0; symbol < nrSymbols; symbol ++) {
+//
+//	   we read one full frame after which we start looking for a 
+//	   match
+	      for (int symbol = 0; symbol < nrSymbols - 1; symbol ++) {
 	         my_wordCollector. getWord (inbank. element (symbol),
 	                                    modeInf. freqOffset_integer,
 	                                    modeInf. timeOffset_fractional,
 	                                    modeInf. freqOffset_fractional
-	                              );
+	                                   );
 	         myCorrelator. correlate (inbank. element (symbol), symbol);
 	       }
 
 	      int16_t errors       = 0;
-	      int  lc      = 0;
+	      int  lc      = nrSymbols - 1;
 //      We keep on reading here until we are satisfied that the
 //      frame that is in, looks like a decent frame, just by the
 //      correlation on the first word

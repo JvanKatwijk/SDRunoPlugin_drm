@@ -102,6 +102,7 @@ int	f	= buffer -> currentIndex;
 //	The getWord as below is used in the main loop, to obtain
 //	a next ofdm word
 //
+static int teller	= 0;
 void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 	                        int32_t		initialFreq,
 	                        bool		firstTime,
@@ -113,18 +114,26 @@ std::complex<DRM_FLOAT>* temp =
 int	f		= buffer -> currentIndex;
 
 	buffer		-> waitfor (Ts + Ts / 2);
-
+	teller ++;
 	amount ++;
 	if (amount >= 4) {
-	   buffer		-> waitfor (14 * Ts + Ts);
+	   buffer		-> waitfor (18 * Ts + Ts);
 	   int intOffs	= get_intOffset (2 * Ts, 10, 10);
-	   int sub	= get_intOffset (4 * Ts, 10, 10);
+	   int sub	= get_intOffset (6 * Ts, 10, 10);
 	   if (intOffs == sub)  {
 	      if (intOffs < -1) {
+	         std::string str = std::to_string (teller);
+		 str = str + "  " + std::to_string(intOffs);
+	         m_form -> set_channel_4 (str);
+	         teller = 0;
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f --;
 	      }
 	      if (intOffs > 1 ) {
+	         std::string str = std::to_string(teller);
+	         str = str + "  " + std::to_string(intOffs);
+	         m_form -> set_channel_4 (str);
+	         teller = 0;
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f ++;
 	      }
@@ -139,8 +148,9 @@ int	f		= buffer -> currentIndex;
 	              buffer -> data [(f + i) % buffer ->  bufSize];
 	   std::complex<DRM_FLOAT> two =
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	                       cmul (two, offsetFractional);
+//	   temp [i] = cmul (one, 1 - offsetFractional) +
+//	                       cmul (two, offsetFractional);
+	   temp [i] = one;
 	}
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
@@ -148,15 +158,15 @@ int	f		= buffer -> currentIndex;
 //	corrector
 	theAngle	= theAngle - 0.2 * angle;
 	if (theAngle < -M_PI) {
-		theAngle += M_PI;
-		modeInf->freqOffset_integer -= sampleRate / Tu;
+	   theAngle += M_PI;
+	   modeInf -> freqOffset_integer -= sampleRate / Tu;
 	}
 	if (theAngle >= M_PI) {
-		theAngle -= M_PI;
-		modeInf->freqOffset_integer += sampleRate / Tu;
+	   theAngle -= M_PI;
+	   modeInf -> freqOffset_integer += sampleRate / Tu;
 	}
 //	offset in 0.01 * Hz
-	DRM_FLOAT fineOffset          = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
+	DRM_FLOAT fineOffset   = theAngle / (2 * M_PI) * 100 * sampleRate / Tu;
 	if (!isnan<DRM_FLOAT>(fineOffset))  // precaution to handle undefines
 	   theShifter. do_shift (temp, Ts,
 	                        100 * modeInf -> freqOffset_integer - fineOffset);

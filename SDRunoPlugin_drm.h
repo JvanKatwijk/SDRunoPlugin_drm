@@ -34,6 +34,11 @@
 #define         WORKING_RATE    12000
 #define         FILTER_DEFAULT  21
 
+
+#define         SIZE_IN         625
+#define         SIZE_OUT        720
+#define         SIZE_END        120
+
 using namespace nana;
 
 class SDRunoPlugin_drm : public IUnoPlugin,
@@ -69,7 +74,7 @@ private:
 	drmShifter	        theMixer;
 	drmBandfilter	        passbandFilter;
 	decimator_25	        theDecimator;
-	drmShifter	        localMixer;
+//	drmShifter	        localMixer;
 	RingBuffer<std::complex<float>>	drmAudioBuffer;
 	void			WorkerFunction	();
 	std::thread		* m_worker;
@@ -84,8 +89,8 @@ private:
 
         std::vector<std::complex<DRM_FLOAT>> convBuffer;
         int		convIndex;
-        int16_t		mapTable_int   [WORKING_RATE / 10];
-        DRM_FLOAT	mapTable_float [WORKING_RATE / 10];
+        int16_t		mapTable_int   [SIZE_OUT];
+        DRM_FLOAT	mapTable_float [SIZE_OUT];
 //
 //
         std::atomic<bool>       running;
