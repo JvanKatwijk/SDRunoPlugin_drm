@@ -3,8 +3,8 @@
 IMPORTANT NOTE
 ---------------------------------------------------------------------
 
-Note that the plugin - in its current version - requires libfaad_drm-2.dll
-to be installed in the ...\SDRplay\SDRuno folder
+Note that the plugin - in its current version - requires libfdk-aac-2.dll
+and two other dll's to be installed in the ...\SDRplay\SDRuno folder
 
 --------------------------------------------------------------------------
 
@@ -95,18 +95,19 @@ the function.
 Building the plugin.
 -----------------------------------------------------------------------------
 
+Note that this version - other than previous versions - uses the fdk-aac
+library for audio decoding. The fdk-aac library supports both AAC
+and xHE-AAC encoded data.
+
 The plugin is - as other plugins - developed under MSVC. Note that
-the plugin uses an additional library (dll's):
+the plugin uses some additional libraries (dll's):
 
-   * libaad_drm-2.dll, for the decoding of the AAC data
+   * libfdk-aac-2.dll, for the decoding of the AAC data
 
+running this dll requires two additional dll's
 
---------------------------------------------------------------------------
-Work to be dome
---------------------------------------------------------------------------
+   * libgcc_s_dw-1.dll
+   * libwinpthread-1.dll
 
-As said, the plugin is experimental. What needs to be done is adding
-the fdkaac decoder for newer audio encoding modes,
-And - of course - remaining errors need to be detected and removed
 
 

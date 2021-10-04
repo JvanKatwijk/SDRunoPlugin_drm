@@ -33,7 +33,6 @@
 #include	"..\support\fft-complex.h"
 
 class	Reader;
-//class	simpleBuf;
 class	SDRunoPlugin_drmUi;
 
 class	wordCollector {
@@ -55,7 +54,7 @@ public:
 	                                         DRM_FLOAT);
 
 private:
-	drmShifter		theShifter;
+	drmShifter	theShifter;
 
 	smodeInfo	*modeInf;
 	uint32_t	bufMask;
@@ -66,15 +65,15 @@ private:
 	uint8_t		Mode;
 	uint8_t		Spectrum;
 	SDRunoPlugin_drmUi *m_form;
-	DRM_FLOAT		theAngle;
-	DRM_FLOAT		sampleclockOffset;
+	DRM_FLOAT	theAngle;
+	DRM_FLOAT	sampleclockOffset;
 	int16_t		Tu;
 	int16_t		Ts;
 	int16_t		Tg;
 	int16_t		K_min;
 	int16_t		K_max;
 	int16_t		displayCount;
-	DRM_FLOAT		get_timeOffset		(int, int, int *);
+	DRM_FLOAT	get_timeOffset		(int, int, int *);
 	int		get_intOffset		(int base, int nrSymbols, int range);
 	double		compute_mmse		(int, int);
 };

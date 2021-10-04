@@ -1,0 +1,50 @@
+Microsoft (R) COFF/PE Dumper Version 14.29.30133.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file libfdk-aac-2.dll
+
+File Type: DLL
+
+  Section contains the following exports for libfdk-aac-2.dll
+
+    00000000 characteristics
+    5C04CC03 time date stamp Mon Dec  3 07:24:03 2018
+        0.00 version
+           1 ordinal base
+          18 number of functions
+          18 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00010930 aacDecoder_AncDataGet
+          2    1 00010920 aacDecoder_AncDataInit
+          3    2 00012E20 aacDecoder_Close
+          4    3 000106D0 aacDecoder_ConfigRaw
+          5    4 00010E70 aacDecoder_DecodeFrame
+          6    5 00010E00 aacDecoder_Fill
+          7    6 00010680 aacDecoder_GetFreeBytes
+          8    7 00013140 aacDecoder_GetLibInfo
+          9    8 00013130 aacDecoder_GetStreamInfo
+         10    9 00012EC0 aacDecoder_Open
+         11    A 00010940 aacDecoder_SetParam
+         12    B 0002E4E0 aacEncClose
+         13    C 0002E5F0 aacEncEncode
+         14    D 0002EEF0 aacEncGetLibInfo
+         15    E 0002FE10 aacEncInfo
+         16    F 0002EFB0 aacEncOpen
+         17   10 0002FB50 aacEncoder_GetParam
+         18   11 0002F460 aacEncoder_SetParam
+
+  Summary
+
+        1000 .CRT
+        5000 .bss
+        1000 .data
+        1000 .edata
+       16000 .eh_frame
+        1000 .idata
+       37000 .rdata
+        4000 .reloc
+       F4000 .text
+        1000 .tls

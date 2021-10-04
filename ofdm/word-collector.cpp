@@ -24,10 +24,10 @@
 #include	<stdlib.h>
 #include	<Windows.h>
 #include	<math.h>
-#include	"..\SDRunoPlugin_drmUi.h"
-#include	"..\basics.h"
 #include	"word-collector.h"
 #include	"reader.h"
+#include	"..\SDRunoPlugin_drmUi.h"
+#include	"..\basics.h"
 
 //	The frequency shifter is in steps of 0.01 Hz
 	wordCollector::wordCollector (SDRunoPlugin_drmUi *m_form,

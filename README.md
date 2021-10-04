@@ -27,12 +27,7 @@ The picture shows that the receiver is tuned to 9760 KHz, that
 the samplerate is already reduced to 62.5 KHz (the decoder will do the
 further filtering an reduction to 12 KHz). 
 
-The DRM plugin is an EXPERIMENTAL decoder,
-developed for the SDRuno framework: it will attempt
-to decode DRM transmissions. It is able to recognize Modes A, B and C
-and will handle spectra up to 10 KHz.
-
-The decoder is derived from the drm decoder for the swradio-8 software.
+The decoder is - apart from GUI issues - a mirror of the decoder of the drm-receiver
 
 ------------------------------------------------------------------------
 
@@ -91,18 +86,19 @@ the function.
 Building the plugin.
 -----------------------------------------------------------------------------
 
+Note that this version - other than previous versions - uses the fdk-aac
+library for audio decoding. The fdk-aac library supports both AAC
+and xHE-AAC encoded data.
+
 The plugin is - as other plugins - developed under MSVC. Note that
-the plugin uses an additional library (dll's):
+the plugin uses some additional libraries (dll's):
 
-   * libaad_drm-2.dll, for the decoding of the AAC data
+   * libfdk-aac-2.dll, for the decoding of the AAC data
 
+running this dll requires two additional dll's
 
---------------------------------------------------------------------------
-Work to be dome
---------------------------------------------------------------------------
+   * libgcc_s_dw-1.dll
+   * libwinpthread-1.dll
 
-As said, the plugin is experimental. What needs to be done is adding
-the fdkaac decoder for newer audio encoding modes,
-And - of course - remaining errors need to be detected and removed
 
 

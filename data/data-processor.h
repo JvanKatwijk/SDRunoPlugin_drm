@@ -26,7 +26,8 @@
 
 #include	<cstring>
 #include	"..\ringbuffer.h"
-#include	"aac-processor-faad.h"
+#include	"aac-processor-fdk.h"
+#include	"xheaac-processor.h"
 #include	"message-processor.h"
 
 class	SDRunoPlugin_drmUi;
@@ -43,7 +44,8 @@ public:
 private:
 	stateDescriptor	*theState;
 	SDRunoPlugin_drmUi	*m_form;
-	aacProcessor_faad	my_aacProcessor;
+	aacProcessor_fdk	my_aacProcessor;
+	xheaacProcessor		my_xheaacProcessor;
 	messageProcessor	my_messageProcessor;
 	int16_t		numFrames;
 	int		audioChannel;

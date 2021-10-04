@@ -28,8 +28,8 @@
 	stateDescriptor::stateDescriptor (uint8_t Mode, uint8_t Spectrum) {
 	this	-> Mode		= Mode;
 	this	-> Spectrum	= Spectrum;
-	this	-> audio_channel_1		= false;
-	this	-> audio_channel_2		= false;
+	this	-> audio_channel_1	= true;
+	this	-> audio_channel_2	= false;
 	this	-> RMflag	= 0;
 	this	-> sdcMode	= 0;
 	this	-> numofStreams	= 0;
@@ -42,12 +42,11 @@
 }
 
 int	stateDescriptor::getAudioChannel	() {
-//	return audio_channel_1 ? 0 : 1;
-	return 0;
+	return audio_channel_1 ? 0 : 1;
 }
 
 void	stateDescriptor::cleanUp	() {
-	this    -> audio_channel_1              = false;
+	this    -> audio_channel_1              = true;
         this    -> audio_channel_2              = false;
         this    -> RMflag       = 0;
         this    -> sdcMode      = 0;

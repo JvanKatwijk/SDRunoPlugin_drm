@@ -121,7 +121,7 @@ void	SDRunoPlugin_drm::
 	   sample   = passbandFilter. Pass (sample);
 	   sample   = theMixer. do_shift (sample, theOffset);
 //
-//	interpolating 62500 -> 72000
+//	interpolating 62500 -> 72000 and decimating to 12000
 	   convBuffer [convIndex ++] = sample;
 	   if (convIndex >= convBuffer. size ()) {
 //	      std::complex<DRM_FLOAT> out [SIZE_OUT];
@@ -601,5 +601,7 @@ void	SDRunoPlugin_drm::activate_channel_1	() {
 void	SDRunoPlugin_drm::activate_channel_2	() {
 	theState. activate_channel_2 ();
 }
+
+
 //
 

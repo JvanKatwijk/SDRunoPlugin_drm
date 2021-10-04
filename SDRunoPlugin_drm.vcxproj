@@ -98,7 +98,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\nana\build\bin\nana_v141_Release_x86.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;libfaad_drm-2.lib; odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\nana\build\bin\nana_v141_Release_x86.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;libfdk-aac-2.lib; odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ResourceCompile>
@@ -155,7 +155,8 @@
     <C1Compile Include = "data\data-processor.cpp"/>
     <ClCompile Include = "data\lowpassfir.cpp" />
     <ClCompile Include = "data\data-processor.cpp" />
-    <ClCompile Include = "data\aac-processor-faad.cpp" />
+    <ClCompile Include = "data\aac-processor-fdk.cpp" />
+    <ClCompile Include = "data\xheaac-processor.cpp" />
     <ClCompile Include = "data\message-processor.cpp" />
     <ClCompile Include = "data\up-filter.cpp" />
    
@@ -215,9 +216,16 @@
     <C1Include Include="data\data-processor.h" />
     <ClInclude Include="data\lowpassfir.h" />
     <ClInclude Include="data\data-processor.h" />
-    <ClInclude Include="data\aac-processor-faad.h" />
+    <ClInclude Include="data\aac-processor-fdk.h" />
+    <ClInclude Include="data\xheaac-processor.h" />
     <ClInclude Include="data\message-processor.h" />
     <ClInclude Include="data\up-filter.h" />
+    <ClInclude Include="aacdecoder_lib.h" />
+    <ClInclude Include="FDK_audio_lib.h" />
+    <ClInclude Include="machine_type.h" />
+    <ClInclude Include="aacend_lib.h" />
+    <ClInclude Include="genericsStds.h.h" />
+    <ClInclude Include="syslib_channelMapDescr.h.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SDRunoPlugin_drm.rc" />

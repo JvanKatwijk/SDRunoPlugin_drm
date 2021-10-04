@@ -34,8 +34,10 @@
 	                                 SDRunoPlugin_drmUi *m_form,
 	                                 RingBuffer<std::complex<float>> *b):
 	                                      my_aacProcessor (theState,
-	                                                       m_form, b)
-	                                      ,my_messageProcessor (m_form) 
+	                                                       m_form, b),
+	                                      my_xheaacProcessor (theState,
+	                                                          m_form, b),
+	                                      my_messageProcessor (m_form) 
 	{
 	
 	this	-> theState		= theState;
@@ -99,6 +101,10 @@ uint8_t	audioCoding		= theState -> streams [mscIndex]. audioCoding;
 	      return;
 
 	   default:
+	      m_form -> set_audioModeLabel ("xHE-AAC");
+              my_xheaacProcessor. process_usac (v, mscIndex,
+                                                startHigh, lengthHigh,
+                                                startLow, lengthLow);
 	      return;
 	}
 }
