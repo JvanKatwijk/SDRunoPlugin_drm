@@ -38,6 +38,13 @@ developed for the SDRuno framework: it will attempt
 to decode DRM transmissions. It is able to recognize Modes A, B and C
 and will handle spectra up to 10 KHz.
 
+The current version uses the libfdk-aac for decoding AAC frames.
+Since the library is capapble of decoding the xHE-AAC format frames,
+the software is adapted to process that kind of frames.
+However, processing xHE-AAC frames is NOT tested (simply because
+I do not have access to transmittions or recordings with audio
+encoded as xHE-AAC)
+
 The decoder is derived from - and technically equivalent to - the drm decoder for the swradio-8 software.
 
 ------------------------------------------------------------------------

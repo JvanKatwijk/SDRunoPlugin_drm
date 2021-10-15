@@ -123,7 +123,7 @@ int16_t		symbols_per_window_list_5 []	= {15, 15, 15, 6};
 //	values taken from diorama
 	f_cut_t = 0.0675 / symbols_to_delay;
 	f_cut_k = 1.75 * (DRM_FLOAT) Tg / (DRM_FLOAT) Tu;
-	f_cut_k = 2.00 * (DRM_FLOAT) Tg / (DRM_FLOAT) Tu;
+	f_cut_k = 1.00 * (DRM_FLOAT) Tg / (DRM_FLOAT) Tu;
 //
 //	This code is based on the diorama Matlab code, and a
 //	(complete)rewrite of the C translation of this Matlab code by Ties Bos.

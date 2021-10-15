@@ -95,10 +95,12 @@ the plugin uses some additional libraries (dll's):
 
    * libfdk-aac-2.dll, for the decoding of the AAC data
 
-running this dll requires two additional dll's
+Note that running this dll requires two additional dll's
 
    * libgcc_s_dw-1.dll
    * libwinpthread-1.dll
+
+Copies of these dll's is in the "the-dll" folder
 
 
 
