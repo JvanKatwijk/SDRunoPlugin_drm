@@ -39,9 +39,11 @@
 	mscProcessor::mscProcessor	(stateDescriptor *theState,
 		                         SDRunoPlugin_drmUi *m_form,
 	                                 int8_t		qam64Roulette,
+	                                 aacHandler	*aacFunctions,
 	                                 RingBuffer<std::complex<float>> *b):
 	                                    my_dataProcessor (theState, 
-	                                                      m_form, b) {
+	                                                      m_form,
+	                                                      aacFunctions, b) {
 	this	-> theState	= theState;
 	this	-> qam64Roulette	= qam64Roulette;
 	this	-> audioBuffer	= b;

@@ -33,6 +33,7 @@
 #include	"..\support\checkcrc.h"
 #include	"..\basics.h"
 #include	"..\ringbuffer.h"
+#include	"..\aac-handler.h"
 
 class	SDRunoPlugin_drmUi;
 class	stateDescriptor;
@@ -41,6 +42,7 @@ class	xheaacProcessor {
 public:
 			xheaacProcessor	(stateDescriptor *,
 	                                 SDRunoPlugin_drmUi *,
+	                                 aacHandler	*,
 	                                 RingBuffer<std::complex<float>> *);
 			~xheaacProcessor	();
 	void		process_usac	(uint8_t *v, int16_t mscIndex,
@@ -63,6 +65,7 @@ private:
 	void		writeOut	(int16_t *, int16_t, int32_t);
 	void		toOutput	(std::complex<float> *, int16_t);
 	void		playOut		(std::vector<uint8_t>);
+	aacHandler	*aacFunctions;
 
 //	added to support inclusion of the last phase
 	void		reinit		(std::vector<uint8_t>, int);

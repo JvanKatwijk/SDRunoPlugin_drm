@@ -31,6 +31,7 @@
 #include	"..\basics.h"
 #include	"..\ringbuffer.h"
 #include	"..\data\data-processor.h"
+#include	"..\aac-handler.h"
 
 class	SDRunoPlugin_drmUi;
 class	drmDecoder;
@@ -44,6 +45,7 @@ public:
 		mscProcessor		(stateDescriptor *,
 	                                 SDRunoPlugin_drmUi *,
 	                                 int8_t,
+	                                 aacHandler	*,
 	                                 RingBuffer<std::complex<float>> *);
 		~mscProcessor		();
 	void	addtoMux		(int16_t, int32_t, theSignal);

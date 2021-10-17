@@ -4,20 +4,20 @@
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
- *    This file is part of the DRM backend
+ *    This file is part of the DRM plugin
  *
- *    DRM backend is free software; you can redistribute it and/or modify
+ *    DRM plugin is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
- *    DRM backend is distributed in the hope that it will be useful,
+ *    DRM plugin is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *    along with DRM backend; if not, write to the Free Software
+ *    along with DRM plugin; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #
@@ -30,6 +30,7 @@
 #include	"up-filter.h"
 #include	"aacdecoder_lib.h"
 #include        "..\ringbuffer.h"
+#include	"..\aac-handler.h"
 
 class   stateDescriptor;
 class   SDRunoPlugin_drmUi;
@@ -45,6 +46,7 @@ class	aacProcessor_fdk {
 public:
 		aacProcessor_fdk   (stateDescriptor *,
 	                            SDRunoPlugin_drmUi *,
+	                            aacHandler	*,
 	                            RingBuffer<std::complex<float>> *);
 	        ~aacProcessor_fdk  ();
 
@@ -58,6 +60,7 @@ private:
 	upFilter	upFilter_12000;
 	int16_t         numFrames;
 	int16_t         selectedAudioService;
+	aacHandler	*aacFunctions;
 
 	void		handle_uep_audio        (uint8_t *, int16_t,
 	                                 int16_t, int16_t, int16_t, int16_t);

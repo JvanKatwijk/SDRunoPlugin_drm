@@ -32,11 +32,15 @@
 
 	dataProcessor::dataProcessor	(stateDescriptor *theState,
 	                                 SDRunoPlugin_drmUi *m_form,
+	                                 aacHandler	*aacFunctions,
 	                                 RingBuffer<std::complex<float>> *b):
 	                                      my_aacProcessor (theState,
-	                                                       m_form, b),
+	                                                       m_form, 
+	                                                       aacFunctions, b),
 	                                      my_xheaacProcessor (theState,
-	                                                          m_form, b),
+	                                                          m_form,
+	                                                          aacFunctions,
+	                                                          b),
 	                                      my_messageProcessor (m_form) 
 	{
 	

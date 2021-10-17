@@ -32,9 +32,11 @@
 	backendController::
 	           backendController	(SDRunoPlugin_drmUi *m_form,
 	                                 int8_t		qam64Roulette,
+	                                 aacHandler	*aacFunctions,
 	                                 RingBuffer<std::complex<float>> *b) {
 	this	-> m_form		= m_form;
 	this	-> qam64Roulette	= qam64Roulette;
+	this	-> aacFunctions		= aacFunctions;
 	this	-> audioBuffer		= b;
 
 	theWorker	= nullptr;
@@ -55,12 +57,14 @@
 void	backendController::reset	(stateDescriptor *theState) {
 	if (theWorker != nullptr)
 	   delete theWorker;
-	theWorker	= new mscProcessor (theState, m_form, 4, audioBuffer);
+	theWorker	= new mscProcessor (theState, m_form, 4,
+	                                    aacFunctions, audioBuffer);
 }
 
 void	backendController::newFrame	(stateDescriptor *theState) {
 	if (theWorker == nullptr) 
-	   theWorker = new mscProcessor (theState, m_form, 6, audioBuffer);
+	   theWorker = new mscProcessor (theState, m_form, 4,
+	                                 aacFunctions, audioBuffer);
 	theWorker	-> newFrame (theState);
 }
 

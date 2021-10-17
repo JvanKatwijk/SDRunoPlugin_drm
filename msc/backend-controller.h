@@ -29,6 +29,7 @@
 
 #include        "..\basics.h"
 #include	"..\ringbuffer.h"
+#include	"..\aac-handler.h"
 
 class   stateDescriptor;
 class	SDRunoPlugin_drmUi;
@@ -38,6 +39,7 @@ class	backendController {
 public:
 		backendController	(SDRunoPlugin_drmUi *,
 	                                 int8_t,
+	                                 aacHandler	*,
 	                                 RingBuffer<std::complex<float>> *);
 		~backendController	();
 	void	newFrame		(stateDescriptor *);
@@ -56,6 +58,8 @@ private:
 	uint8_t		protLevelB;
 	int16_t		numofStreams;
 	uint8_t		QAMMode;
+
+	aacHandler	*aacFunctions;
 };
 
 #endif

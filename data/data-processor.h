@@ -26,6 +26,7 @@
 
 #include	<cstring>
 #include	"..\ringbuffer.h"
+#include	"..\aac-handler.h"
 #include	"aac-processor-fdk.h"
 #include	"xheaac-processor.h"
 #include	"message-processor.h"
@@ -37,6 +38,7 @@ class	dataProcessor {
 public:
 		dataProcessor	(stateDescriptor *,
 	                         SDRunoPlugin_drmUi *,
+	                         aacHandler	*,
 	                         RingBuffer<std::complex<float>> *);
 		~dataProcessor	();
 	void	process		(uint8_t *, int16_t);

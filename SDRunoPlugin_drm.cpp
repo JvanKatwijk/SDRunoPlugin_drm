@@ -46,8 +46,10 @@
 	                                drmAudioBuffer (32768),
 	                                my_Reader (&inputBuffer,
 	                                           2 * 16384, &m_form),
-	                                my_backendController (&m_form, 6,
-	                                                       &drmAudioBuffer),
+	                                aacFunctions (&m_form),
+	                                my_backendController (&m_form, 4,
+	                                                      &aacFunctions,
+	                                                      &drmAudioBuffer),
 	                                theState (1, 3) {
 	m_controller	= &controller;
 	running. store (false);

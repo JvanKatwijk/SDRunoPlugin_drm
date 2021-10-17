@@ -13,6 +13,7 @@
 #include	<nana/gui.hpp>
 #include	<stdint.h>
 #include	"SDRunoPlugin_drmUi.h"
+#include	"aac-handler.h"
 
 //      for the payload we have
 #include	"ringbuffer.h"
@@ -104,6 +105,7 @@ private:
 //
 //
 	Reader          my_Reader;              // single instance during life
+	aacHandler	aacFunctions;
 	backendController	my_backendController;
         int16_t         nSymbols;
         int32_t         sampleRate;
