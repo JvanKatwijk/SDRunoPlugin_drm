@@ -18,6 +18,8 @@ is 62500 samples/second.
 
 **On the main widget select samplerate 2000000, and decimation factor 32**.
 
+![overview](/drm-main-widget.png?raw=true)
+
 Note that the plugin uses some additional libraries (dll's) for AAC and xHE-AAC decoding.
 
    * libfdk-aac-2.dll, for the decoding of the AAC data is the main one.

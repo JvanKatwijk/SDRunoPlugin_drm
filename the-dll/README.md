@@ -1,36 +1,45 @@
-	SDRunoPlugin_drm
+------------------------------------------------------------------------------	
+SDRunoPlugin_drm
+------------------------------------------------------------------------------
 
 The drm plugin for SDRuno is - as the name suggests - a plugin for 
-decoding drm signals, as they are transmitted on shortwave.
+decoding drm signals transmitted on shortwave.
 
 ![overview](/drm-decoder.png?raw=true)
 
 -----------------------------------------------------------------------------
-Installing the plugin.
+Installing the plugin. READ THIS FIRST
 -----------------------------------------------------------------------------
 
-Note that this version - other than previous versions - uses the fdk-aac
-library for audio decoding. The fdk-aac library supports both AAC
-and xHE-AAC encoded data.
+The plugin is - as other plugins - developed under MSVC.
+Since DRM is a small band signal (up to 10 KHz in this plugin),
+the effective samplerate, used as input for the plugin 
+is 62500 samples/second.
 
-The plugin is - as other plugins - developed under MSVC. Note that
-the plugin uses some additional libraries (dll's):
+**On the main widget select samplerate 2000000, and decimation factor 32**.
 
-   * libfdk-aac-2.dll, for the decoding of the AAC data
+![overview](/drm-main-widget.png?raw=true)
 
-Note that running this dll requires two additional dll's
+Note that the plugin uses some additional libraries (dll's) for AAC and xHE-AAC decoding.
+
+   * libfdk-aac-2.dll, for the decoding of the AAC data is the main one.
+
+However, running this dll requires two additional dll's to be installed
 
    * libgcc_s_dw-1.dll
    * libwinpthread-1.dll
 
+These libraries are needed for the final converting of AAC (or xHE-AAC) to PCM
+samples, that in the end are converted to sound.
 
- * If (one of) these libraries is NOT installed, the plugin will work with limited functionality: no sound will be decoded
+**Note that,if (one of) these libraries is NOT installed, the plugin will work with limited functionality: no sound will be decoded**.
 
-The plugin will show a message
+In case the libfdk-aac-2.dll or one of the other two could not be installed, the plugin will
+show a message to invite you to install the library (libraries)
 
 ![overview](/lib-not-found.png?raw=true)
 
-**Copies of these dll's is in the "the-dll" folder**
+**Copies of these dll's are in the "the-dll" folder** 
 
 ------------------------------------------------------------------------
 Over the Plugin
@@ -42,8 +51,8 @@ There are no controls on the widget, as soon as the plugin is activated
 it will start reading in samples and trying to decode DRM.
 
 A DRM signal is in one of 4 modes, Mode B is the one being decoded here.
-The spectrum is "3", telling that the qwidth is 19 KHz, symmetrically
-around 0.
+The spectrum is "3", telling that the width is 10 KHz, symmetrically
+around 0, i.e. 5 KHz on each side.
 
 The different labels in the
 widget give information on the reception.
@@ -62,6 +71,7 @@ with structuring the data;
 
    * the SDC label. The SDC, Service Description Channel, contains - as the
 name suggests - the description of the service, its name, how it is encoded, etc.
+
    * the AAC label. The service is encoded in the Main Service Channel, and
 usually encoded as an AAC stream. 
 
@@ -107,5 +117,6 @@ The picture shows that the receiver is tuned to 9760 KHz, that
 the samplerate is already reduced to 62.5 KHz (the decoder will do the
 further filtering an reduction to 12 KHz). 
 
-The decoder is - apart from GUI issues - a mirror of the decoder of the drm-receiver
+The decoder is - apart from GUI issues - a mirror of the decoder of the drm-receiver I
+developed under (and for) Linux.
 
