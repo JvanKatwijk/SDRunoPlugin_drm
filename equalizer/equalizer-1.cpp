@@ -46,7 +46,7 @@
  *
  *	The Wiener algorithm used in this implementation is written 
  *	in C++  and is a translation of the algorithm as given in
- *	diorama 1.1, and inspired by the translitteration
+ *	diorama 1.1, and  a rewrite of the translitteration
  *	of the Matlab specification of that algorithm as done in RXAMADRM
  */
 #

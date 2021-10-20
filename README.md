@@ -8,13 +8,12 @@ decoding drm signals transmitted on shortwave.
 ![overview](/drm-decoder.png?raw=true)
 
 -----------------------------------------------------------------------------
-Installing the plugin. READ THIS FIRST
+Installing the plugin  READ THIS FIRST
 -----------------------------------------------------------------------------
 
 The plugin is - as other plugins - developed under MSVC.
 Since DRM is a small band signal (up to 10 KHz in this plugin),
-the effective samplerate, used as input for the plugin 
-is 62500 samples/second.
+the samplerate used as input for the plugin is *62500* samples/second.
 
 **On the main widget select samplerate 2000000, and decimation factor 32**.
 
