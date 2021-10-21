@@ -110,17 +110,17 @@ void	SDRunoPlugin_drm::
 	   return;
 	}
 	
-	int theOffset = m_controller -> GetVfoFrequency (0) -
-	                m_controller -> GetCenterFrequency (0);
+	int theOffset = selectedFrequency - centerFrequency;
 	if (passbandFilter. offset () != theOffset) {
-	   passbandFilter.modulate (theOffset);
 	   m_form. set_countryLabel (std::to_string (theOffset));
 	}
 
 	for (int i = 0; i < length; i ++) {
 	   std::complex<DRM_FLOAT> sample =
 	                std::complex<DRM_FLOAT>(buffer [i]. real, buffer [i]. imag);
+	   locker. lock ();
 	   sample   = passbandFilter. Pass (sample);
+	   locker. unlock ();
 	   sample   = theMixer. do_shift (sample, theOffset);
 //
 //	interpolating 62500 -> 72000 and decimating to 12000
@@ -168,11 +168,17 @@ void	SDRunoPlugin_drm::HandleEvent (const UnoEvent& ev) {
 	   case UnoEvent::FrequencyChanged:
 	      selectedFrequency =
 	              m_controller -> GetVfoFrequency (ev. GetChannel ());
+	      centerFrequency = 
+		      m_controller -> GetCenterFrequency (0);	  
+	      locker. lock ();
+	      passbandFilter.
+	         modulate (selectedFrequency - centerFrequency);
+	      locker. unlock ();
+		  m_form.set_countryLabel(std::to_string(selectedFrequency - centerFrequency));
 	      break;
 
 	   case UnoEvent::CenterFrequencyChanged:
-	      centerFrequency = m_controller->GetCenterFrequency(0);	  
-	      break;
+		  break;
 
 	   default:
 	      m_form. HandleEvent (ev);
