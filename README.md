@@ -3,7 +3,7 @@ SDRunoPlugin_drm
 ------------------------------------------------------------------------------
 
 The drm plugin for SDRuno is - as the name suggests - a plugin for 
-decoding drm signals transmitted on shortwave.
+decoding DRM (Digital Radio Mondiale) signals transmitted on shortwave.
 
 ![overview](/drm-decoder.png?raw=true)
 
@@ -12,7 +12,7 @@ Installing the plugin  READ THIS FIRST
 -----------------------------------------------------------------------------
 
 The plugin is - as other plugins - developed under MSVC.
-Since DRM is a small band signal (up to 10 KHz in this plugin),
+Since DRM is a small band signal (up to 10 KHz is supported in this plugin),
 the samplerate used as input for the plugin is *62500* samples/second.
 
 **On the main widget select samplerate 2000000, and decimation factor 32**.
@@ -28,12 +28,11 @@ However, running this dll requires two additional dll's to be installed
    * libgcc_s_dw-1.dll
    * libwinpthread-1.dll
 
-These libraries are needed for the final converting of AAC (or xHE-AAC) to PCM
-samples, that in the end are converted to sound.
+These libraries are needed for convertings the  AAC (or xHE-AAC) blocks
+ to PCM samples. The latter are in the end converted to sound.
 
-**Note that,if (one of) these libraries is NOT installed, the plugin will work with limited functionality: no sound will be decoded**.
-
-In case the libfdk-aac-2.dll or one of the other two could not be installed, the plugin will
+** If (one of) these libraries is NOT installed, the plugin will work with limited functionality: no sound will be decoded**.
+In that case the plugin will
 show a message to invite you to install the library (libraries)
 
 ![overview](/lib-not-found.png?raw=true)
@@ -41,7 +40,7 @@ show a message to invite you to install the library (libraries)
 **Copies of these dll's are in the "the-dll" folder** 
 
 ------------------------------------------------------------------------
-Over the Plugin
+About the Plugin
 ------------------------------------------------------------------------
 
 ![overview](/drm-widget.png?raw=true)
@@ -50,7 +49,7 @@ There are no controls on the widget, as soon as the plugin is activated
 it will start reading in samples and trying to decode DRM.
 
 A DRM signal is in one of 4 modes, Mode B is the one being decoded here.
-The spectrum is "3", telling that the width is 10 KHz, symmetrically
+The spectrum is "3", telling that the aspectrum width is 10 KHz, symmetrically
 around 0, i.e. 5 KHz on each side.
 
 The different labels in the
@@ -58,7 +57,7 @@ widget give information on the reception.
 The name of the receiver service is "SNR Tiganesti E1".
 
 On the right hand side of the widget, there are four labels, 
-since the transmission can be decoder they are all green.
+since the transmission can be decoded they are all green.
 From top to bottom
 
    * the time sync label. DRM is transmitted using an (C)OFDM technique, what is important is that there is a time synchronization so that the receiver "knows"
@@ -94,7 +93,7 @@ of the received signals. All labels are equipped with a tooltip telling
 the function.
 
 -----------------------------------------------------------------------
-Over DRM
+About DRM
 -----------------------------------------------------------------------
 
 DRM, Digital Radio Mondiale, is a form of digital radio. Transmissions

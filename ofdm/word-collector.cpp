@@ -117,9 +117,9 @@ int	f		= buffer -> currentIndex;
 	teller ++;
 	amount ++;
 	if (amount >= 4) {
-	   buffer		-> waitfor (18 * Ts + Ts);
-	   int intOffs	= get_intOffset (2 * Ts, 10, 10);
-	   int sub	= get_intOffset (6 * Ts, 10, 10);
+	   buffer		-> waitfor (30 * Ts + Ts);
+	   int intOffs	= get_intOffset (1 * Ts, 25, 10);
+	   int sub	= get_intOffset (4 * Ts, 25, 10);
 	   if (intOffs == sub)  {
 	      if (intOffs < -1) {
 	         std::string str = std::to_string (teller);
@@ -148,9 +148,9 @@ int	f		= buffer -> currentIndex;
 	              buffer -> data [(f + i) % buffer ->  bufSize];
 	   std::complex<DRM_FLOAT> two =
 	              buffer -> data [(f + i + 1) % buffer -> bufSize];
-//	   temp [i] = cmul (one, 1 - offsetFractional) +
-//	                       cmul (two, offsetFractional);
-	   temp [i] = one;
+	   temp [i] = cmul (one, 1 - offsetFractional) +
+	                       cmul (two, offsetFractional);
+//	   temp [i] = one;
 	}
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
