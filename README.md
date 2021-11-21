@@ -8,10 +8,10 @@ decoding DRM (Digital Radio Mondiale) signals transmitted on shortwave.
 ![overview](/drm-decoder.png?raw=true)
 
 -----------------------------------------------------------------------------
-Installing the plugin  READ THIS FIRST
+Installing the plugin:  READ THIS FIRST
 -----------------------------------------------------------------------------
 
-The plugin is - as other plugins - developed under MSVC.
+The plugin is - as other plugins - developed using MSVC.
 Since DRM is a small band signal (up to 10 KHz is supported in this plugin),
 the samplerate used as input for the plugin is *62500* samples/second.
 
@@ -19,7 +19,7 @@ the samplerate used as input for the plugin is *62500* samples/second.
 
 ![overview](/drm-main-widget.png?raw=true)
 
-Note that the plugin uses some additional libraries (dll's) for AAC and xHE-AAC decoding.
+Note that the plugin uses some **additional libraries** (dll's) for AAC and xHE-AAC decoding.
 
    * libfdk-aac-2.dll, for the decoding of the AAC data is the main one.
 
@@ -28,7 +28,7 @@ However, running this dll requires two additional dll's to be installed
    * libgcc_s_dw-1.dll
    * libwinpthread-1.dll
 
-These libraries are needed for convertings the  AAC (or xHE-AAC) blocks
+These libraries are needed for convertings the AAC (or xHE-AAC) blocks
  to PCM samples. The latter are in the end converted to sound.
 
 ** If (one of) these libraries is NOT installed, the plugin will work with limited functionality: no sound will be decoded**.
@@ -55,6 +55,7 @@ around 0, i.e. 5 KHz on each side.
 The different labels in the
 widget give information on the reception.
 The name of the receiver service is "SNR Tiganesti E1".
+
 
 On the right hand side of the widget, there are four labels, 
 since the transmission can be decoded they are all green.
@@ -91,6 +92,21 @@ the encoding of the MSC (QAM16) and the way the audio is encoded (AAC).
 The remaining labels give an indication of the frequency and time offset
 of the received signals. All labels are equipped with a tooltip telling
 the function.
+
+
+![overview](/drm-screen.png?raw=true)
+
+The form of the spectrum of a DRM signal is easy to recognize, it is
+a kind of a block, without the traditional carrier peak as seen by AM 
+transmissions.
+Frequency offset is app 7 Hz, on a tuning frequency of 7350 KHz.
+
+The picture clearly shows a potential problem, the AM transmission on 7340 KHz
+seems to have sidebands with a width of 7.5 KHz (4.5 KHz is
+normal), one of the sidebands
+overlaps the 10 KHz wide spectrum of the DRM signal.
+
+Of course, this has (negative) influence on the DRM decoding.
 
 -----------------------------------------------------------------------
 About DRM

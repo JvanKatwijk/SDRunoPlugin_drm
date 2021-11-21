@@ -112,20 +112,24 @@ void	wordCollector::getWord (std::complex<DRM_FLOAT>	*out,
 std::complex<DRM_FLOAT>* temp =
 	(std::complex<DRM_FLOAT> *)_malloca  (Ts * sizeof (std::complex<FLOAT>));
 int	f		= buffer -> currentIndex;
+float	actOffset	= offsetFractional < 0 ? 1 + offsetFractional :
+	                                         offsetFractional;
 
 	buffer		-> waitfor (Ts + Ts / 2);
 	teller ++;
 	amount ++;
-	if (amount >= 4) {
-	   buffer		-> waitfor (30 * Ts + Ts);
-	   int intOffs	= get_intOffset (1 * Ts, 25, 10);
-	   int sub	= get_intOffset (4 * Ts, 25, 10);
-	   if (intOffs == sub)  {
+	if (amount >= 100) {
+	   buffer		-> waitfor (40 * Ts + Ts);
+	   int intOffs	= get_intOffset (o * Ts, 30, 10);
+	   int sub	= get_intOffset (4 * Ts, 30, 10);
+	   int sub_2	= get_intOffset (4 * Ts, 30, 10);
+	   if ((intOffs == sub) && (sub == sub_2))  {
 	      if (intOffs < -1) {
 	         std::string str = std::to_string (teller);
 		 str = str + "  " + std::to_string(intOffs);
 	         m_form -> set_channel_4 (str);
 	         teller = 0;
+	         amount	= 0;
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f --;
 	      }
@@ -134,24 +138,24 @@ int	f		= buffer -> currentIndex;
 	         str = str + "  " + std::to_string(intOffs);
 	         m_form -> set_channel_4 (str);
 	         teller = 0;
+	         amount = 0;
 //	         fprintf (stderr, "offset %d\n", intOffs);
 	         f ++;
 	      }
-	      amount = 0;
 	   }
 	   else
-	      amount--;
+	      amount -= 10;
 	}
 
+	int	realS	= offsetFractional < 0 > f - 1 : f;
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<DRM_FLOAT> one =
-	              buffer -> data [(f + i) % buffer ->  bufSize];
+	              buffer -> data [(realS + i) % buffer ->  bufSize];
 	   std::complex<DRM_FLOAT> two =
-	              buffer -> data [(f + i + 1) % buffer -> bufSize];
-	   temp [i] = cmul (one, 1 - offsetFractional) +
-	                       cmul (two, offsetFractional);
-//	   temp [i] = one;
+	              buffer -> data [(realS + i + 1) % buffer -> bufSize];
+	   temp [i] = cmul (one, 1 -actOffset) + cmul (two, actOffset);
 	}
+
 //	And we adjust the bufferpointer here
 	buffer -> currentIndex = (f + Ts) & buffer -> bufMask;
 //
