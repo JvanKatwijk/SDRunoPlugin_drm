@@ -38,6 +38,10 @@ show a message to invite you to install the library (libraries)
 ![overview](/lib-not-found.png?raw=true)
 
 **Copies of these dll's are in the "the-dll" folder** 
+Ne aware that the folder for the community plugins is NOT standard in the
+Windows searchpath. Being a simple Linux user, I have no idea how to show or alter
+this searchpath, however, the folder C:\Program Files (x86)\SDRplay\SDRuno is.
+
 
 ------------------------------------------------------------------------
 About the Plugin
