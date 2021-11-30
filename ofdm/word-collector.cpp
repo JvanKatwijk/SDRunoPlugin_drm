@@ -118,11 +118,11 @@ float	actOffset	= offsetFractional < 0 ? 1 + offsetFractional :
 	buffer		-> waitfor (Ts + Ts / 2);
 	teller ++;
 	amount ++;
-	if (amount >= 100) {
-	   buffer		-> waitfor (40 * Ts + Ts);
-	   int intOffs	= get_intOffset (4 * Ts, 30, 10);
-	   int sub	= get_intOffset (4 * Ts, 30, 10);
-	   int sub_2	= get_intOffset (4 * Ts, 30, 10);
+	if (amount >= 50) {
+	   buffer		-> waitfor (30 * Ts + Ts);
+	   int intOffs	= get_intOffset (0 * Ts, 20, 10);
+	   int sub	= get_intOffset (4 * Ts, 20, 10);
+	   int sub_2	= get_intOffset (8 * Ts, 20, 10);
 	   if ((intOffs == sub) && (sub == sub_2))  {
 	      if (intOffs < -1) {
 	         std::string str = std::to_string (teller);
