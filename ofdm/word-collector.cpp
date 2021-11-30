@@ -120,7 +120,7 @@ float	actOffset	= offsetFractional < 0 ? 1 + offsetFractional :
 	amount ++;
 	if (amount >= 100) {
 	   buffer		-> waitfor (40 * Ts + Ts);
-	   int intOffs	= get_intOffset (o * Ts, 30, 10);
+	   int intOffs	= get_intOffset (4 * Ts, 30, 10);
 	   int sub	= get_intOffset (4 * Ts, 30, 10);
 	   int sub_2	= get_intOffset (4 * Ts, 30, 10);
 	   if ((intOffs == sub) && (sub == sub_2))  {
@@ -147,7 +147,7 @@ float	actOffset	= offsetFractional < 0 ? 1 + offsetFractional :
 	      amount -= 10;
 	}
 
-	int	realS	= offsetFractional < 0 > f - 1 : f;
+	int	realS	= offsetFractional < 0 ? f - 1 : f;
 	for (int i = 0; i < Ts; i ++) {
 	   std::complex<DRM_FLOAT> one =
 	              buffer -> data [(realS + i) % buffer ->  bufSize];
