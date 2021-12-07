@@ -29,7 +29,8 @@
 \newcommand{\notrans}[3]{#1 \stackrel{#2}{\not\! \longrightarrow} #3}
 \bibliographystyle{plain}
 \begin{document}
-\title{A DRM plugin for SDRuno}
+\title{An SDRuno plugin for DRM30\\
+{small user's guide}}
 \author{
 Jan van Katwijk\\
 Lazy Chair Computing \\
@@ -44,22 +45,27 @@ The Netherlands\\
 \ \\
 \section{Introduction}
 DRM, Digital Radio Mondiale, is a system for digital radio on medium and
-short waves.
+short waves up to 30 MHz. This form of DRM is sometimes called DRM-30, a variant
+of DRM, called DRM+, is meant to operate in the FM band,
+\par 
 DRM is not very popular in western Europe, I receive during daytimes the
 transmission from Radio Kuwait, and in the evening transmissions from
 Radio Romenia International.
-In the past there were transmissions from e.g. Nigeria and India,
-but I do not hear them anymore.
+In the past there were transmissions from e.g. Spain, Nigeria and India,
+Spain stopped the DRM transmissions around 2015, and
+I do not hear Nigeria nor India anymore.
 
-This document described a plugin for decoding DRM,
+This document describes a plugin for decoding DRM,
 developed for the SDRuno environment.
 \section{Installing}
-As other plugins, the plugin is implemented as a dll, i.e. a {\em dynamic 
-load library}, and should be installed in the folder for community plugins.
+As  the other plugins for SDRuno, the plugin is implemented as
+a dll, i.e. a {\em dynamic load library}, and it should be installed
+in the folder for community plugins.
 \par
 The recent standard for DRM supports, next to AAC encoded audio, xHE-AAC 
-encoded audio. The libfdk-aac-2 decoder is capable of handling both.
-The plugin uses this one for AAC and xHE-AAC decoding.
+encoded audio. The {\em libfdk-aac-2} decoder is capable of handling both.
+The plugin uses this decoder for AAC and xHE-AAC decoding (note that so far
+I did not receive any DRM transmission with service(s) encoded as xHE-AAC).
 \begin{itemize}
 \item
 {\em libfdk-aac-2.dll}, for the decoding of the AAC and xHE-AAC data is the main one.
@@ -102,15 +108,15 @@ it is made from a recording made by my SW software.
 
 \includegraphics[width=100mm]{drm-main-widget.png}
 
-To use the plugin, select on the main receiver widget a bandwidth of 12,
+To use the plugin, select on the main receiver widget a bandwidth of 12K,
 after all, the  DRM signal has a spectrum with a width of 10 KHz.
 The software operates on a rate of 48K for both input and output,
 and the software will choose the mode {\em digital} for that.
 
 \includegraphics[width=100mm]{drm-receiver-widget.png}
 
-Note that - as can be seen on the picture on top - the filtered 12 k
-band should cover the drm signal, {\em the marker is on the left side
+Note that - as can be seen on the picture on top - the filtered 12 K
+band should cover the DRM signal, {\em the marker is on the left side
 of the selected spectrum part, NOT in the middle as for  e.g. AM}.
 The small spectrum widget shows the spectrum of the filtered signal in the
 range 0 .. 12 KHz.
@@ -158,7 +164,7 @@ and no sound can be emitted.
 \paragraph{Services}
 
 Most DRM transmissions carry a single service (as shown by the picture
-in the paragraph).
+below).
 The DRM technique, however, allows carrying more than one service (actually, up to 4). If a single service is carried, that service is - by default -
 the selected one and its content is decoded.
 If the transmission carries two services, both service names are shown
@@ -179,6 +185,7 @@ texts appearing as program associated data;
 \item the plugin supports up to two audio services;
 \item the plugin - in its current form - does not support spectra larger
 than 10 KHz;
+\item the plugin does not support DRM+.
 \end{itemize}
 \end{document}
 
