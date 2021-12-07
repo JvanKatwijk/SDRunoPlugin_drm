@@ -29,16 +29,10 @@
 #include	"support\my-array.h"
 
 
-#define         DECIMATOR       5
-#define         INRATE          (2000000 / 32)
-#define         INTERM_RATE     (INRATE / DECIMATOR)
+//#define         DECIMATOR       4
+#define         INRATE          (48000)
 #define         WORKING_RATE    12000
 #define         FILTER_DEFAULT  21
-
-
-#define         SIZE_IN         625
-#define         SIZE_OUT        720
-#define         SIZE_END        120
 
 using namespace nana;
 
@@ -74,8 +68,8 @@ private:
 	RingBuffer<std::complex<DRM_FLOAT>>	inputBuffer;
 	drmShifter	        theMixer;
 	drmBandfilter	        passbandFilter;
-	decimator_25	        theDecimator;
-//	drmShifter	        localMixer;
+
+	decimator_25	    theDecimator;
 	RingBuffer<std::complex<float>>	drmAudioBuffer;
 	void			WorkerFunction	();
 	std::thread		* m_worker;
@@ -88,20 +82,13 @@ private:
 	                                                 smodeInfo *m);
 
 
-        std::vector<std::complex<DRM_FLOAT>> convBuffer;
-        int		convIndex;
-        int16_t		mapTable_int   [SIZE_OUT];
-        DRM_FLOAT	mapTable_float [SIZE_OUT];
+        
 //
 //
         std::atomic<bool>       running;
 
 	bool		drmError;
-	int		centerFrequency;
-        int             VFOFRequency;
-        int             selectedFrequency;
-        int             Raw_Rate;
-        int		drmAudioRate;
+	int		drmAudioRate;
 //
 //
 	Reader          my_Reader;              // single instance during life

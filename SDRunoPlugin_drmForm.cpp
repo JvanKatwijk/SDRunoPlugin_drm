@@ -3,8 +3,11 @@
 #include <Windows.h>
 #endif
 
+#include	<nana/gui.hpp>
 #include "SDRunoPlugin_drmForm.h"
 #include "SDRunoPlugin_drmUi.h"
+#include <nana/gui/place.hpp>
+#include	<nana/gui/widgets/textbox.hpp>
 #include "resource.h"
 #include <io.h>
 #include <shlobj.h>
@@ -294,27 +297,24 @@ void	SDRunoPlugin_drmForm::Setup () {
 	label_4. fgcolor (nana::colors::white);
 	label_4. caption ("AAC sync");
 
+	channel_1. transparent (true);
+	channel_1. fgcolor (nana::colors::white);
 	channel_1. events (). click ([&](){activate_channel_1 ();});
+
+	channel_2. transparent (true);
+	channel_2. fgcolor (nana::colors::white);
 	channel_2. events (). click ([&](){activate_channel_2 ();});
 
-	timeDelayDisplay. tooltip ("estimate of time delay");
-	timeDelayDisplay. transparent (true);
-	timeDelayDisplay. fgcolor (nana::colors::white);
+	selectedService.transparent(true);
+	selectedService.fgcolor(nana::colors::white);
+	
 
 	intOffsetDisplay. tooltip ("estimate of integer frequency offset");
 	intOffsetDisplay. transparent (true);
 	intOffsetDisplay. fgcolor (nana::colors::white);
 
-	countryLabel. tooltip ("Country");
-	countryLabel. transparent (true);
-	countryLabel. fgcolor (nana::colors::white);
-
 	timeSyncLabel. tooltip ("time synchronized if green");
 	timeSyncLabel. bgcolor (nana::colors::red);
-
-	timeOffsetDisplay. tooltip ("time offset");
-	timeOffsetDisplay. transparent (true);
-	timeOffsetDisplay. fgcolor (nana::colors::white);
 
 	smallOffsetDisplay. tooltip ("estimate of fraction frequency offset");
 	smallOffsetDisplay. transparent (true);
@@ -327,32 +327,12 @@ void	SDRunoPlugin_drmForm::Setup () {
 	facSyncLabel. tooltip ("if green, FAC could be decoded");
 	facSyncLabel.bgcolor(nana::colors::red);
 
-	clockOffsetDisplay. tooltip ("estimate of clock offset");
-	clockOffsetDisplay. transparent (true);
-	clockOffsetDisplay. fgcolor (nana::colors::white);
-
-	angleDisplay. tooltip ("estimate of error in phase angle");
-	angleDisplay. transparent (true);
-	angleDisplay. fgcolor (nana::colors::white);
-
-	programTypeLabel. tooltip ("program type");
-	programTypeLabel. transparent (true);
-	programTypeLabel. fgcolor (nana::colors::white);
-
-	channel_3. tooltip ("free");
-	channel_3. transparent (true);
-	channel_3. fgcolor (nana::colors::white);
-
 	sdcSyncLabel. tooltip ("if green the SDC could be decoded");
 	sdcSyncLabel. fgcolor (nana::colors::red);
 
 	aacDataLabel. tooltip ("type  of aac");
 	aacDataLabel. transparent (true);
 	aacDataLabel. fgcolor (nana::colors::white);
-
-	channel_4. tooltip ("unused");
-	channel_4. transparent (true);
-	channel_4. fgcolor (nana::colors::white);
 
 	faadSyncLabel. tooltip ("if green, the aac in the selected service is decoded");
 	faadSyncLabel.bgcolor (nana::colors::red);
@@ -376,18 +356,6 @@ void	SDRunoPlugin_drmForm::Setup () {
 	messageLabel. tooltip ("message label");
 	messageLabel. transparent (true);
 	messageLabel. fgcolor (nana::colors::white);
-
-	fac_mer. tooltip ("Quality of FAC data in signal");
-	fac_mer. transparent (true);
-	fac_mer. fgcolor (nana::colors::white);
-
-	sdc_mer. tooltip ("Quality of SDC data in signal");
-	sdc_mer. transparent (true);
-	sdc_mer. fgcolor (nana::colors::white);
-
-	msc_mer. tooltip ("Quality of MSC data in signal");
-	msc_mer. transparent (true);
-	msc_mer. fgcolor (nana::colors::white);
 }
 
 void	SDRunoPlugin_drmForm::SettingsButton_Click () {
@@ -395,7 +363,7 @@ void	SDRunoPlugin_drmForm::SettingsButton_Click () {
 }
 
 void	SDRunoPlugin_drmForm::set_timeDelayDisplay (float f) {
-	timeDelayDisplay. caption (std::to_string (f));
+//	timeDelayDisplay. caption (std::to_string (f));
 }
 
 void	SDRunoPlugin_drmForm::set_intOffsetDisplay (int offset) {
@@ -403,7 +371,7 @@ void	SDRunoPlugin_drmForm::set_intOffsetDisplay (int offset) {
 }
 
 void	SDRunoPlugin_drmForm::set_countryLabel (const std::string s) {
-	countryLabel. caption (s);
+//	countryLabel. caption (s);
 }
 
 void	SDRunoPlugin_drmForm::hide_channel_1 () {
@@ -411,11 +379,12 @@ void	SDRunoPlugin_drmForm::hide_channel_1 () {
 }
 
 void	SDRunoPlugin_drmForm::set_channel_1 (const std::string s) {
-	channel_1. caption (s);
+	channel_1. format (true);
+	channel_1. caption (" <size=14> " + s + "</>");
 }
 
 void	SDRunoPlugin_drmForm::activate_channel_1 () {
-	m_parent, activate_channel_1 ();
+	m_parent. activate_channel_1 ();
 }
 
 void	SDRunoPlugin_drmForm::hide_channel_2	() {
@@ -423,15 +392,16 @@ void	SDRunoPlugin_drmForm::hide_channel_2	() {
 }
 
 void	SDRunoPlugin_drmForm::set_channel_2 (const std::string s) {
-	channel_2. caption (s);
+	channel_2.format(true);
+	channel_2.caption (" <size=14> " + s + " </>");
 }
-
+ 
 void	SDRunoPlugin_drmForm::activate_channel_2 () {
-	m_parent, activate_channel_2 ();
+		m_parent. activate_channel_2 ();
 }
 
 void	SDRunoPlugin_drmForm::set_channel_4 (const std::string s) {
-	channel_4. caption (s);
+//	channel_4. caption (s);
 }
 
 void	SDRunoPlugin_drmForm::set_timeSyncLabel (bool b) {
@@ -442,7 +412,7 @@ void	SDRunoPlugin_drmForm::set_timeSyncLabel (bool b) {
 }
 
 void	SDRunoPlugin_drmForm::set_timeOffsetDisplay (float f) {
-	timeOffsetDisplay. caption (std::to_string (f));
+//	timeOffsetDisplay. caption (std::to_string (f));
 }
 
 void	SDRunoPlugin_drmForm::set_smallOffsetDisplay (float f) {
@@ -468,22 +438,21 @@ void	SDRunoPlugin_drmForm::set_sdcSyncLabel (bool b) {
 }
 
 void	SDRunoPlugin_drmForm::set_clockOffsetDisplay (float f) {
-	clockOffsetDisplay. caption (std::to_string (f));
+//	clockOffsetDisplay. caption (std::to_string (f));
 }
 
 void	SDRunoPlugin_drmForm::set_angleDisplay (float f) {
-	angleDisplay. caption  (std::to_string (f));
+//	angleDisplay. caption  (std::to_string (f));
 }
 
 void	SDRunoPlugin_drmForm::set_programTypeLabel (const std::string s) {
-	programTypeLabel. caption (s);
+//	programTypeLabel. caption (s);
 }
 
 
 void	SDRunoPlugin_drmForm::set_aacDataLabel (const std::string s) {
 	aacDataLabel. caption (s);
 }
-
 
 void	SDRunoPlugin_drmForm::set_faadSyncLabel (bool b) {
 	if (b)
@@ -517,14 +486,21 @@ void	SDRunoPlugin_drmForm::set_messageLabel (const std::string s) {
 }
 
 void	SDRunoPlugin_drmForm::show_fac_mer(float v) {
-	fac_mer.caption(std::to_string(v));
+//	fac_mer.caption(std::to_string(v));
 }
 
 void	SDRunoPlugin_drmForm::show_sdc_mer	(float v) {
-	sdc_mer. caption (std::to_string (v));
+//	sdc_mer. caption (std::to_string (v));
 }
 
 void	SDRunoPlugin_drmForm::show_msc_mer	(float v) {
-	msc_mer. caption (std::to_string (v));
+//	msc_mer. caption (std::to_string (v));
+}
+
+void	SDRunoPlugin_drmForm::showService (const std::string& s) {
+	if (!s. empty ())
+	   selectedService. caption ("Selected: " + s);
+	else
+	   selectedService. caption ("");
 }
 

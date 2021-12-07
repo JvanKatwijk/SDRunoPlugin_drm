@@ -8,16 +8,28 @@ decoding DRM (Digital Radio Mondiale) signals transmitted on shortwave.
 ![overview](/drm-decoder.png?raw=true)
 
 -----------------------------------------------------------------------------
-Installing the plugin:  READ THIS FIRST
+Installing  and starting the plugin:  READ THIS FIRST
 -----------------------------------------------------------------------------
 
 The plugin is - as other plugins - developed using MSVC.
-Since DRM is a small band signal (up to 10 KHz is supported in this plugin),
-the samplerate used as input for the plugin is *62500* samples/second.
+The DRM signal has a spectrum with a width of 10 KHz, the SDRplay shows
+a much wider spectrum. On a 2 MHz wide spectrum 10 KHz takes 1/200-th part
+and is therefore not (hardly) visible.
 
-**On the main widget select samplerate 2000000, and decimation factor 32**.
+It is therefore wise to select a smaller samplerate.
+**On the main widget select samplerate 2000000, and a suitablee
+decimation factor **. (I use a decimation factor 32, leading to a
+spectrum with a width of 63 KHz)
 
 ![overview](/drm-main-widget.png?raw=true)
+
+To use the plugin, select on the main receiver widget a bandwidth of 12k,
+note that - as can be seen on the picture above - the filtered 12 k
+band should cover the drm signal, **the marker is on the left of the signal **.
+The small spectrum widget shows the spectrum of the filtered signal in the
+range 0 .. 12 k.
+
+![overview](/drm-small-spectrum.png?raw=true)
 
 Note that the plugin uses some **additional libraries** (dll's) for AAC and xHE-AAC decoding.
 
@@ -47,22 +59,44 @@ this searchpath, however, the folder C:\Program Files (x86)\SDRplay\SDRuno is.
 About the Plugin
 ------------------------------------------------------------------------
 
-![overview](/drm-widget.png?raw=true)
+![overview](/drm-decoder-widget.png?raw=true)
 
-There are no controls on the widget, as soon as the plugin is activated
-it will start reading in samples and trying to decode DRM.
+As soon as the plugin is activated it will start reading in samples
+and trying to synchronize and decode.
 
-A DRM signal is in one of 4 modes, Mode B is the one being decoded here.
+If decoding is possible, the name of the service (services) will appear
+on the widget (as can be seen, the picture on top shows a decoder widget with
+two names on it, the transmission received there contains two channels).
+
+If the transmission contains a single audio component, that component
+will just be made audible. If the transmission contains two audio
+components, by default the top one is selected for further decoding.
+Clicking with the mouse on any of the two will select that component.
+
+If the transmission contains two components, a message will tell which
+of the two components is the selected one.
+
+As can be seen on the widget, some transmissions carry - next to audio -
+some additional textual information.
+
+A DRM signal is in one of 4 modes, Mode B is here the one being decoded here.
 The spectrum is "3", telling that the aspectrum width is 10 KHz, symmetrically
 around 0, i.e. 5 KHz on each side.
 
-The different labels in the
-widget give information on the reception.
-The name of the receiver service is "SNR Tiganesti E1".
+On the top left, one sees the frequency offset in tuning, The software
+is able to correct frequency offsets up to a few hundreds of Hz,
+The offset is shown as two figures, one so-called coarse offset,
+relatively stable, and one so-called fine offset, which will take values
+from app -23 .. + 23 Hz, and will most of the time continuously change a
+little.
 
+To the right of the frequency offset specification, sometimes one
+may see the time, in UTC, when transmitted.
 
-On the right hand side of the widget, there are four labels, 
-since the transmission can be decoded they are all green.
+DRM is a digital transmission, as can be expected on shortwavesm sometimes
+fading is such that decoding is impossible. A quality indication of the
+signal is displayed on the right side of the widget, there are 4 labels.
+Since the transmission can be decoded they are all green.
 From top to bottom
 
    * the time sync label. DRM is transmitted using an (C)OFDM technique, what is important is that there is a time synchronization so that the receiver "knows"
@@ -81,36 +115,7 @@ usually encoded as an AAC stream.
 For each of these labels it holds that "green"  means that processing is 
 without errors.
 
-The bottom line of the widget gives some quality indicators in a more
-quantitative way. From left to right:
-
-   * the quality of the FAC signal, expressed as number where higher is better;
-
-   * the quality of the SDC signal, expressed as number, higher is better;
-
-   * the quality of the AAC decoder, expressed as number, higher is better.
-
-On the second to bottom line, we see the spectrum (3), the Mode (B),
-the encoding of the MSC (QAM16) and the way the audio is encoded (AAC).
-
-The remaining labels give an indication of the frequency and time offset
-of the received signals. All labels are equipped with a tooltip telling
-the function.
-
-
-![overview](/drm-screen.png?raw=true)
-
-The form of the spectrum of a DRM signal is easy to recognize, it is
-a kind of a block, without the traditional carrier peak as seen by AM 
-transmissions.
-Frequency offset is app 7 Hz, on a tuning frequency of 7350 KHz.
-
-The picture clearly shows a potential problem, the AM transmission on 7340 KHz
-seems to have sidebands with a width of 7.5 KHz (4.5 KHz is
-normal), one of the sidebands
-overlaps the 10 KHz wide spectrum of the DRM signal.
-
-Of course, this has (negative) influence on the DRM decoding.
+The decoding complexity increases from Time synchronization to AAC decoding.
 
 -----------------------------------------------------------------------
 About DRM

@@ -248,6 +248,13 @@ void	SDRunoPlugin_drmUi::hide_channel_2	() {
 	   m_form	-> hide_channel_2 ();
 }
 
+void	SDRunoPlugin_drmUi::showService	(const std::string &s) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form !=  nullptr)
+           m_form       -> showService (s);
+}
+
+
 void	SDRunoPlugin_drmUi::activate_channel_1	() {
 	m_parent. activate_channel_1 ();
 }

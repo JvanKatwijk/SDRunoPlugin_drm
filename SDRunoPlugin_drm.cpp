@@ -38,48 +38,28 @@
 	                                 m_worker (nullptr),
 	                                 inputBuffer  (16 * 32768),
 	                                 theMixer     (INRATE),
-	                                 passbandFilter (25,
-	                                                5000,
-	                                                INRATE),
-	                                theDecimator (SIZE_OUT / SIZE_END),
-//	                                localMixer (WORKING_RATE),
-	                                drmAudioBuffer (32768),
-	                                my_Reader (&inputBuffer,
+		passbandFilter(25,
+			5000,
+			INRATE),
+
+	                                 theDecimator (INRATE / WORKING_RATE),
+	                                 drmAudioBuffer (32768),
+	                                 my_Reader (&inputBuffer,
 	                                           2 * 16384, &m_form),
-	                                aacFunctions (&m_form),
-	                                my_backendController (&m_form, 4,
+	                                 aacFunctions (&m_form),
+	                                 my_backendController (&m_form, 4,
 	                                                      &aacFunctions,
 	                                                      &drmAudioBuffer),
-	                                theState (1, 3) {
+	                                 theState (1, 3) {
 	m_controller	= &controller;
 	running. store (false);
-//      we want to "work" with a rate of 12000, and since we arrive
-//      from IN_RATE we first decimate and filter to 12500 and then
-//      interpolate for the rest
-	for (int i = 0; i < SIZE_OUT; i ++) {
-	   DRM_FLOAT inVal	= DRM_FLOAT (SIZE_IN);
-	   mapTable_int [i]     = int (floor (i * (inVal / (SIZE_OUT))));
-	   mapTable_float [i]   = i * (inVal / (SIZE_OUT)) - mapTable_int [i];
-	}
-	convIndex       = 0;
-	convBuffer. resize (SIZE_IN + 1);
-	
-	m_controller    -> RegisterStreamProcessor (0, this);
-	m_controller    -> RegisterAudioProcessor (0, this);
-	selectedFrequency
-	                = m_controller -> GetVfoFrequency (0);
-	centerFrequency = m_controller -> GetCenterFrequency (0);
-	drmAudioRate    = m_controller -> GetAudioSampleRate (0);
-	Raw_Rate        = m_controller -> GetSampleRate (0);
-	passbandFilter.
-		modulate (selectedFrequency - centerFrequency);
+	m_controller	->RegisterAudioProcessor(0, this);
+	drmAudioRate	= m_controller -> GetAudioSampleRate(0);
+	m_controller	-> SetDemodulatorType (0, IUnoPluginController::DemodulatorDigital);
 
-	drmError	= false;
-	if ((Raw_Rate != 2000000 / 32) || (drmAudioRate != 48000)) {
-	   m_form. set_messageLabel ("Please set input rate 2000000 / 32 and audiorate to 48000");
-	   drmError      = true;
-	}
+	drmError	= false;		// not used
 
+	passbandFilter.modulate(m_controller -> GetFilterBandwidth (0) / 2);
 	nSymbols	= 25;
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
@@ -92,7 +72,7 @@
 	running. store (false);
 	my_Reader. stop ();
 	m_worker        -> join ();
-	m_controller    -> UnregisterStreamProcessor (0, this);
+//	m_controller    -> UnregisterStreamProcessor (0, this);
 	m_controller    -> UnregisterAudioProcessor (0, this);
 	delete m_worker;
 	m_worker = nullptr;
@@ -104,50 +84,26 @@ void	SDRunoPlugin_drm::
 	         StreamProcessorProcess (channel_t channel,
 	                                 Complex* buffer,
 	                                 int	length,
-	                                 bool& modified) {
-	if (!running. load () || drmError) {
-	   modified = false;
-	   return;
-	}
-	
-	int theOffset = selectedFrequency - centerFrequency;
-	if (passbandFilter. offset () != theOffset) {
-	   m_form. set_countryLabel (std::to_string (theOffset));
-	}
-
-	for (int i = 0; i < length; i ++) {
-	   std::complex<DRM_FLOAT> sample =
-	                std::complex<DRM_FLOAT>(buffer [i]. real, buffer [i]. imag);
-	   locker. lock ();
-	   sample   = passbandFilter. Pass (sample);
-	   locker. unlock ();
-	   sample   = theMixer. do_shift (sample, theOffset);
-//
-//	interpolating 62500 -> 72000 and decimating to 12000
-	   convBuffer [convIndex ++] = sample;
-	   if (convIndex >= convBuffer. size ()) {
-//	      std::complex<DRM_FLOAT> out [SIZE_OUT];
-	      for (int j = 0; j < SIZE_OUT; j ++) {
-	         int16_t  inpBase	= mapTable_int [j];
-	         DRM_FLOAT inpRatio	= mapTable_float [j];
-	         std::complex<DRM_FLOAT> res =
-	                     cmul (convBuffer [inpBase + 1],  2 * inpRatio) +
-	                      cmul (convBuffer [inpBase], 2 * (1 - inpRatio));
-	         if (theDecimator. Pass (res, &res))
-	            inputBuffer. putDataIntoBuffer (&res, 1);
-	      }
-	      convBuffer [0]  = convBuffer [convBuffer. size () - 1];
-	      convIndex    = 1;
-	   }
-	}
-	modified = false;
-}
+	                                 bool& modified) { }
 //
 //	drmAudiobuffer has complex elements, we extract floats
 void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	                                         float* buffer,
 	                                         int length,
 	                                         bool& modified) {
+	int filterOffset = m_controller -> GetFilterBandwidth(0) / 2;
+	if (!modified) {
+		for (int i = 0; i < length; i++) {
+			std::complex<DRM_FLOAT> sample =
+				std::complex<DRM_FLOAT>(buffer[2 * i], buffer[2 * i + 1]);
+			sample = passbandFilter.Pass (sample);
+			sample = theMixer.do_shift (sample, filterOffset);
+
+			if (theDecimator.Pass (sample, &sample))
+				inputBuffer.putDataIntoBuffer (&sample, 1);
+		}
+	}
+
 	if (drmAudioBuffer. GetRingBufferReadAvailable () >= length) {
 	   drmAudioBuffer. getDataFromBuffer (buffer, length);
 	}
@@ -164,18 +120,10 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 }
 
 void	SDRunoPlugin_drm::HandleEvent (const UnoEvent& ev) {
+	int filterOffset = m_controller->GetFilterBandwidth(0) / 2;
 	switch (ev. GetType ()) {
 	   case UnoEvent::FrequencyChanged:
-	      selectedFrequency =
-	              m_controller -> GetVfoFrequency (ev. GetChannel ());
-	      centerFrequency = 
-		      m_controller -> GetCenterFrequency (0);	  
-	      locker. lock ();
-	      passbandFilter.
-	         modulate (selectedFrequency - centerFrequency);
-	      locker. unlock ();
-		  m_form.set_countryLabel(std::to_string(selectedFrequency - centerFrequency));
-	      break;
+	     break;
 
 	   case UnoEvent::CenterFrequencyChanged:
 		  break;
@@ -206,6 +154,9 @@ DRM_FLOAT     sampleclockOffset       = 0;
 	      m_form. set_facSyncLabel	(false);
 	      m_form. set_sdcSyncLabel	(false);
 	      m_form. set_audioModeLabel	(std::string (""));
+	      m_form. hide_channel_1 ();
+	      m_form. hide_channel_2 ();
+	      m_form. showService ("");
 	
 	      theState. cleanUp ();
 	      my_Reader. waitfor (Ts_of (Mode_A));
@@ -604,10 +555,14 @@ int16_t	   K_max		= Kmax (m -> Mode, m -> Spectrum);
 
 void	SDRunoPlugin_drm::activate_channel_1	() {
 	theState. activate_channel_1 ();
+	m_form. showService (theState. streams [0]. serviceName);
 }
 
 void	SDRunoPlugin_drm::activate_channel_2	() {
+	if ((theState. numofStreams > 1) &&
+	    (theState. streams [1]. isAudio))
 	theState. activate_channel_2 ();
+	m_form. showService (theState. streams [1]. serviceName);
 }
 
 

@@ -51,6 +51,7 @@ public:
 	void	set_datacoding (const std::string s);
 	void	set_audioModeLabel (const std::string s);
 	void	set_messageLabel (const std::string s);
+	void	showService	(const std::string &);
 
 	void	show_fac_mer		(float);
 	void	show_sdc_mer		(float);

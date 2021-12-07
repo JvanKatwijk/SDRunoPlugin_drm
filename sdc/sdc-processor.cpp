@@ -332,24 +332,30 @@ uint8_t	language [3], country [2];
 	          s. push_back (get_SDCBits (v, 4 + 8 * i, 8));
 	      s. push_back (char (0));
 	      if (lengthofBody > 1) {
-	         strcpy (theState -> streams [shortId]. serviceName, s. c_str ());
-	      }
+	         for (int i = 0; i < theState -> numofStreams; i ++)
+	            if (theState -> streams [i]. shortId == shortId) {
+	               if (theState -> streams [i]. serviceName [0] != 0)
+	                  break;
+	               strcpy (theState -> streams [i].
+	                                    serviceName, s. c_str ());
 	
-	      switch (shortId) {
-	         case 0:
-	            m_form -> set_channel_1 (s);
-	            break;
-	         case 1:
-	            m_form -> set_channel_2 (s);
-	            break;
-	         case 2:
-//	            m_form ->  set_channel_3 (s);
-	            break;
-	         case 3:
-//	            m_form -> set_channel_4 (s);
-	            break;
-	      }
-	      return;
+	               switch (i) {
+	                  case 0:
+	                     m_form -> set_channel_1 (s);
+	                     break;
+	                  case 1:
+	                     if (theState -> streams [0]. serviceName [0] != 0)
+	                        m_form -> showService (theState -> streams [0]. serviceName);
+	                     m_form -> set_channel_2 (s);
+	                     break;
+	                  default:
+	                     break;
+	               }
+	               return;
+	            }
+	         
+	         }
+	         return;
 
 	   case 2:	// conditional access parameters
 	      return;
@@ -428,7 +434,7 @@ uint8_t	language [3], country [2];
 
 	   case 9:	// streams information data entity
 	      {  int16_t index = get_SDCBits (v, 2, 2);
-		     m_form->set_countryLabel(std::to_string(index) + " audiostream");
+//		     m_form->set_countryLabel(std::to_string(index) + " audiostream");
 	         theState -> streams [index]. soort  
 	                                      = stateDescriptor::AUDIO_STREAM;
 	         theState -> streams [index]. shortId

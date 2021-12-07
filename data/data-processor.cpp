@@ -90,6 +90,7 @@ void	dataProcessor::process_audio (uint8_t *v, int16_t mscIndex,
 	                              int16_t startLow,  int16_t lengthLow) {
 	
 uint8_t	audioCoding		= theState -> streams [mscIndex]. audioCoding;
+
 	switch (audioCoding) { 
 	   case 0:		// AAC
 	      m_form -> set_audioModeLabel ("AAC");

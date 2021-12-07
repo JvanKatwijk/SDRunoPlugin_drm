@@ -34,15 +34,19 @@
 	this	-> sdcMode	= 0;
 	this	-> numofStreams	= 0;
 	this	-> set		= false;
-	for (int i = 0; i < 3; i ++)
-	   memset (&streams [i], 0, sizeof (streams [0]));
+	for (int i = 0; i < 3; i++) {
+		memset(&streams[i], 0, sizeof(streams[0]));
+		streams[i].inUse = false;
+		streams[i].shortId = 10;
+	}
 }
 
 	stateDescriptor::~stateDescriptor	(void) {
 }
 
 int	stateDescriptor::getAudioChannel	() {
-	return audio_channel_1 ? 0 : 1;
+	return audio_channel_1 ? 0 : 
+	       audio_channel_2 ? 1 : 0;
 }
 
 void	stateDescriptor::cleanUp	() {
@@ -52,8 +56,11 @@ void	stateDescriptor::cleanUp	() {
         this    -> sdcMode      = 0;
         this    -> numofStreams = 0;
         this    -> set          = false;
-        for (int i = 0; i < 3; i ++)
-           memset (&streams [i], 0, sizeof (streams [0]));
+		for (int i = 0; i < 3; i++) {
+			memset(&streams[i], 0, sizeof(streams[0]));
+			streams[i].inUse = false;
+			streams[i].shortId = 10;
+		}
 }
 
 void	stateDescriptor::activate_channel_1	() {
@@ -62,7 +69,9 @@ void	stateDescriptor::activate_channel_1	() {
 }
 
 void	stateDescriptor::activate_channel_2	() {
-	audio_channel_2	= true;
-	audio_channel_1	= false;
+	if (streams [1]. soort == AUDIO_STREAM) {
+	   audio_channel_2	= true;
+	   audio_channel_1	= false;
+	}
 }
 

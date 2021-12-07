@@ -3,6 +3,7 @@
 #include	<nana/gui.hpp>
 #include	<nana/gui/widgets/button.hpp>
 #include	<nana/gui/widgets/listbox.hpp>
+#include	<nana/gui/widgets/combox.hpp>
 #include	<nana/gui/widgets/slider.hpp>
 #include	<nana/gui/widgets/label.hpp>
 #include	<nana/gui/widgets/combox.hpp>
@@ -72,6 +73,7 @@ public:
 	void	hide_channel_2		();
 	void	activate_channel_1	();
 	void	activate_channel_2	();
+	void	showService(const std::string&);
 private:
 
 	void Setup();
@@ -100,74 +102,60 @@ private:
 	// TODO: Now add your UI controls here
 //
 //	row 1
-	nana::label	timeDelayDisplay 
-	                          {*this, nana::rectangle (30, 30, 60, 20)};
 	nana::label	intOffsetDisplay 
+	                          {*this, nana::rectangle (30, 30, 60, 20)};
+	nana::label	smallOffsetDisplay
 	                          {*this, nana::rectangle (100, 30, 60, 20)};
-	nana::label	countryLabel 
+	nana::label	timeLabel
 	                          {*this, nana::rectangle (170, 30, 60, 20)};
-	nana::button	channel_1
-	                          {*this, nana::rectangle (240, 30, 100, 20)};
 	nana::label	label_1
 	                          {*this, nana::rectangle (350, 30, 60, 20)};
 	nana::label	timeSyncLabel
 	                          {*this, nana::rectangle (420, 30, 20, 20)};
-//
-//	row 2
-	nana::label	timeOffsetDisplay
-	                          {*this, nana::rectangle (30, 60, 60, 20)};
-	nana::label	smallOffsetDisplay
-	                          {*this, nana::rectangle (100, 60, 60, 20)};
-	nana::label	timeLabel
-	                          {*this, nana::rectangle (170, 60, 60, 20)};
-	nana::button	channel_2
-	                          {*this, nana::rectangle (240, 60, 100, 20)};
+
+
+
 	nana::label	label_2
 	                          {*this, nana::rectangle (350, 60, 60, 20)};
 	nana::label	facSyncLabel
 	                          {*this, nana::rectangle (420, 60, 20, 20)};
 //
-//	row 3
-	nana::label	clockOffsetDisplay
-	                          {*this, nana::rectangle (30, 90, 60, 20)};
-	nana::label	angleDisplay
-	                          {*this, nana::rectangle (100, 90, 60, 20)};
-	nana::label	programTypeLabel
-	                          {*this, nana::rectangle (170, 90, 60, 20)};
-	nana::label	channel_3
-	                          {*this, nana::rectangle (240, 90, 100, 20)};
 	nana::label	label_3
 	                          {*this, nana::rectangle (350, 90, 60, 20)};
 	nana::label	sdcSyncLabel
 	                          {*this, nana::rectangle (420, 90, 20, 20)};
 //
-//	row 4
-	nana::label	aacDataLabel
-	                          {*this, nana::rectangle (170, 120, 60, 20)};
-	nana::label	channel_4
-	                          {*this, nana::rectangle (240, 120, 100, 20)};
+	
 	nana::label	label_4
 	                          {*this, nana::rectangle (350, 120, 60, 20)};
 	nana::label	faadSyncLabel
 	                          {*this, nana::rectangle (420, 120, 20, 20)};
+
+
+	nana::label	channel_1
+	                  {*this, nana::rectangle (30, 60, 300, 30)};
+	nana::label	channel_2
+	                  {*this, nana::rectangle (30, 100, 300, 30), true };
+	nana::label selectedService
+		              { *this, nana::rectangle(30, 140, 300, 40), true };
+
 //
 //	row 5
 	nana::label	spectrumIndicator
-	                          {*this, nana::rectangle (30, 150, 40, 20)};
+	                          {*this, nana::rectangle (30, 170, 40, 20)};
 	nana::label	modeIndicator
-	                          {*this, nana::rectangle (80, 150, 40, 20)};
+	                          {*this, nana::rectangle (80, 170, 40, 20)};
 	nana::label	datacoding
-	                          {*this, nana::rectangle (130, 150, 40, 20)};
+	                          {*this, nana::rectangle (130, 170, 40, 20)};
 	nana::label	audioModeLabel
-	                          {*this, nana::rectangle (180, 150, 40, 20)};
-	nana::label	messageLabel
-	                          {*this, nana::rectangle (230, 150, 200, 20)};
-//
-//	row 6
-	nana::label	fac_mer 	{ *this, nana::rectangle(30, 180, 60, 20) };
-	nana::label	sdc_mer 	{ *this, nana::rectangle(100, 180, 60, 20) };
-	nana::label	msc_mer 	{ *this, nana::rectangle(170, 180, 60, 20) };
+	                          {*this, nana::rectangle (180, 170, 40, 20)};
+	nana::label	aacDataLabel
+	                          {*this, nana::rectangle (230, 170, 60, 20) };
 
+// row 6
+	nana::label	messageLabel
+	                          {*this, nana::rectangle (30, 200, 400, 20)};
+//
 	SDRunoPlugin_drmUi & m_parent;
 	IUnoPluginController & m_controller;
 };
