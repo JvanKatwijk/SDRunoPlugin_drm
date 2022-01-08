@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.1.8)  8 JAN 2022 14:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.1.8)  8 JAN 2022 19:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -416,41 +416,41 @@ ded, will be treated as font file not present
 <lib-not-found.png, id=16, 343.2825pt x 173.89969pt>
 File: lib-not-found.png Graphic file (type png)
 <use lib-not-found.png>
-Package pdftex.def Info: lib-not-found.png  used on input line 89.
+Package pdftex.def Info: lib-not-found.png  used on input line 91.
 (pdftex.def)             Requested size: 284.52756pt x 144.13503pt.
  [2 <./lib-not-found.png>]
 <drm-main-widget.png, id=25, 314.67563pt x 182.93344pt>
 File: drm-main-widget.png Graphic file (type png)
 <use drm-main-widget.png>
-Package pdftex.def Info: drm-main-widget.png  used on input line 118.
+Package pdftex.def Info: drm-main-widget.png  used on input line 122.
 (pdftex.def)             Requested size: 284.52756pt x 165.41455pt.
 <drm-zoom.png, id=26, 1018.55531pt x 417.05812pt>
 File: drm-zoom.png Graphic file (type png)
 <use drm-zoom.png>
-Package pdftex.def Info: drm-zoom.png  used on input line 124.
+Package pdftex.def Info: drm-zoom.png  used on input line 128.
 (pdftex.def)             Requested size: 426.79134pt x 174.75592pt.
 <drm-receiver-widget.png, id=27, 435.87843pt x 180.675pt>
 File: drm-receiver-widget.png Graphic file (type png)
 <use drm-receiver-widget.png>
-Package pdftex.def Info: drm-receiver-widget.png  used on input line 134.
+Package pdftex.def Info: drm-receiver-widget.png  used on input line 138.
 (pdftex.def)             Requested size: 284.52756pt x 117.9391pt.
  [3 <./drm-main-widget.png> <./drm-zoom.png>]
 <drm-decoder-widget-1.png, id=33, 343.2825pt x 170.88844pt>
 File: drm-decoder-widget-1.png Graphic file (type png)
 <use drm-decoder-widget-1.png>
-Package pdftex.def Info: drm-decoder-widget-1.png  used on input line 146.
+Package pdftex.def Info: drm-decoder-widget-1.png  used on input line 150.
 (pdftex.def)             Requested size: 284.52756pt x 141.63919pt.
 <drm-decoder-widget.png, id=34, 354.57469pt x 180.675pt>
 File: drm-decoder-widget.png Graphic file (type png)
 <use drm-decoder-widget.png>
-Package pdftex.def Info: drm-decoder-widget.png  used on input line 162.
+Package pdftex.def Info: drm-decoder-widget.png  used on input line 166.
 (pdftex.def)             Requested size: 284.52756pt x 144.9868pt.
  [4 <./drm-receiver-widget.png> <./drm-decoder-widget-1.png> <./drm-decoder-wid
 get.png>]
 <drm-two-services.png, id=41, 342.5297pt x 171.64125pt>
 File: drm-two-services.png Graphic file (type png)
 <use drm-two-services.png>
-Package pdftex.def Info: drm-two-services.png  used on input line 198.
+Package pdftex.def Info: drm-two-services.png  used on input line 202.
 (pdftex.def)             Requested size: 284.52756pt x 142.58789pt.
  [5 <./drm-two-services.png>] (./drm.aux) ) 
 Here is how much of TeX's memory you used:
@@ -476,7 +476,7 @@ c/lm/lmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm
 0600.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pf
 b></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on drm.pdf (5 pages, 1894970 bytes).
+Output written on drm.pdf (5 pages, 1851220 bytes).
 PDF statistics:
  92 PDF objects out of 1000 (max. 8388607)
  56 compressed objects within 1 object stream

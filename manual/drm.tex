@@ -57,9 +57,11 @@ Spain stopped the DRM transmissions around 2015, and
 I do not hear Nigeria nor India anymore.
 I have to admit though that my antenna equipment is rather limited,
 for shortwave I use an in-house loop antenna with a simple amplifier.
-
-This document describes a {\em plugin} for decoding DRM,
-developed for the SDRuno environment.
+\par
+The front page shows the reception of a transmission of Radio Romenia at 7350 KHz, Radio Romenia transmits daily in different languages.
+\par
+This document describes a {\em plugin} for decoding DRM30,
+a plugin developed for the SDRuno environment.
 \section{Installing}
 As  the other plugins for SDRuno, the plugin is implemented as
 a dll, i.e. a {\em dynamic load library}, and it should be installed
@@ -100,7 +102,9 @@ C:\\Program Files(x86)\\SDRuno
 The DRM signal (in the common modes)
 has a spectrum with a width of 10 KHz. SDRuno usually shows
 a much wider spectrum. On a 2 MHz wide spectrum 10 KHz takes 1/200-th part
-and is therefore not (hardly) visible.
+and is therefore not (hardly) visible. Furthermore, while the plugin
+is ablwe to correct for frequency offsets, tuning should be as precise
+as possible, preferably with an offset less than 3 or 400 Hz.
 \par
 The plugin operates using the {\em IQOUT} option of SDRuno. Selecting
 this option - the plugin itself will do so - gives an input rate
@@ -124,7 +128,7 @@ with a mutual distance of just over 45 Hz).
 \includegraphics[width=150mm]{drm-zoom.png}
 
 Note that in order to be able to decode the signal, the signal should
-have a reasonable signals strength.  The figure here indicates that the signal strength is about 10dB.
+have a reasonable signal strength.  The figure here indicates that the signal strength is about 10dB.
 \par
 What the waterfall shows is - apart from a nice color spectrum - three
 lines, coloured slightly brighter red. These lines correspond with special elements

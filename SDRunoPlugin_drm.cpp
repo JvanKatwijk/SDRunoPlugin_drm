@@ -123,8 +123,8 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	int bufferP = 0;
 	for (int i = 0; i < amount; i ++) {
 	   std::complex<float> s = audioFilter. Pass (lbuf [i]);
-	   buffer [bufferP ++] = real (s);
-	   buffer [bufferP ++] = imag (s);
+	   buffer [bufferP ++] = 4 * real (s);
+	   buffer [bufferP ++] = 4 * imag (s);
 	   for (int j = 0; j < 3; j ++) {
 	      s = audioFilter. Pass (std::complex<float> (0, 0));
 	      buffer [bufferP ++] =  real (s);
