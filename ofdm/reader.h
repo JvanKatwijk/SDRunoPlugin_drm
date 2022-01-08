@@ -21,12 +21,12 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #
-#ifndef	__READER__
-#define	__READER__
+#ifndef	__DRM_READER__
+#define	__DRM_READER__
 
-#include	"../ringbuffer.h"
-#include	"../basics.h""
-#include	"../SDRunoPlugin_drmUi.h"
+#include	"..\ringbuffer.h"
+#include	"..\basics.h""
+#include	"..\SDRunoPlugin_drmUi.h"
 //
 //	For now we have a simple abstraction layer over a ringbuffer
 //	that provides a suitable buffer.  It acts as a - more or
@@ -34,7 +34,7 @@
 //	a secret. In a next version we eliminate the ringbuffer.
 class	Reader {
 public:
-			Reader (RingBuffer<std::complex<DRM_FLOAT>> *, 
+			Reader (RingBuffer<std::complex<float>> *, 
 	                        uint32_t, SDRunoPlugin_drmUi *);
 			~Reader		();
 	void		waitfor		(int32_t);
@@ -42,7 +42,7 @@ public:
 	void		stop		();
 	uint32_t	bufSize;
 	uint32_t	bufMask;
-	std::complex<DRM_FLOAT>	*data;
+	std::complex<float>	*data;
 	uint32_t	currentIndex;
 	bool		stopSignal;
 	uint32_t	firstFreeCell;
@@ -50,7 +50,7 @@ private:
 	SDRunoPlugin_drmUi	*m_form;
 	uint32_t	Contents	();
 	
-	RingBuffer<std::complex<DRM_FLOAT>> * ringBuffer;
+	RingBuffer<std::complex<float>> * ringBuffer;
 };
 
 #endif

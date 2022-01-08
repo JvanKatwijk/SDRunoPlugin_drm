@@ -19,7 +19,7 @@
 #include	"ringbuffer.h"
 #include	"decimator-25.h"
 #include	"drm-bandfilter.h"
-#include	"lowpassfilter.h"
+#include	"data\lowpassfir.h"
 #include	"utilities.h"
 #include	"basics.h"
 #include	"ofdm\reader.h"
@@ -30,7 +30,7 @@
 
 
 //#define         DECIMATOR       4
-#define         INRATE          (48000)
+#define         INRATE          (192000)
 #define         WORKING_RATE    12000
 #define         FILTER_DEFAULT  21
 
@@ -68,8 +68,8 @@ private:
 	RingBuffer<std::complex<DRM_FLOAT>>	inputBuffer;
 	drmShifter	        theMixer;
 	drmBandfilter	        passbandFilter;
-
-	decimator_25	    theDecimator;
+	lowpassFIR		audioFilter;
+	decimator_25		theDecimator;
 	RingBuffer<std::complex<float>>	drmAudioBuffer;
 	void			WorkerFunction	();
 	std::thread		* m_worker;

@@ -115,7 +115,6 @@
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="aac-handler.cpp" />
     <ClCompile Include="decimator-25.cpp" />
-    <ClCompile Include="lowpassfilter.cpp" />
     <ClCompile Include="basics.cpp" />
     <ClCompile Include="parameters\state-descriptor.cpp" />
     <ClCompile Include="parameters\puncture-tables.cpp" />
@@ -173,7 +172,6 @@
     <ClInclude Include="aac-handler.h" />
     <ClInclude Include="decimator-25.h" />
     <ClInclude Include="decimator.h" />
-    <ClInclude Include="low-assfilter.h" />
     <ClInclude Include="ringbuffer.h" />
     <ClInclude Include="basics.h" />
     <ClInclude Include="parameters\state-descriptor.h" />

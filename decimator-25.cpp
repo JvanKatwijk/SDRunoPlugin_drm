@@ -37,7 +37,8 @@ bool	decimator_25::Pass (std::complex<DRM_FLOAT> in, std::complex<DRM_FLOAT> *ou
 	counter --;
 	iValue += in;
 	if (counter == 0) {
-	   *out = iValue;
+	   *out = std::complex<float> (real (iValue) / amount,
+	                               imag (iValue) / amount);
 	   iValue = std::complex<DRM_FLOAT> (0, 0);
 	   counter = amount;
 	   return true;

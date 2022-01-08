@@ -38,14 +38,12 @@
 	                                 m_worker (nullptr),
 	                                 inputBuffer  (16 * 32768),
 	                                 theMixer     (INRATE),
-		passbandFilter(25,
-			5000,
-			INRATE),
-
+	                                 passbandFilter (25, 5000, INRATE),
+	                                 audioFilter (15, 24000, INRATE),
 	                                 theDecimator (INRATE / WORKING_RATE),
 	                                 drmAudioBuffer (32768),
 	                                 my_Reader (&inputBuffer,
-	                                           2 * 16384, &m_form),
+	                                            2 * 16384, &m_form),
 	                                 aacFunctions (&m_form),
 	                                 my_backendController (&m_form, 4,
 	                                                      &aacFunctions,
@@ -53,13 +51,18 @@
 	                                 theState (1, 3) {
 	m_controller	= &controller;
 	running. store (false);
-	m_controller	->RegisterAudioProcessor(0, this);
+	m_controller	-> RegisterAudioProcessor(0, this);
+	m_controller	-> SetDemodulatorType (0,
+	                         IUnoPluginController::DemodulatorIQOUT);
+	int selectedFrequency
+                        = m_controller -> GetVfoFrequency (0);
+	int centerFrequency
+	                 = m_controller -> GetCenterFrequency (0);
+
 	drmAudioRate	= m_controller -> GetAudioSampleRate(0);
-	m_controller	-> SetDemodulatorType (0, IUnoPluginController::DemodulatorDigital);
 
 	drmError	= false;		// not used
 
-	passbandFilter.modulate(m_controller -> GetFilterBandwidth (0) / 2);
 	nSymbols	= 25;
 	modeInf. Mode	= 2;
 	modeInf. Spectrum	= 3;
@@ -91,30 +94,50 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	                                         float* buffer,
 	                                         int length,
 	                                         bool& modified) {
-	int filterOffset = m_controller -> GetFilterBandwidth(0) / 2;
+//
+//	Handling IQ input, note that SDRuno interchanges I and Q elements
 	if (!modified) {
-		for (int i = 0; i < length; i++) {
-			std::complex<DRM_FLOAT> sample =
-				std::complex<DRM_FLOAT>(buffer[2 * i], buffer[2 * i + 1]);
-			sample = passbandFilter.Pass (sample);
-			sample = theMixer.do_shift (sample, filterOffset);
-
-			if (theDecimator.Pass (sample, &sample))
-				inputBuffer.putDataIntoBuffer (&sample, 1);
-		}
-	}
-
-	if (drmAudioBuffer. GetRingBufferReadAvailable () >= length) {
-	   drmAudioBuffer. getDataFromBuffer (buffer, length);
-	}
-	else {
-	   int avail	= drmAudioBuffer. GetRingBufferReadAvailable ();
-	   if (avail > 0)
-	      drmAudioBuffer. getDataFromBuffer (buffer, avail);
-	   for (int i = avail; i < length; i ++) {
-	      buffer [2 * i] = 0;
-	      buffer [2 * i + 1] = 0;
+	   for (int i = 0; i < length; i++) {
+	      std::complex<DRM_FLOAT> sample =
+	                   std::complex<DRM_FLOAT>(buffer [2 * i +  1],
+	                                           buffer [2 * i]);
+	      sample = passbandFilter.Pass (sample);
+//	since Offset == 0, we do not need a shift here
+//	      sample = theMixer.do_shift (sample, theOffset);
+	      if (theDecimator.Pass (sample, &sample))
+	         inputBuffer.putDataIntoBuffer (&sample, 1);
 	   }
+	}
+//	for the audio out, length in complexes, but buffer is in floats
+//	so its actual size is 2 * length
+//	Note further that the design was for 48 k output samples and 
+//	IQ requires 192, so we upsample a factor of 4
+	int amount;
+	amount = drmAudioBuffer. GetRingBufferReadAvailable ();
+	if (amount >= length / 4) 
+	   amount = length / 4;
+	std::complex<float>*lbuf =
+	              (std::complex<float> *)
+	                 (_malloca (amount * sizeof (std::complex<float>)));
+	drmAudioBuffer. getDataFromBuffer (lbuf, length / 4);
+	int bufferP = 0;
+	for (int i = 0; i < amount; i ++) {
+	   std::complex<float> s = audioFilter. Pass (lbuf [i]);
+	   buffer [bufferP ++] = real (s);
+	   buffer [bufferP ++] = imag (s);
+	   for (int j = 0; j < 3; j ++) {
+	      s = audioFilter. Pass (std::complex<float> (0, 0));
+	      buffer [bufferP ++] =  real (s);
+	      buffer [bufferP ++] =  imag (s);
+	   }
+	}
+//	If what we have available is less than the buffersize,
+//	fil it with 0
+	for (int i = bufferP / 2; i < length; i ++) {
+	   std::complex<float> s =
+	                audioFilter. Pass (std::complex<float> (0, 0));
+	   buffer [2 * i] = real (s);
+	   buffer [2 * i+ 1] = imag (s);
 	}
 	modified = true;
 }

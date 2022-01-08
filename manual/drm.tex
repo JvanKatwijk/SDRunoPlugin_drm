@@ -30,7 +30,8 @@
 \bibliographystyle{plain}
 \begin{document}
 \title{An SDRuno plugin for DRM30\\
-{small user's guide}}
+{small user's guide {\footnote {\copyright J van Katwijk}}\\
+Revised edition of the plugin}}
 \author{
 Jan van Katwijk\\
 Lazy Chair Computing \\
@@ -45,7 +46,7 @@ The Netherlands\\
 \ \\
 \section{Introduction}
 DRM, Digital Radio Mondiale, is a system for digital radio on medium and
-short waves up to 30 MHz. This form of DRM is sometimes called DRM-30, a variant
+short waves up to 30 MHz. This form of DRM is sometimes called DRM30, a variant
 of DRM, called DRM+, is meant to operate in the FM band,
 \par 
 DRM is not very popular in western Europe, I receive during daytimes the
@@ -54,8 +55,10 @@ Radio Romenia International.
 In the past there were transmissions from e.g. Spain, Nigeria and India,
 Spain stopped the DRM transmissions around 2015, and
 I do not hear Nigeria nor India anymore.
+I have to admit though that my antenna equipment is rather limited,
+for shortwave I use an in-house loop antenna with a simple amplifier.
 
-This document describes a plugin for decoding DRM,
+This document describes a {\em plugin} for decoding DRM,
 developed for the SDRuno environment.
 \section{Installing}
 As  the other plugins for SDRuno, the plugin is implemented as
@@ -95,36 +98,40 @@ C:\\Program Files(x86)\\SDRuno
 \end{verbatim}
 \section{Running the plugin}
 The DRM signal (in the common modes)
-has a spectrum with a width of 10 KHz. SDRuno might show
+has a spectrum with a width of 10 KHz. SDRuno usually shows
 a much wider spectrum. On a 2 MHz wide spectrum 10 KHz takes 1/200-th part
 and is therefore not (hardly) visible.
-
-It seems therefore wise to select a smaller samplerate.
-{\em On the main widget select samplerate 2000000, and a suitable
-decimation factor} (I use a decimation factor 32, leading to a
-spectrum with a width of 63 KHz).
-The picture at the top of this paper shows a spectrum width of 192 KHz,
-it is made from a recording made by my SW software.
+\par
+The plugin operates using the {\em IQOUT} option of SDRuno. Selecting
+this option - the plugin itself will do so - gives an input rate
+of 192000 complex samples per second. The plugin software will take
+care of filtering out a band of 10 Khz and decimating to 12000 samples/second.
+\par
+To get a decent view on the signal, most likely needed to fine-tune,
+it is advised to select {\em on the main widget samplerate 2000000,
+and a suitable decimation factor} (I use a decimation factor 8, leading to a
+spectrum with a width of 250 KHz).
+Using the {\em zoom}  option, the spectrum in the picture at the
+top of this paper takes just over 60 Khz,
+The SDRuno filter is set to 60 KHz.
 
 \includegraphics[width=100mm]{drm-main-widget.png}
 
-To use the plugin, select on the main receiver widget a bandwidth of 12K,
-after all, the  DRM signal has a spectrum with a width of 10 KHz.
-The software operates on a rate of 48K for both input and output,
-and the software will choose the mode {\em digital} for that.
+The spectrum of the DRM signal clearly shows: other than FM or AM signals 
+no visible carrier or peak (the signal consist of over 200 carriers
+with a mutual distance of just over 45 Hz).
+
+\includegraphics[width=150mm]{drm-zoom.png}
+
+Note that in order to be able to decode the signal, the signal should
+have a reasonable signals strength.  The figure here indicates that the signal strength is about 10dB.
+\par
+What the waterfall shows is - apart from a nice color spectrum - three
+lines, coloured slightly brighter red. These lines correspond with special elements
+in the spectrum that will help the receiver to synchronize with
+the incoming signal.
 
 \includegraphics[width=100mm]{drm-receiver-widget.png}
-
-Note that - as can be seen on the picture on top - the filtered 12 K
-band should cover the DRM signal, {\em the marker is on the left side
-of the selected spectrum part, NOT in the middle as for  e.g. AM}.
-The small spectrum widget shows the spectrum of the filtered signal in the
-range 0 .. 12 KHz.
-
-\includegraphics[width=100mm]{drm-small-spectrum.png}
-
-The widget shows that a 12k filter is selected and it shows that the
-software has selected the {\em digital} output.
 
 \section{The widget}
 On selecting the plugin, the software starts reading in samples,
@@ -136,14 +143,29 @@ the decoding of the audio (either AAC or xHE-AAC) and the output
 sample rate.
 \par
 
-\includegraphics[width=100mm]{drm-decoder-widget.png}
+\includegraphics[width=100mm]{drm-decoder-widget-1.png}
 
 At the top left, one sees two numbers, telling the offset of the selected
 frequency. The first number indicates the so-called {\em coarse} offset,
 which is (should be) reasonably stable, the second one tells the
 so-called {\em fine} offset, which ranges between -30 .. 30 and is
-- in most cases - continuously changing. A number to the right
-might be displayed, which tells the time of the transmission (in UTC).
+- in most cases - continuously changing.
+
+Note that the {\em coarse offset} for radio Kuwait is here 0, but the
+tuner was set app 280 Hz lower than the offical transmitter frequency
+of 15110 KHz. The {\em fine offset} is just -2 Hz.
+
+The number to the right, 11.53, tells the 
+time of the transmission (in UTC), not all transmissions show the
+transmission time.
+\par
+\includegraphics[width=100mm]{drm-decoder-widget.png}
+\par
+The second picture, taken from a recording from a few years back,
+shows that the transmission was in mode C, the audio was encoded as QAM16
+rather than QAM64, and the audio output samplerate was 12000.
+Note that the bottom line of the widget can be filled with a message
+as was done by the Voice of Nigeria.
 \par
 Processing the input takes 4 steps
 \begin{itemize}
@@ -163,22 +185,26 @@ mode of the indicators are red, some process parts fail with the given input
 and no sound can be emitted.
 \paragraph{Services}
 
-Most DRM transmissions carry a single service (as shown by the picture
-below).
+Most DRM transmissions carry a single service (as shown by the pictures
+above).
 The DRM technique, however, allows carrying more than one service (actually, up to 4). If a single service is carried, that service is - by default -
-the selected one and its content is decoded.
-If the transmission carries two services, both service names are shown
-and - by default -  the first one is selected.
+the selected one and its content is decoded automatically.
+If, however, the transmission carries two services, both service
+names are shown and - by default -  the first one is selected.
 \par
 Clicking with the mouse on any of the two services will select that service,
 and to avoid ambiguity, the widget indicates which service is the selected one.
 
 \includegraphics[width=100mm]{drm-two-services.png}
 
-In some cases the transmission carries some additional text, this text is
-displayed at the bottom of the widget.
-\section{Limitations of the implementation}
-The DRM plugin has some limitations, when compared to the standard:
+\section {Notes on the implementation}
+The implementation of this plugin is almost a twin sister of the
+{\em drm-receiver} implementation for Linux, this twin
+implementation is a rewrite of my DRM backend for the sw software,
+the latter is slightly more extended since it supports - although untested -
+data transmissions.
+\par
+This DRM plugin has some limitations, when compared to the standard:
 \begin{itemize}
 \item the plugin does not provide support for data transmissions, other than
 texts appearing as program associated data;
