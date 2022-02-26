@@ -307,7 +307,13 @@ void	SDRunoPlugin_drmForm::Setup () {
 
 	selectedService.transparent(true);
 	selectedService.fgcolor(nana::colors::white);
-	
+
+	char *myString = "\xa9 2022";
+	copyRightLabel. transparent (true);
+	copyRightLabel. fgcolor   (nana::colors::white);
+	copyRightLabel. caption (myString);
+	copyRightLabel. tooltip ("This plugin is created by Jan van Katwijk,\n\
+	                          all rights reserved");
 
 	intOffsetDisplay. tooltip ("estimate of integer frequency offset");
 	intOffsetDisplay. transparent (true);

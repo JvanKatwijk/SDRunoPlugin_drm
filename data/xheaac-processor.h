@@ -29,7 +29,9 @@
 #include	<vector>
 #include	<complex>
 #include	"aacdecoder_lib.h"
-#include	"up-filter.h"
+//#include	"up-filter.h"
+#include	".\message-processor.h"
+#include	".\up-converter.h"
 #include	"..\support\checkcrc.h"
 #include	"..\basics.h"
 #include	"..\ringbuffer.h"
@@ -53,10 +55,16 @@ private:
 	SDRunoPlugin_drmUi	*m_form;
 	RingBuffer<std::complex<float>> *audioOut;
 	checkCRC	theCRC;
-	upFilter	upFilter_24000;
-        upFilter	upFilter_12000;
+	messageProcessor	my_messageProcessor;
+	upConverter	*theConverter;
+//	upFilter	upFilter_24000;
+//	upFilter	upFilter_12000;
 	void		resetBuffers	();
-	void		processFrame	(int);
+//oid		processFrame	(int);
+	
+	std::vector<uint8_t>  frameBuffer;
+	std::vector<uint32_t> borders;
+
 	int		currentRate;
 	std::vector<uint8_t>
         		getAudioInformation (stateDescriptor *drm,
@@ -64,7 +72,7 @@ private:
 	int		numFrames;
 	void		writeOut	(int16_t *, int16_t, int32_t);
 	void		toOutput	(std::complex<float> *, int16_t);
-	void		playOut		(std::vector<uint8_t>);
+	void		playOut(std::vector < uint8_t>&, int, int);
 	aacHandler	*aacFunctions;
 
 //	added to support inclusion of the last phase

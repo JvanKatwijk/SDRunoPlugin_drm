@@ -27,14 +27,16 @@
 #include	<stdio.h>
 #include	<stdint.h>
 #include	<cstring>
-#include	"up-filter.h"
+#include	<vector>
+//#include	"up-filter.h"
 #include	"aacdecoder_lib.h"
+#include	"message-processor.h"
 #include        "..\ringbuffer.h"
 #include	"..\aac-handler.h"
 
 class   stateDescriptor;
 class   SDRunoPlugin_drmUi;
-
+class	upConverter;
 
 typedef	struct frame {
 	int16_t length, startPos;
@@ -56,8 +58,11 @@ private:
 	stateDescriptor *theState;
 	SDRunoPlugin_drmUi  *m_form;
 	RingBuffer<std::complex<float>> *audioOut;
-	upFilter	upFilter_24000;
-	upFilter	upFilter_12000;
+	messageProcessor	my_messageProcessor;
+	upConverter	*theConverter;
+	int		currentRate;
+//	upFilter	upFilter_24000;
+//	upFilter	upFilter_12000;
 	int16_t         numFrames;
 	int16_t         selectedAudioService;
 	aacHandler	*aacFunctions;

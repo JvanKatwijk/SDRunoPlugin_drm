@@ -108,6 +108,7 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	         inputBuffer.putDataIntoBuffer (&sample, 1);
 	   }
 	}
+
 //	for the audio out, length in complexes, but buffer is in floats
 //	so its actual size is 2 * length
 //	Note further that the design was for 48 k output samples and 

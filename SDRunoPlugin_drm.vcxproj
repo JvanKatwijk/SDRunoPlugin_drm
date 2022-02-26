@@ -159,6 +159,7 @@
     <ClCompile Include = "data\xheaac-processor.cpp" />
     <ClCompile Include = "data\message-processor.cpp" />
     <ClCompile Include = "data\up-filter.cpp" />
+    <ClCompile Include = "data\up-converter.cpp" />
    
 
   </ItemGroup>
@@ -220,6 +221,7 @@
     <ClInclude Include="data\xheaac-processor.h" />
     <ClInclude Include="data\message-processor.h" />
     <ClInclude Include="data\up-filter.h" />
+    <ClInclude Include="data\up-converter.h" />
     <ClInclude Include="aacdecoder_lib.h" />
     <ClInclude Include="FDK_audio_lib.h" />
     <ClInclude Include="machine_type.h" />

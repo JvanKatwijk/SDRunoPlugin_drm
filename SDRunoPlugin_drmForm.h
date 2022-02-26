@@ -108,6 +108,8 @@ private:
 	                          {*this, nana::rectangle (100, 30, 60, 20)};
 	nana::label	timeLabel
 	                          {*this, nana::rectangle (170, 30, 60, 20)};
+	nana::label	copyRightLabel
+	                          {*this, nana::rectangle (250, 30, 40, 20)};
 	nana::label	label_1
 	                          {*this, nana::rectangle (350, 30, 60, 20)};
 	nana::label	timeSyncLabel
@@ -148,9 +150,9 @@ private:
 	nana::label	datacoding
 	                          {*this, nana::rectangle (130, 170, 40, 20)};
 	nana::label	audioModeLabel
-	                          {*this, nana::rectangle (180, 170, 40, 20)};
+	                          {*this, nana::rectangle (180, 170, 70, 20)};
 	nana::label	aacDataLabel
-	                          {*this, nana::rectangle (230, 170, 60, 20) };
+	                          {*this, nana::rectangle (260, 170, 60, 20) };
 
 // row 6
 	nana::label	messageLabel
