@@ -147,8 +147,9 @@ uint32_t elementsUsed		= 0;
 	   }
 	   borders [i] = frameBorderIndex;
 	}
-
-	uint32_t directoryOffset = length - 2 * frameBorderCount;
+//
+//	We do not look at the USAC crc at the end of the USAC frame
+	uint32_t directoryOffset = length - 2 * frameBorderCount - 2;
 //	The first frameBorderIndex might point to the last one or
 //	two bytes of the previous afs.
 	switch (borders [0]) {
