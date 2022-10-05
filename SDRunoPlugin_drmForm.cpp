@@ -362,6 +362,18 @@ void	SDRunoPlugin_drmForm::Setup () {
 	messageLabel. tooltip ("message label");
 	messageLabel. transparent (true);
 	messageLabel. fgcolor (nana::colors::white);
+
+	qualityIndicator. tooltip ("quality indicator, signals how well the pilots are recovered by the equalization");
+	qualityIndicator. transparent (true);
+	qualityIndicator. fgcolor (nana::colors::white);
+
+//	eqLevel. range (0, 6, 1);
+//	eqLevel. value (std::to_string (0));
+//	eqLevel. events (). text_changed ([&](const nana::arg_spinbox &s) {
+//	                                    set_eqLevel (eqLevel. to_int ());});
+//	eqLevel. fgcolor(nana::colors::white);
+//	eqLevel. bgcolor(nana::colors::black);
+//	eqLevel. tooltip ("do not touch");
 }
 
 void	SDRunoPlugin_drmForm::SettingsButton_Click () {
@@ -403,11 +415,15 @@ void	SDRunoPlugin_drmForm::set_channel_2 (const std::string s) {
 }
  
 void	SDRunoPlugin_drmForm::activate_channel_2 () {
-		m_parent. activate_channel_2 ();
+	m_parent. activate_channel_2 ();
 }
 
 void	SDRunoPlugin_drmForm::set_channel_4 (const std::string s) {
 //	channel_4. caption (s);
+}
+
+void	SDRunoPlugin_drmForm::set_eqLevel	(int l) {
+//	m_parent. set_eqLevel (l);
 }
 
 void	SDRunoPlugin_drmForm::set_timeSyncLabel (bool b) {
@@ -508,5 +524,9 @@ void	SDRunoPlugin_drmForm::showService (const std::string& s) {
 	   selectedService. caption ("Selected: " + s);
 	else
 	   selectedService. caption ("");
+}
+
+void	SDRunoPlugin_drmForm::show_quality	(float v) {
+	qualityIndicator. caption (std::to_string (v));
 }
 

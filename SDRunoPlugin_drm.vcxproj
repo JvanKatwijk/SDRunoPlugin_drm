@@ -90,7 +90,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\include;..\nana\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\nana\include;.\eigen3</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -139,7 +139,7 @@
     <ClCompile Include="support\fft-complex.cpp" />
     <ClCompile Include="equalizer\equalizer-base.cpp" />
     <ClCompile Include="equalizer\equalizer-1.cpp" />
-    <ClCompile Include="equalizer\estimator-1.cpp" />
+    <ClCompile Include="equalizer\estimator-eigen-2.cpp" />
     <ClCompile Include="equalizer\referenceframe.cpp" />
     <ClCompile Include="equalizer\matrix2.cpp" />
     <ClCompile Include="fac\fac-processor.cpp" />
@@ -199,7 +199,7 @@
     <ClInclude Include="support\fft-complex.h" />
     <ClInclude Include="equalizer\equalizer-base.h" />
     <ClInclude Include="equalizer\equalizer-1.h" />
-    <ClInclude Include="equalizer\estimator-1.h" />
+    <ClInclude Include="equalizer\estimator-eigen-2.h" />
     <ClInclude Include="equalizer\referenceframe.h" />
     <ClInclude Include="equalizer\matrix2.h" />
     <ClInclude Include="fac\fac-processor.h" />

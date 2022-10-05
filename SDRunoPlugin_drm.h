@@ -60,6 +60,8 @@ public:
                                        int length, bool& modified) override;
 	void	activate_channel_1	();
 	void	activate_channel_2	();
+
+	void	set_eqLevel		(int);
 private:
 	std::mutex		m_lock;
 	SDRunoPlugin_drmUi      m_form;
@@ -80,9 +82,6 @@ private:
 	uint8_t			getSpectrum	(stateDescriptor *);
 	void			getMode		(Reader *my_Reader,
 	                                                 smodeInfo *m);
-
-
-        
 //
 //
         std::atomic<bool>       running;
@@ -98,6 +97,7 @@ private:
         int32_t         sampleRate;
         int8_t          windowDepth;
         smodeInfo       modeInf;
+	int		eqLevel;
 	stateDescriptor	theState;
 	void		frequencySync		(Reader	*my_Reader,
 	                                         smodeInfo *m);

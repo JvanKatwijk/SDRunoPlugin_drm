@@ -163,7 +163,6 @@ void	SDRunoPlugin_drmUi::set_programTypeLabel (const std::string s) {
 	   m_form -> set_programTypeLabel (s);
 }
 
-
 void	SDRunoPlugin_drmUi::set_sdcSyncLabel (bool b) {
 	std::lock_guard<std::mutex> l (m_lock);
 	if (m_form != nullptr)
@@ -236,6 +235,12 @@ void	SDRunoPlugin_drmUi::show_msc_mer	(float v) {
            m_form -> show_msc_mer (v);
 }
 
+void	SDRunoPlugin_drmUi::show_quality	(float v) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form != nullptr)
+           m_form -> show_quality (v);
+}
+
 void	SDRunoPlugin_drmUi::hide_channel_1	() {
 	std::lock_guard<std::mutex> l (m_lock);
 	if (m_form !=  nullptr)
@@ -261,5 +266,9 @@ void	SDRunoPlugin_drmUi::activate_channel_1	() {
 
 void	SDRunoPlugin_drmUi::activate_channel_2	() {
 	m_parent. activate_channel_2 ();
+}
+
+void	SDRunoPlugin_drmUi::set_eqLevel	(int l) {
+	m_parent. set_eqLevel (l);
 }
 

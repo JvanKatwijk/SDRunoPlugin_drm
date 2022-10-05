@@ -57,12 +57,14 @@ public:
 	void	show_sdc_mer		(float);
 	void	show_msc_mer		(float);
 
+	void	show_quality		(float);
 	void	hide_channel_1		();
 	void	hide_channel_2		();
 	void	activate_channel_1	();
 	void	activate_channel_2	();
+	void	set_eqLevel		(int);
+
 private:
-	
 	SDRunoPlugin_drm & m_parent;
 	std::thread m_thread;
 	std::shared_ptr<SDRunoPlugin_drmForm> m_form;

@@ -7,6 +7,7 @@
 #include	<nana/gui/widgets/slider.hpp>
 #include	<nana/gui/widgets/label.hpp>
 #include	<nana/gui/widgets/combox.hpp>
+#include	<nana/gui/widgets/spinbox.hpp>
 #include	<nana/gui/timer.hpp>
 #include	<nana/gui/widgets/picture.hpp>
 #include	<nana/gui/filebox.hpp>
@@ -69,10 +70,12 @@ public:
 	void	show_sdc_mer		(float);
 	void	show_msc_mer		(float);
 
+	void	show_quality		(float);
 	void	hide_channel_1		();
 	void	hide_channel_2		();
 	void	activate_channel_1	();
 	void	activate_channel_2	();
+	void	set_eqLevel		(int);
 	void	showService(const std::string&);
 private:
 
@@ -150,9 +153,13 @@ private:
 	nana::label	datacoding
 	                          {*this, nana::rectangle (130, 170, 40, 20)};
 	nana::label	audioModeLabel
-	                          {*this, nana::rectangle (180, 170, 70, 20)};
+	                          {*this, nana::rectangle (180, 170, 60, 20)};
 	nana::label	aacDataLabel
-	                          {*this, nana::rectangle (260, 170, 60, 20) };
+	                          {*this, nana::rectangle (250, 170, 50, 20) };
+	nana::label	qualityIndicator
+	                          {*this, nana::rectangle (310, 170, 60, 20) };
+//	nana::spinbox	eqLevel
+//	                          {*this, nana::rectangle (380, 170, 50, 20) };
 
 // row 6
 	nana::label	messageLabel

@@ -53,7 +53,7 @@
 #include	"referenceframe.h"
 #include	"..\basics.h"
 #include	"equalizer-1.h"
-#include	"estimator-1.h"
+#include	"estimator-eigen-2.h"
 #include	"matrix2.h"
 
 #define	realSym(x)	((x + symbolsinFrame)% symbolsinFrame)
@@ -70,7 +70,9 @@ DRM_FLOAT	*THETA;
 
 //	Based on table 92 ETSI ES 201980
 
+strength = 2;
 //	Just for experimentation, we added some alternatives
+//int16_t		symbols_per_window_list_0 []	= {4, 2, 2, 4};
 int16_t		symbols_per_window_list_0 []	= {6, 4, 4, 6};
 int16_t		symbols_per_window_list_1 []	= {10, 6, 8, 6};
 int16_t		symbols_per_window_list_2 []	= {12, 8, 8, 6};
