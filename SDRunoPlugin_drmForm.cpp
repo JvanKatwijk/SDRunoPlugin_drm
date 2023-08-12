@@ -13,6 +13,11 @@
 #include <shlobj.h>
 #include "basics.h"
 
+float	displayVector [256 * 256];
+
+#define S_WHITE	512
+#define	S_BLACK 0
+
 // Form constructor with handles to parent and uno controller - launches form Setup
 	SDRunoPlugin_drmForm::
 	             SDRunoPlugin_drmForm (SDRunoPlugin_drmUi& parent,
@@ -367,6 +372,27 @@ void	SDRunoPlugin_drmForm::Setup () {
 	qualityIndicator. transparent (true);
 	qualityIndicator. fgcolor (nana::colors::white);
 
+	constellationSelector. push_back ("FAC");
+        constellationSelector. push_back ("SDC");
+        constellationSelector. push_back ("MSC");
+        constellationSelector. option (2);
+        constellationSelector. events (). selected ([&] (const nana::arg_combox &ar_cbx)
+                {setConstellation (ar_cbx. widget. caption ());});
+
+//	we draw the picture on an label with a size of 246 X 256
+        theDisplay = new drawing (displayLabel);
+        theDisplay -> draw ([&](paint::graphics& graph) {
+                for (int i = 0; i < 256; i ++) {
+                   for (int j = 0; j < 256; j ++) {
+	              float res		= displayVector [i * 256 + j];
+	              graph. set_pixel (j, i, res >= 128 ?
+                                             nana::colors::white :
+	                                     nana::color ("#122C39"));
+
+                  }
+                }
+               });
+
 //	eqLevel. range (0, 6, 1);
 //	eqLevel. value (std::to_string (0));
 //	eqLevel. events (). text_changed ([&](const nana::arg_spinbox &s) {
@@ -528,5 +554,66 @@ void	SDRunoPlugin_drmForm::showService (const std::string& s) {
 
 void	SDRunoPlugin_drmForm::show_quality	(float v) {
 	qualityIndicator. caption (std::to_string (v));
+}
+
+void	SDRunoPlugin_drmForm::setConstellation	(const std::string &s) {
+int ind	=  (s == "FAC") ? 0 : (s == "SDC") ? 1 : 2;
+	m_parent. setConstellation  (ind);
+}
+
+std::vector<std::complex<int>> pixelCoords;
+std::complex<float> constellationVector [256];
+int	constellationIndex	= 0;
+
+void	SDRunoPlugin_drmForm::initDisplay	() {
+	for (int i = 0; i < 256; i ++)
+	   for (int j = 0; j < 256; j ++)
+	      displayVector [i * 256 + j] = S_BLACK;
+}
+
+void	SDRunoPlugin_drmForm::addPixel	(std::complex<float> pix) {
+	constellationVector [constellationIndex] = pix;
+	constellationIndex ++;
+	if (constellationIndex >= 256) {
+	   constellationIndex = 0;
+	   drawConstellation ();
+	}
+}
+
+int scale(float x) {
+	int xx = (x * 64 + 128);
+	if (xx < 0)
+	   return 0;
+	if (xx >= 256)
+	   return 255;
+	return xx;
+}
+
+void	SDRunoPlugin_drmForm::drawConstellation	() {
+	for (int i = 0; i < pixelCoords. size (); i ++) {
+	   int x = std::real (pixelCoords [i]);
+	   int y = std::imag (pixelCoords [i]);
+	   displayVector [x * 256 + y] = S_BLACK;
+	}
+//	for (int i = 0; i < 256; i++)
+//		for (int j = 0; j < 256; j++)
+//			displayVector[i * 256 + j] = S_BLACK;
+	pixelCoords. resize (0);
+	for (int i = 0; i < 256; i ++) {
+	   int x = scale (std::real (constellationVector [i]));
+	   int y = scale (std::imag (constellationVector [i]));
+	   for (int j = -1; j <= 1; j ++) {
+	      for (int k = -1; k <= 1; k ++) {
+	         int x_loc = x + j;
+	         int y_loc = y + k;
+	         if ((0 <= x_loc) && (x_loc < 256) &&
+	            ((0 <= y_loc) && (y_loc < 256))) {
+	            displayVector [x_loc * 256 + y_loc]  = S_WHITE;
+	            pixelCoords. push_back (std::complex<int> (x_loc, y_loc));
+	         }
+	      }
+	   }
+	}
+	theDisplay -> update ();
 }
 

@@ -108,7 +108,7 @@ int16_t	index;
 	}
 }
 
-	sdcProcessor::~sdcProcessor (void) {
+	sdcProcessor::~sdcProcessor () {
 	delete	thePRBS;
 	delete	stream_0;
 	if (qammode == QAM16) {
@@ -133,6 +133,8 @@ int i, symbol, carrier;
               sdcVector [i] =
 //	         outbank -> element (symbol)[carrier - Kmin (Mode, Spectrum)];
 	         outbank -> elementValue (symbol, carrier - Kmin (Mode, Spectrum));
+	      if (m_form -> constellationMode == 1)
+	         m_form -> addPixel (sdcVector [i]. signalValue);
 	   }
         } catch (int e) {
 	   m_form -> set_messageLabel ("error for " + std::to_string (i) +

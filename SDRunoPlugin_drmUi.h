@@ -27,7 +27,7 @@ public:
 	void	ShowUi	        ();
 	int	LoadX           ();
 	int	LoadY		();
-
+	void	setConstellation(int);
 	void	set_timeDelayDisplay (float f);
 	void	set_intOffsetDisplay (int offset);
 	void	set_countryLabel (const std::string s);
@@ -63,7 +63,8 @@ public:
 	void	activate_channel_1	();
 	void	activate_channel_2	();
 	void	set_eqLevel		(int);
-
+	void	addPixel		(std::complex<float>);
+	int		constellationMode;
 private:
 	SDRunoPlugin_drm & m_parent;
 	std::thread m_thread;

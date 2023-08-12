@@ -55,7 +55,7 @@ const uint16_t crcPolynome [] = {
 	this	-> facTable	= getFacTableforMode (Mode);
 }
 
-	facProcessor::~facProcessor (void) {
+	facProcessor::~facProcessor () {
 }
 //
 //	The puncture table is the 3/5 table from the standard
@@ -90,6 +90,8 @@ mer4_compute computeMER;
 	   int16_t index	= facTable [i]. carrier -
 	                               Kmin (Mode, Spectrum);
 	   facVector [i]	= outbank -> element (symbol)[index];
+	   if (m_form -> constellationMode == 0)
+	      m_form	-> addPixel (facVector [i]. signalValue);
 	}
 	DRM_FLOAT mer	= computeMER. computemer (facVector, FAC_SAMPLES);
 	m_form -> show_fac_mer (mer);

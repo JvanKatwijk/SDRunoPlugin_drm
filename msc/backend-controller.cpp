@@ -73,6 +73,8 @@ void	backendController::addtoMux	(int16_t blockno,
 	if (theWorker == nullptr)	// should not/cannot happen
 	   return;
 	theWorker	-> addtoMux (blockno, cnt, v);
+	if (m_form -> constellationMode == 2)
+	   m_form -> addPixel (v. signalValue);
 }
 
 void	backendController::endofFrame		() {

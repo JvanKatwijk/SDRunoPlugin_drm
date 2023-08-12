@@ -28,23 +28,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -146,22 +146,20 @@
     <ClCompile Include="fac\fac-tables.cpp" />
     <ClCompile Include="sdc\sdc-processor.cpp" />
     <ClCompile Include="sdc\sdc-streamer.cpp" />
-    <ClCompile Include = "msc\backend-controller.cpp" />
-    <ClCompile Include = "msc\msc-processor.cpp" />
-    <ClCompile Include = "msc\msc-streamer.cpp" />
-    <ClCompile Include = "msc\msc-handler.cpp" />
-    <ClCompile Include = "msc\msc-handler-qam16.cpp" />
-    <ClCompile Include = "msc\msc-handler-qam64.cpp" />
-    <C1Compile Include = "data\data-processor.cpp"/>
-    <ClCompile Include = "data\lowpassfir.cpp" />
-    <ClCompile Include = "data\data-processor.cpp" />
-    <ClCompile Include = "data\aac-processor-fdk.cpp" />
-    <ClCompile Include = "data\xheaac-processor.cpp" />
-    <ClCompile Include = "data\message-processor.cpp" />
-    <ClCompile Include = "data\up-filter.cpp" />
-    <ClCompile Include = "data\up-converter.cpp" />
-   
-
+    <ClCompile Include="msc\backend-controller.cpp" />
+    <ClCompile Include="msc\msc-processor.cpp" />
+    <ClCompile Include="msc\msc-streamer.cpp" />
+    <ClCompile Include="msc\msc-handler.cpp" />
+    <ClCompile Include="msc\msc-handler-qam16.cpp" />
+    <ClCompile Include="msc\msc-handler-qam64.cpp" />
+    <C1Compile Include="data\data-processor.cpp" />
+    <ClCompile Include="data\lowpassfir.cpp" />
+    <ClCompile Include="data\data-processor.cpp" />
+    <ClCompile Include="data\aac-processor-fdk.cpp" />
+    <ClCompile Include="data\xheaac-processor.cpp" />
+    <ClCompile Include="data\message-processor.cpp" />
+    <ClCompile Include="data\up-filter.cpp" />
+    <ClCompile Include="data\up-converter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

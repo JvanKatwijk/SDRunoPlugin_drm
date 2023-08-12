@@ -3,7 +3,6 @@
 #include	<nana/gui.hpp>
 #include	<nana/gui/widgets/button.hpp>
 #include	<nana/gui/widgets/listbox.hpp>
-#include	<nana/gui/widgets/combox.hpp>
 #include	<nana/gui/widgets/slider.hpp>
 #include	<nana/gui/widgets/label.hpp>
 #include	<nana/gui/widgets/combox.hpp>
@@ -20,14 +19,16 @@
 #include	<iunoplugincontroller.h>
 #include	<complex>
 
+using namespace nana;
+
 // Shouldn't need to change these
 #define topBarHeight (27)
 #define bottomBarHeight (8)
 #define sideBorderWidth (8)
 
 // TODO: Change these numbers to the height and width of your form
-#define formWidth (460)
-#define formHeight (230)
+#define formWidth (710)
+#define formHeight (300)
 #define	nrColumns (formWidth - 60)
 #define	nrRows (200)
 
@@ -39,8 +40,13 @@ public:
 	SDRunoPlugin_drmForm (SDRunoPlugin_drmUi& parent,
 	                      IUnoPluginController& controller);		
 	~SDRunoPlugin_drmForm();
-	void	Run();
-	
+	void	Run	();
+
+	void	initDisplay	();
+	void	addPixel	(std::complex<float> pix);
+	void	drawConstellation ();
+	void	setConstellation	(const std::string &);
+
 	void	set_timeDelayDisplay (float f);
 	void	set_intOffsetDisplay (int offset);
 	void	set_countryLabel (const std::string s);
@@ -70,6 +76,7 @@ public:
 	void	show_sdc_mer		(float);
 	void	show_msc_mer		(float);
 
+	void	set_Mode		(const std::string &);
 	void	show_quality		(float);
 	void	hide_channel_1		();
 	void	hide_channel_2		();
@@ -164,6 +171,14 @@ private:
 // row 6
 	nana::label	messageLabel
 	                          {*this, nana::rectangle (30, 200, 400, 20)};
+	nana::combox	constellationSelector 
+	                          {*this, nana::rectangle (30, 240, 80, 20)};
+//
+//
+
+	nana::label	displayLabel
+	                          {*this, nana::rectangle (445, 30, 256, 256)};
+	drawing		*theDisplay;
 //
 	SDRunoPlugin_drmUi & m_parent;
 	IUnoPluginController & m_controller;
