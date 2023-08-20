@@ -595,10 +595,9 @@ void	SDRunoPlugin_drmForm::drawConstellation	() {
 	   int y = std::imag (pixelCoords [i]);
 	   displayVector [x * 256 + y] = S_BLACK;
 	}
-//	for (int i = 0; i < 256; i++)
-//		for (int j = 0; j < 256; j++)
-//			displayVector[i * 256 + j] = S_BLACK;
 	pixelCoords. resize (0);
+//
+//	All pixels from the previous incarnation are cleared now
 	for (int i = 0; i < 256; i ++) {
 	   int x = scale (std::real (constellationVector [i]));
 	   int y = scale (std::imag (constellationVector [i]));
