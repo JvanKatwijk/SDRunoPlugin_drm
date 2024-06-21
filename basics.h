@@ -31,6 +31,7 @@
 #include	<math.h>
 
 
+typedef std::complex<float> COMPLEX;
 typedef	float DRM_FLOAT;
 
 static inline

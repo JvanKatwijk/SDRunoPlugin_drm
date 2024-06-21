@@ -232,7 +232,7 @@ int16_t		symbols_per_window_list_5 []	= {15, 15, 15, 6};
 	   Estimators [i] = new estimator_1 (refFrame, Mode, Spectrum, i);
 }
 
-		equalizer_1::~equalizer_1 (void) {
+		equalizer_1::~equalizer_1 () {
 int16_t	i;
 	for (i = 0; i < symbolsinFrame; i ++)
 	   delete Estimators [i];

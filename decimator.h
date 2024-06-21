@@ -33,7 +33,7 @@ class	decimator {
 public:
 	                 decimator	(int16_t, int32_t, int32_t,
 	                                                   int32_t, int16_t);
-			~decimator	(void);
+			~decimator	();
 	bool		Pass	(std::complex<float>, std::complex<float> *);
 private:
 	int16_t		decimationFactor;

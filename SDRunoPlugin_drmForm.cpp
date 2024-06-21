@@ -576,7 +576,12 @@ void	SDRunoPlugin_drmForm::addPixel	(std::complex<float> pix) {
 	constellationIndex ++;
 	if (constellationIndex >= 256) {
 	   constellationIndex = 0;
-	   drawConstellation ();
+	   static int teller = 0;
+	   teller++;
+	   if (teller > 10) {
+		   drawConstellation();
+		   teller = 0;
+	   }
 	}
 }
 

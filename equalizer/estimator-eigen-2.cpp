@@ -28,6 +28,7 @@
 #include	"matrix2.h"
 #include	<Eigen/QR>
 #include	<complex>
+
 static	inline
 int16_t	Minimum (int16_t a, int16_t b) {
 	return a < b ? a : b;
@@ -103,7 +104,7 @@ int16_t	pilotIndex, tap;
 }
 
 	estimator_1::~estimator_1 () {
-	delete[]	pilotTable;
+	delete []	pilotTable;
 }
 
 //

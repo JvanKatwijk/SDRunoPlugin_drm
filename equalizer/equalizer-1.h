@@ -41,7 +41,7 @@ public:
 			equalizer_1 	(uint8_t	Mode,
 	                                 uint8_t	Spectrum,
 	                                 int8_t		strength);
-			~equalizer_1 	(void);
+			~equalizer_1 	();
 	bool		equalize	(std::complex<DRM_FLOAT> *,
 	                                 int16_t,
 	                                 myArray<theSignal>*,
@@ -62,8 +62,8 @@ private:
 	int16_t		periodforPilots;
 	int16_t		periodforSymbols;
 	double		**W_symbol_blk [10];
-	DRM_FLOAT		f_cut_t;
-	DRM_FLOAT		f_cut_k;
+	DRM_FLOAT	f_cut_t;
+	DRM_FLOAT	f_cut_k;
 	std::vector<std::vector<trainer>> theTrainers;
 	std::vector<std::vector<std::complex<DRM_FLOAT>>> pilotEstimates;
 	int16_t		trainers_per_window [10];

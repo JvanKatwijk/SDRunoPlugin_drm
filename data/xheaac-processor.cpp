@@ -117,7 +117,7 @@ uint32_t elementsUsed		= 0;
 	(void)bitReservoirLevel;
 	(void)crc;
 	(void)numChannels;
-	if (!theCRC. doCRC (v, 16)) {
+	if (!theCRC. doCRC (v, 16) || (frameBorderCount == 0)) {
 	   m_form -> set_faadSyncLabel (false);
 	   return;
 	}

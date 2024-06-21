@@ -34,7 +34,7 @@ class	estimator_1 {
 public:
 		estimator_1	(std::complex<DRM_FLOAT> **,
 	                              uint8_t, uint8_t, int16_t);
-		~estimator_1	(void);
+		~estimator_1	();
 	void	estimate	(std::complex<DRM_FLOAT> *,
 	                                   std::complex<DRM_FLOAT> *);
 private:

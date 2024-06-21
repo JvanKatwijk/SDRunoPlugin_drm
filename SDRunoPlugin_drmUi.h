@@ -27,9 +27,9 @@ public:
 	void	ShowUi	        ();
 	int	LoadX           ();
 	int	LoadY		();
-	void	setConstellation(int);
-	void	set_timeDelayDisplay (float f);
-	void	set_intOffsetDisplay (int offset);
+	void	setConstellation	(int);
+	void	set_timeDelayDisplay	(float f);
+	void	set_intOffsetDisplay	(int offset);
 	void	set_countryLabel (const std::string s);
 	void	set_channel_1 (const std::string s);
 	void	set_timeSyncLabel (bool b);

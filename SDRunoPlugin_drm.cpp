@@ -116,6 +116,7 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 //	IQ requires 192, so we upsample a factor of 4
 	int amount;
 	amount = drmAudioBuffer. GetRingBufferReadAvailable ();
+//	m_form. set_intOffsetDisplay (amount);
 	if (amount >= length / 4) 
 	   amount = length / 4;
 	std::complex<float>*lbuf =
@@ -124,7 +125,7 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	drmAudioBuffer. getDataFromBuffer (lbuf, length / 4);
 	int bufferP = 0;
 	for (int i = 0; i < amount; i ++) {
-	   std::complex<float> s = audioFilter. Pass (lbuf [i]);
+	   std::complex<float> s = audioFilter. Pass (lbuf [i] * 8.0f);
 	   buffer [bufferP ++] = 4 * real (s);
 	   buffer [bufferP ++] = 4 * imag (s);
 	   for (int j = 0; j < 3; j ++) {
@@ -134,7 +135,7 @@ void	SDRunoPlugin_drm::AudioProcessorProcess (channel_t channel,
 	   }
 	}
 //	If what we have available is less than the buffersize,
-//	fil it with 0
+//	fill it with 0
 	for (int i = bufferP / 2; i < length; i ++) {
 	   std::complex<float> s =
 	                audioFilter. Pass (std::complex<float> (0, 0));
@@ -385,7 +386,7 @@ DRM_FLOAT     sampleclockOffset       = 0;
 //
 //	when here, add the current frame to the superframe.
 //	Obviously, we cannot garantee that all data is in order
-	         if (superframer) {
+	         if (superframer && theState. numofStreams > 0) {
 //	            addtoSuperFrame (&modeInf, blockCount ++, &outbank);
 	            static int teller = 0;
 	            int blockno = blockCount;
