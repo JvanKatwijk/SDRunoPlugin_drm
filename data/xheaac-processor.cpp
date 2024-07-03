@@ -319,7 +319,7 @@ void	xheaacProcessor::init	() {
 }
 
 static
-int16_t	localBuffer [8 * 32768];
+int16_t	localBuffer [16 * 32768];
 
 void	xheaacProcessor::decodeFrame (uint8_t	*audioFrame,
 	                              uint32_t	frameSize,
@@ -344,7 +344,7 @@ int	flags	= 0;
 	errorStatus =
 	     aacFunctions -> aacDecoder_DecodeFrame (handle,
 	                                             localBuffer,
-	                                             2048, flags);
+	                                             2 * 2048, flags);
 #if 0
 	fprintf (stderr, "fdk-aac errorstatus %x\n",
 	                       errorStatus);

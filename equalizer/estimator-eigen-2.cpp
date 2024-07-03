@@ -29,6 +29,10 @@
 #include	<Eigen/QR>
 #include	<complex>
 
+
+#define	F1	0.0001
+#define	F2	0.0001
+
 static	inline
 int16_t	Minimum (int16_t a, int16_t b) {
 	return a < b ? a : b;
@@ -67,21 +71,34 @@ int16_t	pilotIndex, tap;
 	                                          numberofPilots);
 	A_p			= MatrixXd (numberofPilots, numberofTaps);
 	A_p_inv			= MatrixXd (numberofTaps, numberofPilots);
+	CoV			= MatrixXd (numberofPilots, numberofPilots);
 //
-	pilotTable		= new int16_t [numberofPilots];
+	pilotTable. resize (numberofPilots);
 
 //	S_p is a diagonal matrix with the pilot values as they should be
 	for (int row = 0; row < numberofPilots; row ++)
 	   for (int col = 0; col < numberofPilots; col ++)
               S_p (row, col) = std::complex<float> (0, 0);
 
-	for (carrier = K_min; carrier <= K_max; carrier ++)
+	for (carrier = K_min; carrier <= K_max; carrier ++) {
 	   if (isPilotCell (Mode, refSymbol, carrier)) {
 	      pilotTable [next] = carrier;
 	      S_p (next, next) =
 	               getPilotValue (Mode, Spectrum, refSymbol, carrier);
 	      next ++;
 	   }
+	}
+
+	for (int p1 = 0; p1 < numberofPilots; p1 ++)
+	   for (int p2 = 0; p2 < numberofPilots; p2 ++) {
+	      int pp1 = pilotTable [p1];
+	      int pp2 = pilotTable [p2];
+	      CoV (p1, p2) =
+	              sinc ((pp1 - pp2) * F1) * (sinc (pp1 - pp2) * F2);
+	      if (p1 == p2)
+	         CoV (p1, p2) += 1;
+	   }
+	CoV = CoV. inverse ();
 //
 //	F_p is initialized with the precomputed values and is
 //	matrix filled with the (pilot, tap) combinations, where for the
@@ -91,7 +108,7 @@ int16_t	pilotIndex, tap;
 	      F_p (pilotIndex, tap) = 
 	              cdiv (createExp (2 * M_PI *
 	                          (fftSize / 2 + pilotTable [pilotIndex]) *
-	                            tap / fftSize), sqrt (fftSize));
+	                            tap / (float)fftSize), sqrt (fftSize));
 
 //
 //	Note that A_p is not a square matrix, the number of taps
@@ -104,7 +121,6 @@ int16_t	pilotIndex, tap;
 }
 
 	estimator_1::~estimator_1 () {
-	delete []	pilotTable;
 }
 
 //

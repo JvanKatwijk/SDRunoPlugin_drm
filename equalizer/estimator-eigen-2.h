@@ -26,6 +26,7 @@
 
 #include	<Eigen/Dense>
 #include	"..\basics.h"
+#include	<vector>
 #
 using namespace	Eigen;
 
@@ -59,8 +60,9 @@ private:
 	MatrixXd	S_p;
 	MatrixXd	A_p;
 	MatrixXd	A_p_inv;
-	std::complex<float>	*pilotVector;
-	int16_t		*pilotTable;
+	MatrixXd	CoV;
+//	std::vector<std::complex<float>> pilotVector;
+	std::vector<int16_t>		pilotTable;
 };
 
 #endif
