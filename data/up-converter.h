@@ -36,6 +36,7 @@ private:
 	int32_t		inRate;
 	int32_t		outRate;
 	converter_base	*workerHandle;
+
 public:
 		upConverter (int32_t inRate, int32_t outRate, 
 	                      int32_t inSize);
@@ -46,6 +47,7 @@ bool	convert (std::complex<float> v,
 	                       std::complex<float> *out, int32_t *amount);
 
 int32_t	getOutputSize ();
+
 };
 
 
@@ -61,6 +63,7 @@ bool	convert		(std::complex<float> v,
 virtual
 int	getOutputSize	();
 protected:
+	lowpassFIR	LFfilter;
 	std::vector<std::complex<float>> buffer;
 	int inP;
 };

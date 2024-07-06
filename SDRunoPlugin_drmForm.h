@@ -82,7 +82,7 @@ public:
 	void	hide_channel_2		();
 	void	activate_channel_1	();
 	void	activate_channel_2	();
-	void	set_eqLevel		(int);
+	void	set_audioRate		(int);
 	void	showService(const std::string&);
 private:
 
@@ -165,8 +165,8 @@ private:
 	                          {*this, nana::rectangle (250, 170, 50, 20) };
 	nana::label	qualityIndicator
 	                          {*this, nana::rectangle (310, 170, 60, 20) };
-//	nana::spinbox	eqLevel
-//	                          {*this, nana::rectangle (380, 170, 50, 20) };
+	nana::label	audioRateLabel
+	                          {*this, nana::rectangle (380, 170, 50, 20) };
 
 // row 6
 	nana::label	messageLabel

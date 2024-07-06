@@ -372,6 +372,11 @@ void	SDRunoPlugin_drmForm::Setup () {
 	qualityIndicator. transparent (true);
 	qualityIndicator. fgcolor (nana::colors::white);
 
+	audioRateLabel.tooltip("sample rate of the decoder xHe-AAC stream");
+	audioRateLabel.transparent(true);
+	audioRateLabel.fgcolor(nana::colors::white);
+
+
 	constellationSelector. push_back ("FAC");
         constellationSelector. push_back ("SDC");
         constellationSelector. push_back ("MSC");
@@ -448,8 +453,8 @@ void	SDRunoPlugin_drmForm::set_channel_4 (const std::string s) {
 //	channel_4. caption (s);
 }
 
-void	SDRunoPlugin_drmForm::set_eqLevel	(int l) {
-//	m_parent. set_eqLevel (l);
+void	SDRunoPlugin_drmForm::set_audioRate	(int l) {
+	audioRateLabel. caption (std::to_string (l));
 }
 
 void	SDRunoPlugin_drmForm::set_timeSyncLabel (bool b) {

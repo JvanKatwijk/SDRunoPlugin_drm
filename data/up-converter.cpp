@@ -3,12 +3,12 @@
 
 
 	upConverter::upConverter (int32_t inRate, int32_t outRate,
-	                          int inSize) {
+	                          int inSize) {	                      
 	this	-> inRate	= inRate;
 	this	-> outRate	= outRate;
 	(void)inSize;
 
-	fprintf (stderr, "Going for a %d converter\n", inRate);
+//	fprintf (stderr, "Going for a %d converter\n", inRate);
 	switch (inRate) {
 	   case 9600:
 	      workerHandle	= new converter_9600 ();
@@ -62,7 +62,9 @@ int	upConverter::getOutputSize	() {
 	return workerHandle -> getOutputSize ();
 }
 
-	converter_base::converter_base	() {
+	converter_base::converter_base	():
+		              LFfilter(5, 16000, 48000) {
+                 
 }
 
 	converter_base::~converter_base	() {
@@ -206,7 +208,7 @@ bool	converter_19200::convert	(std::complex<float> v,
 	}
 
 	for (int i = 0; i < 500; i ++) 
-	   out [i] = buffer [4 * i];
+	   out [i] = LFfilter. Pass (buffer [4 * i]);
 	*amount = 500;
 	inP	= 0;
 	return true;
@@ -220,7 +222,7 @@ int	converter_19200::getOutputSize	() {
 //	24000 -> 48000, i.e. 1 in, 2 out
 //
 	converter_24000::converter_24000	():
-	                                theFilter (15, 12000, 48000) {
+		                       theFilter (11, 16000, 48000) {	
 	buffer. resize (4800);
 	inP = 0;
 }
@@ -230,8 +232,8 @@ int	converter_19200::getOutputSize	() {
 bool	converter_24000::convert	(std::complex<float> v,
 	                                 std::complex<float> *out,
 	                                 int *amount) {
-	buffer [inP ++] = theFilter. Pass (v);
-	buffer [inP ++] = theFilter. Pass (std::complex<float> (0, 0));
+	buffer [inP ++] = LFfilter. Pass (v);
+	buffer [inP ++] = LFfilter. Pass (std::complex<float> (0, 0));
 	if (inP < 4800) {
 	   *amount = 0;
 	   return false;
@@ -268,7 +270,7 @@ bool	converter_32000::convert	(std::complex<float> v,
 	   return false;
 	}
 	for (int i = 0; i < 600; i ++)
-	   out [i] = buffer [2 * i];
+	   out [i] = LFfilter. Pass (buffer [2 * i]);
 	inP		= 0;
 	*amount = 600;
 	return true;
@@ -279,35 +281,36 @@ int	converter_32000::getOutputSize	() {
 }
 
 //	conversion from 38400 -> 48000 is 
-//	384000 -> 192000 -> 48000, i.e. 4 in 5 out
+//	384000 -> 192000 -> 48000, i.e. 5 in 4 out
 //
+#define OUT_S 500
 	converter_38400::converter_38400	():
-	                                theFilter (15, 19200, 192000) {
-	buffer. resize (2000);
+	                                theFilter (15, 22000, 192000) {
+	buffer. resize (5 * OUT_S + 10);
 	inP	= 0;
 }
-	
+
 	converter_38400::~converter_38400 () {}
 
 bool	converter_38400::convert	(std::complex<float> v,
 	                                 std::complex<float> *out,
 	                                 int *amount) {
 	buffer [inP ++] = theFilter. Pass (v);
-	for (int i = 0; i < 5; i ++)
+	for (int i = 1; i < 5; i ++)
 	    buffer [inP ++] = theFilter. Pass (std::complex<float> (0, 0));
-	if (inP < 2000) {
+	if (inP < 5 * OUT_S) {
 	   *amount = 0;
 	   return false;
 	}
-	for (int i = 0; i < 500; i ++)
-	   out [i] = buffer [4 * i];
-	*amount = 500;
+	for (int i = 0; i < inP / 4; i ++)
+	   out [i] = LFfilter.Pass (buffer [4 * i]);
+	*amount = inP / 4;
 	inP	= 0;
 	return true;
 }
 
 int	converter_38400::getOutputSize	() {
-	return 500;
+	return OUT_S * 4;
 }
 
 	converter_48000::converter_48000 ():

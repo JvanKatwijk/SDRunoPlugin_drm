@@ -32,11 +32,11 @@ public:
 	void	set_intOffsetDisplay	(int offset);
 	void	set_countryLabel (const std::string s);
 	void	set_channel_1 (const std::string s);
+	void	set_channel_2 (const std::string s);
 	void	set_timeSyncLabel (bool b);
 	void	set_timeOffsetDisplay (float f);
 	void	set_smallOffsetDisplay (float f);
 	void	set_timeLabel (const std::string s);
-	void	set_channel_2 (const std::string s);
 	void	set_facSyncLabel (bool b);
 	void	set_clockOffsetDisplay (float f);
 	void	set_angleDisplay (float f);
@@ -62,7 +62,7 @@ public:
 	void	hide_channel_2		();
 	void	activate_channel_1	();
 	void	activate_channel_2	();
-	void	set_eqLevel		(int);
+	void	set_audioRate		(int);
 	void	addPixel		(std::complex<float>);
 	int		constellationMode;
 private:

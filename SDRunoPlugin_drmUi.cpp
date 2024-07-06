@@ -269,8 +269,11 @@ void	SDRunoPlugin_drmUi::activate_channel_2	() {
 	m_parent. activate_channel_2 ();
 }
 
-void	SDRunoPlugin_drmUi::set_eqLevel	(int l) {
-	m_parent. set_eqLevel (l);
+void	SDRunoPlugin_drmUi::set_audioRate	(int v) {
+	std::lock_guard<std::mutex> l (m_lock);
+        if (m_form !=  nullptr)
+           m_form       -> set_audioRate (v);
+
 }
 
 void	SDRunoPlugin_drmUi::setConstellation(int c) {

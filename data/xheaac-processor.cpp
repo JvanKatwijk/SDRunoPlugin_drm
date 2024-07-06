@@ -56,8 +56,6 @@ uint16_t	genpoly		= 0x1021;
 //	ok, now check with the crc that is contained
 //	in the au
 	crc	= ~((msg [len] << 8) | msg [len + 1]) & 0xFFFF;
-//	fprintf (stderr, "crc = %X, accu %X\n",
-//	           (msg [len] << 8) | msg [len + 1],  ~accumulator & 0xFFFF);
 	return (crc ^ accumulator) == 0;
 }
 
@@ -147,9 +145,22 @@ uint32_t elementsUsed		= 0;
 	   }
 	   borders [i] = frameBorderIndex;
 	}
+
+	for (int i = 0; i < frameBorderCount - 1; i ++)
+	   if (borders [i] >= borders [i + 1]) {
+	      m_form -> set_faadSyncLabel (false);
+              return;
+           }
+
 //
 //	We do not look at the USAC crc at the end of the USAC frame
+
 	uint32_t directoryOffset = length - 2 * frameBorderCount - 2;
+	if (borders [frameBorderCount - 1] >= directoryOffset) {
+	   m_form -> set_faadSyncLabel (false);
+	   return;
+        }
+
 //	The first frameBorderIndex might point to the last one or
 //	two bytes of the previous afs.
 	switch (borders [0]) {
@@ -158,6 +169,7 @@ uint32_t elementsUsed		= 0;
 	      if (frameBuffer. size () < 2) {
 	         return;
 	      }
+
 //	if the "frameBuffer" contains more than 2 bytes, there was
 //	a non-empty last part in the previous afs
 	      if (frameBuffer. size () > 2)
@@ -190,7 +202,8 @@ uint32_t elementsUsed		= 0;
 	      if (!check_crc_bytes (frameBuffer. data (),
                                       frameBuffer. size () - 2))
 	         m_form -> set_faadSyncLabel (false);
-	      playOut (frameBuffer, frameBuffer. size (), 0);
+	      else
+	         playOut (frameBuffer, frameBuffer. size (), 0);
 	      break;
 	}
 
@@ -202,8 +215,10 @@ uint32_t elementsUsed		= 0;
 	   if (!check_crc_bytes (frameBuffer. data (),
 	                              frameBuffer. size () - 2))
 	      m_form -> set_faadSyncLabel (false);
-	   playOut (frameBuffer, frameBuffer. size (), i);
+	   else
+	      playOut (frameBuffer, frameBuffer. size (), i);
 	}
+
 //	at the end, save for the next afs
 	frameBuffer. resize (0);
 	for (; elementsUsed < directoryOffset; elementsUsed ++)
@@ -252,12 +267,14 @@ void	xheaacProcessor::writeOut (int16_t *buffer, int16_t cnt,
 	                                             int32_t pcmRate) {
 	if (theConverter == nullptr) {
 	   theConverter = new upConverter (pcmRate, 48000, pcmRate / 10);
+	   m_form -> set_audioRate (pcmRate);
 	   currentRate	= pcmRate;
 	}
 
 	if (pcmRate != currentRate) {
 	   delete theConverter;
 	   theConverter = new upConverter (pcmRate, 48000, pcmRate / 10);
+	   m_form -> set_audioRate (pcmRate);
 	   currentRate = pcmRate;
 	}
 #if 0
@@ -267,7 +284,7 @@ void	xheaacProcessor::writeOut (int16_t *buffer, int16_t cnt,
 
 //	m_form -> set_channel_2 (std::to_string (pcmRate) + " " + 
 //	                         std::to_string (cnt));
-	int bS	= theConverter -> getOutputSize ();
+	int bS	= theConverter -> getOutputSize () + 10;
 	std::complex<float>* local =
 		(std::complex<float> *)_alloca (bS * sizeof(std::complex<float>));
 	for (int i = 0; i < cnt; i ++) {
